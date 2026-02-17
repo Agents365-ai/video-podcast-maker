@@ -4,7 +4,7 @@
 
 Automated pipeline to create professional video podcasts from a topic. **Optimized for Bilibili (B站)**. Combines research, script generation, Microsoft Azure TTS, Remotion video rendering, and FFmpeg audio mixing.
 
-> **No experience required!** Just tell Claude your topic - the skill guides you through each step interactively. You make decisions, Claude handles the technical details. Creating your first video podcast is easier than you think.
+> **No coding required!** Just describe your topic in plain language - Claude guides you through each step interactively. You make creative decisions, Claude handles all the technical details. Creating your first video podcast is easier than you think.
 
 ## Features
 
