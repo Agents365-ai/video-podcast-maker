@@ -50,6 +50,10 @@
     ↓
 添加字幕（可选）
     ↓
+验证输出（分辨率、时长、编码）
+    ↓
+清理临时文件（用户确认）
+    ↓
 输出最终 MP4
 ```
 
@@ -128,8 +132,9 @@ videos/{视频名称}/
 ├── timing.json              # 章节时间轴
 ├── thumbnail_*.png          # 视频封面
 ├── publish_info.md          # 标题、标签、简介
-├── output.mp4               # 原始渲染
-├── video_with_bgm.mp4       # 含背景音乐
+├── part_*.wav               # TTS 分段（临时，Step 14 清理）
+├── output.mp4               # 原始渲染（临时）
+├── video_with_bgm.mp4       # 含背景音乐（临时）
 └── final_video.mp4          # 最终输出
 ```
 

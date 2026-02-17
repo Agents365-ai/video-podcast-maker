@@ -50,6 +50,10 @@ Mix: video + audio + BGM
        ↓
 Add subtitles (optional)
        ↓
+Verify output (resolution, duration, encoding)
+       ↓
+Cleanup temp files (user confirmation)
+       ↓
 Output final MP4
 ```
 
@@ -111,7 +115,7 @@ Then reload: `source ~/.zshrc`
 | Document | Description |
 |----------|-------------|
 | [Quick Start](docs/QUICKSTART.md) | 5-minute guide to get started |
-| [SKILL.md](SKILL.md) | Complete 12-step workflow |
+| [SKILL.md](SKILL.md) | Complete 14-step workflow |
 | [Components](docs/COMPONENTS.md) | Remotion component reference |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Error diagnosis and fixes |
 | [Visual Styles](docs/VISUAL_STYLES.md) | Style configurations |
@@ -141,8 +145,9 @@ videos/{video-name}/
 ├── timing.json              # Section timing for sync
 ├── thumbnail_*.png          # Video thumbnails
 ├── publish_info.md          # Title, tags, description
-├── output.mp4               # Raw render
-├── video_with_bgm.mp4       # With background music
+├── part_*.wav               # TTS segments (temp, cleanup via Step 14)
+├── output.mp4               # Raw render (temp)
+├── video_with_bgm.mp4       # With BGM (temp)
 └── final_video.mp4          # Final output
 ```
 
