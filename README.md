@@ -20,7 +20,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 - **Script Structure** - Welcome intro + call-to-action outro (一键三连)
 - **Chapter Timestamps** - Auto-generated `MM:SS` format for B站 chapters
-- **Thumbnail Specs** - 16:9 and 4:3 versions for player and feed
+- **Thumbnail Generation** - AI (imagen/imagenty) or Remotion, auto-generates 16:9 + 4:3 versions
 - **Visual Style** - Bold text, minimal whitespace, high information density
 - **Publish Info** - Title formulas, tag strategies, description templates
 
