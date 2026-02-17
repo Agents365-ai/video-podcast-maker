@@ -1,0 +1,183 @@
+# 视频播客生成器
+
+[English](README.md)
+
+自动化流程，从主题生成专业视频播客。**针对 B站 (Bilibili) 优化**。集成研究、脚本撰写、微软 Azure TTS、Remotion 视频渲染和 FFmpeg 音频混音。
+
+## 功能特点
+
+- **主题研究** - 网络搜索与内容收集
+- **脚本撰写** - 带章节标记的结构化旁白
+- **Azure TTS** - 高质量中英文语音合成
+- **Remotion 视频** - 基于 React 的视频合成与动画
+- **自动同步** - 通过 `timing.json` 实现音视频同步
+- **背景音乐** - FFmpeg 叠加背景音乐
+- **字幕烧录** - 可选 SRT 字幕嵌入
+- **4K 输出** - 3840x2160 分辨率，画质清晰
+
+### B站优化
+
+- **脚本结构** - 欢迎开场 + 一键三连片尾引导
+- **章节时间戳** - 自动生成 `MM:SS` 格式，直接复制到B站
+- **封面规格** - 16:9 (播放器) + 4:3 (信息流) 双版本
+- **视觉风格** - 大字饱满、极少留白、信息密度高
+- **发布信息** - 标题公式、标签策略、简介模板
+
+## 工作流程
+
+```
+用户提供主题
+    ↓
+确定主题方向（头脑风暴）
+    ↓
+研究与收集素材
+    ↓
+设计视频章节
+    ↓
+撰写旁白脚本
+    ↓
+生成发布信息（标题/标签/简介）
+    ↓
+生成视频封面
+    ↓
+生成 TTS 音频（Azure）
+    ↓
+创建 Remotion 合成
+    ↓
+渲染视频帧
+    ↓
+混合：视频 + 音频 + BGM
+    ↓
+添加字幕（可选）
+    ↓
+输出最终 MP4
+```
+
+## 环境要求
+
+### 系统要求
+
+| 软件 | 版本 | 用途 |
+|------|------|------|
+| **macOS / Linux** | - | 已在 macOS 测试，兼容 Linux |
+| **Python** | 3.8+ | TTS 脚本、自动化 |
+| **Node.js** | 18+ | Remotion 视频渲染 |
+| **FFmpeg** | 4.0+ | 音视频处理 |
+
+### 安装依赖
+
+```bash
+# macOS
+brew install ffmpeg node python3
+
+# Ubuntu/Debian
+sudo apt install ffmpeg nodejs python3 python3-pip
+
+# Python 依赖
+pip install azure-cognitiveservices-speech requests
+
+# Node.js 依赖（在项目目录下运行）
+npm install remotion @remotion/cli @remotion/player
+```
+
+### 所需 API 密钥
+
+| 服务 | 用途 | 获取方式 |
+|------|------|---------|
+| **Azure Speech** | TTS 语音合成（必需） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
+| **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
+| **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
+
+### 环境变量
+
+添加到 `~/.zshrc` 或 `~/.bashrc`：
+
+```bash
+# Azure TTS（必需）
+export AZURE_SPEECH_KEY="your-azure-speech-key"
+export AZURE_SPEECH_REGION="eastasia"
+
+# 可选：Google Gemini 生成 AI 封面
+export GEMINI_API_KEY="your-gemini-api-key"
+
+# 可选：阿里云百炼生成 AI 封面（中文优化）
+export DASHSCOPE_API_KEY="your-dashscope-api-key"
+```
+
+然后重新加载：`source ~/.zshrc`
+
+## 快速开始
+
+### 使用方法
+
+本技能专为 [Claude Code](https://claude.ai/claude-code) 或 [Opencode](https://github.com/opencode-ai/opencode) 设计。只需告诉 Claude：
+
+> "帮我制作一个关于 [你的主题] 的视频播客"
+
+Claude 会自动引导你完成整个流程。
+
+## 输出结构
+
+```
+videos/{视频名称}/
+├── topic_definition.md      # 主题定义
+├── topic_research.md        # 研究笔记
+├── podcast.txt              # 旁白脚本
+├── podcast_audio.wav        # TTS 音频
+├── podcast_audio.srt        # 字幕文件
+├── timing.json              # 章节时间轴
+├── thumbnail_*.png          # 视频封面
+├── publish_info.md          # 标题、标签、简介
+├── output.mp4               # 原始渲染
+├── video_with_bgm.mp4       # 含背景音乐
+└── final_video.mp4          # 最终输出
+```
+
+## 设计原则
+
+**"宁可撑爆，不可留白"** - 文字和 UI 应最大化利用屏幕空间，营造强烈视觉冲击。
+
+| 元素 | 尺寸 | 说明 |
+|------|------|------|
+| 内容宽度 | ≥85% 屏幕 | 不要缩在中间 |
+| 页面边距 | 30-50px | 极窄边距 |
+| 主标题 | 80-100px | 粗体醒目 |
+| 副标题 | 48-64px | 清晰可见 |
+| 数据数字 | 64-140px | 数据即主角 |
+| 卡片宽度 | 900-1100px (1080p) | 撑满空间 |
+
+## 背景音乐
+
+`music/` 目录下包含：
+- `perfect-beauty-191271.mp3` - 轻快积极
+- `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
+
+## 开源协议
+
+MIT
+
+## 支持作者
+
+如果这个项目对你有帮助，欢迎支持作者：
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="images/wechat-pay.png" width="180" alt="微信支付">
+      <br>
+      <b>微信支付</b>
+    </td>
+    <td align="center">
+      <img src="images/alipay.png" width="180" alt="支付宝">
+      <br>
+      <b>支付宝</b>
+    </td>
+  </tr>
+</table>
+
+## 作者
+
+**探索未至之境**
+
+- B站: https://space.bilibili.com/441831884
+- GitHub: https://github.com/niehu2018
