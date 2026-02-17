@@ -232,6 +232,8 @@ rm -rf public/media/{name}
 | **10. Add BGM** | FFmpeg | `video_with_bgm.mp4` |
 | **11. Subtitles** | FFmpeg + SRT | `final_video.mp4` |
 | **12. Publish Info (Part 2)** | Claude | Update chapters |
+| **13. Verify** | Claude | Verification report |
+| **14. Cleanup** | Claude | Remove temp files |
 
 ### Validation Checkpoints
 
@@ -505,7 +507,7 @@ const ChapterProgressBar = () => {
             <span style={{
               position: 'relative', zIndex: 1,
               color: isActive ? '#fff' : isPast ? '#374151' : '#9ca3af',
-              fontSize: 32, fontWeight: isActive ? 700 : 500,
+              fontSize: 48, fontWeight: isActive ? 700 : 500,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               padding: '0 20px',
             }}>{ch.label}</span>
@@ -606,6 +608,112 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ---
 
+## Step 13: Verify Output
+
+视频完成后，执行以下验证：
+
+### 13.1 文件存在性检查
+
+```bash
+VIDEO_DIR="videos/{name}"
+echo "=== 文件检查 ==="
+for f in podcast.txt podcast_audio.wav podcast_audio.srt timing.json output.mp4 final_video.mp4; do
+  [ -f "$VIDEO_DIR/$f" ] && echo "✓ $f" || echo "✗ $f 缺失"
+done
+```
+
+### 13.2 技术指标验证
+
+```bash
+echo "=== 技术指标 ==="
+# 分辨率
+RES=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$VIDEO_DIR/final_video.mp4")
+[ "$RES" = "3840,2160" ] && echo "✓ 分辨率: 3840x2160 (4K)" || echo "✗ 分辨率: $RES (非4K)"
+
+# 时长
+DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "$VIDEO_DIR/final_video.mp4" | cut -d. -f1)
+echo "✓ 时长: ${DUR}s"
+
+# 编码
+CODEC=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$VIDEO_DIR/final_video.mp4")
+echo "✓ 视频编码: $CODEC"
+
+# 文件大小
+SIZE=$(ls -lh "$VIDEO_DIR/final_video.mp4" | awk '{print $5}')
+echo "✓ 文件大小: $SIZE"
+```
+
+### 13.3 验证报告模板
+
+完成验证后，向用户报告：
+
+```
+=== 验证完成 ===
+✓ 文件完整性: 6/6
+✓ 分辨率: 3840x2160
+✓ 时长: XXs
+✓ 编码: h264
+✓ 大小: XXX MB
+
+是否需要清理临时文件？(Step 14)
+```
+
+---
+
+## Step 14: Cleanup (可选)
+
+> **重要**: 此步骤需要用户确认后执行。
+
+### 14.1 列出临时文件
+
+执行前，先向用户展示将被删除的文件：
+
+```bash
+VIDEO_DIR="videos/{name}"
+echo "=== 将删除的临时文件 ==="
+ls -lh "$VIDEO_DIR"/part_*.wav 2>/dev/null | awk '{print $9, "(" $5 ")"}'
+ls -lh "$VIDEO_DIR"/concat_list.txt 2>/dev/null | awk '{print $9, "(" $5 ")"}'
+ls -lh "$VIDEO_DIR"/output.mp4 2>/dev/null | awk '{print $9, "(" $5 ")"}'
+ls -lh "$VIDEO_DIR"/video_with_bgm.mp4 2>/dev/null | awk '{print $9, "(" $5 ")"}'
+echo ""
+echo "=== 将保留的文件 ==="
+ls -lh "$VIDEO_DIR"/final_video.mp4 "$VIDEO_DIR"/podcast_audio.wav "$VIDEO_DIR"/podcast_audio.srt "$VIDEO_DIR"/timing.json "$VIDEO_DIR"/podcast.txt 2>/dev/null | awk '{print $9, "(" $5 ")"}'
+```
+
+### 14.2 用户确认
+
+**询问用户**:
+> 以上临时文件将被删除，保留最终成品和源文件。是否继续？
+
+### 14.3 执行清理
+
+用户确认后执行：
+
+```bash
+VIDEO_DIR="videos/{name}"
+rm -f "$VIDEO_DIR"/part_*.wav
+rm -f "$VIDEO_DIR"/concat_list.txt
+rm -f "$VIDEO_DIR"/output.mp4
+rm -f "$VIDEO_DIR"/video_with_bgm.mp4
+echo "✓ 临时文件已清理"
+```
+
+### 14.4 清理后文件结构
+
+```
+videos/{name}/
+├── final_video.mp4      # 最终成品
+├── podcast.txt          # 原始脚本
+├── podcast_audio.wav    # 音频
+├── podcast_audio.srt    # 字幕
+├── timing.json          # 时间轴
+├── topic_research.md    # 研究资料
+├── publish_info.md      # 发布信息
+└── thumbnail_*.png      # 封面图
+```
+
+---
+
 ## Background Music Options
 
 Available at `~/.claude/skills/video-podcast-maker/music/`:
@@ -620,6 +728,7 @@ Available at `~/.claude/skills/video-podcast-maker/music/`:
 |---------|-----|
 | Numbers in Arabic digits | Write in Chinese: "3999" → "三千九百九十九" |
 | Running `npx remotion studio` | **NEVER** — use `npx remotion render` |
+| Output in `out/` instead of `videos/{name}/` | Must specify full path: `npx remotion render ... videos/{name}/output.mp4` |
 | Audio/video timing mismatch | Use `timing.json`, don't hardcode |
 | Section not syncing | `[SECTION:name]` must match component names |
 | TTS chunks too long | Keep MAX_CHARS=400 |

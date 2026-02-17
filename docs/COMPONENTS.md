@@ -974,7 +974,7 @@ const ChapterProgressBar = () => {
             <span style={{
               position: 'relative', zIndex: 1,
               color: isActive ? '#fff' : isPast ? '#374151' : '#9ca3af',
-              fontSize: 32, fontWeight: isActive ? 700 : 500,
+              fontSize: 48, fontWeight: isActive ? 700 : 500,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               padding: '0 20px',
             }}>{ch.label}</span>

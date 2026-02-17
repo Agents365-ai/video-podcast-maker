@@ -296,10 +296,9 @@ with open(concat_list, "w") as f:
         f.write(f"file '{os.path.basename(pf)}'\n")
 
 subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list, "-c", "copy", output_wav], capture_output=True, cwd=args.output_dir)
-os.remove(concat_list)
-for pf in part_files:
-    os.remove(pf)
+# Keep part_*.wav and concat_list.txt for debugging - cleanup via Step 14
 print(f"✓ 完成: {output_wav}")
+print(f"  临时文件保留: {len(part_files)} 个 part_*.wav (手动清理: Step 14)")
 
 # 生成 SRT 字幕
 print("\n生成字幕...")
