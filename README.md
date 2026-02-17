@@ -14,6 +14,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **BGM Mixing** - Background music overlay with FFmpeg
 - **Subtitle Burning** - Optional SRT subtitle embedding
 - **4K Output** - 3840x2160 resolution for crisp uploads
+- **Chapter Progress Bar** - Visual timeline showing current section during playback
 
 ### Bilibili Optimizations
 
