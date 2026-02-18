@@ -476,7 +476,7 @@ const ChapterProgressBar = () => {
 
   return (
     <div style={{
-      position: 'absolute', bottom: 0, left: 0, right: 0, height: 110,
+      position: 'absolute', bottom: 0, left: 0, right: 0, height: 130,
       background: '#fff', borderTop: '1px solid #e5e7eb',
       display: 'flex', alignItems: 'center', padding: '0 50px', gap: 16,
       fontFamily: font,
@@ -491,7 +491,7 @@ const ChapterProgressBar = () => {
         return (
           <div key={ch.name} style={{
             flex: ch.duration_frames,
-            height: 64, borderRadius: 32, position: 'relative', overflow: 'hidden',
+            height: 80, borderRadius: 40, position: 'relative', overflow: 'hidden',
             background: isActive ? '#4f6ef7' : isPast ? '#f3f4f6' : '#f9fafb',
             border: isActive ? 'none' : '1px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -501,13 +501,13 @@ const ChapterProgressBar = () => {
                 position: 'absolute', left: 0, top: 0, bottom: 0,
                 width: `${chProgress * 100}%`,
                 background: 'rgba(255,255,255,0.25)',
-                borderRadius: 32,
+                borderRadius: 40,
               }} />
             )}
             <span style={{
               position: 'relative', zIndex: 1,
               color: isActive ? '#fff' : isPast ? '#374151' : '#9ca3af',
-              fontSize: 48, fontWeight: isActive ? 700 : 500,
+              fontSize: 60, fontWeight: isActive ? 700 : 500,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               padding: '0 20px',
             }}>{ch.label}</span>
