@@ -29,37 +29,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 ## Workflow
 
-```
-User provides topic
-       ↓
-Define topic direction (brainstorm)
-       ↓
-Research & collect materials
-       ↓
-Design video sections
-       ↓
-Write narration script
-       ↓
-Generate publish info (title/tags/summary)
-       ↓
-Generate video thumbnail
-       ↓
-Generate TTS audio (Azure)
-       ↓
-Create Remotion composition
-       ↓
-Render video frames
-       ↓
-Mix: video + audio + BGM
-       ↓
-Add subtitles (optional)
-       ↓
-Verify output (resolution, duration, encoding)
-       ↓
-Cleanup temp files (user confirmation)
-       ↓
-Output final MP4
-```
+![Workflow](images/workflow.png)
 
 ## Requirements
 
