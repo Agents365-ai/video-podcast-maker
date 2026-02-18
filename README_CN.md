@@ -94,6 +94,20 @@ export DASHSCOPE_API_KEY="your-dashscope-api-key"
 
 Claude 会自动引导你完成整个流程。
 
+### 使用 Remotion Studio 预览
+
+在渲染最终视频前，使用 Remotion Studio 实时预览和调试：
+
+```bash
+npx remotion studio src/remotion/index.ts
+```
+
+这会打开一个浏览器编辑器，你可以：
+- 逐帧拖动时间轴查看效果
+- 编辑组件时实时看到更新
+- 即时调试时间和动画
+- 避免为小修改进行耗时的完整渲染
+
 ## 输出结构
 
 ```

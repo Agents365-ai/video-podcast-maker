@@ -107,6 +107,20 @@ Claude will guide you through the entire workflow automatically.
 
 For manual setup or customization, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
+### Preview with Remotion Studio
+
+Before rendering the final video, use Remotion Studio to preview and debug in real-time:
+
+```bash
+npx remotion studio src/remotion/index.ts
+```
+
+This opens a browser-based editor where you can:
+- Scrub through the timeline frame-by-frame
+- See live updates as you edit components
+- Debug timing and animations instantly
+- Avoid costly full renders for small tweaks
+
 ## Output Structure
 
 ```
