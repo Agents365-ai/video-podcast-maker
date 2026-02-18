@@ -12,6 +12,7 @@
 - **脚本撰写** - 带章节标记的结构化旁白
 - **Azure TTS** - 高质量中英文语音合成
 - **Remotion 视频** - 基于 React 的视频合成与动画
+- **实时预览** - Remotion Studio 即时调试，渲染前预览效果
 - **自动同步** - 通过 `timing.json` 实现音视频同步
 - **背景音乐** - FFmpeg 叠加背景音乐
 - **字幕烧录** - 可选 SRT 字幕嵌入
@@ -185,7 +186,7 @@ MIT
 
 ## 作者
 
-**探索未至之境**
+**Agents365-ai**
 
 - B站: https://space.bilibili.com/441831884
-- GitHub: https://github.com/niehu2018
+- GitHub: https://github.com/Agents365-ai

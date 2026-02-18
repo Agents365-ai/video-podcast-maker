@@ -540,9 +540,43 @@ export const MyVideo = () => (
 
 ---
 
+## Step 8.5: Preview & Debug (Optional)
+
+Use Remotion Studio for real-time preview before final render:
+
+```bash
+# Start Remotion Studio (opens browser)
+npx remotion studio src/remotion/index.ts
+```
+
+**Studio features:**
+- Real-time preview with timeline scrubbing
+- Hot reload on code changes
+- Visual debugging of animations and layout
+
+**Alternative: Quick preview render**
+```bash
+# 720p preview (~4x faster than 4K)
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28
+
+# Preview first 10 seconds only
+npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --frames 0-300 --scale 0.5
+
+# Static frame screenshots
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/frame_0.png --frame 0
+npx remotion still src/remotion/index.ts CompositionId videos/{name}/frame_300.png --frame 300
+```
+
+**Recommended workflow:**
+1. Use `remotion studio` for iterative development
+2. Quick preview render to check full flow
+3. Final 4K render when satisfied
+
+---
+
 ## Step 9: Render Video
 
-> **NEVER run `npx remotion studio`** — Always render directly.
+> Use `npx remotion studio` for preview, then render directly for final output.
 
 ```bash
 npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M
@@ -727,7 +761,7 @@ Available at `~/.claude/skills/video-podcast-maker/music/`:
 | Mistake | Fix |
 |---------|-----|
 | Numbers in Arabic digits | Write in Chinese: "3999" → "三千九百九十九" |
-| Running `npx remotion studio` | **NEVER** — use `npx remotion render` |
+| Skipping preview | Use `npx remotion studio` for debugging before final render |
 | Output in `out/` instead of `videos/{name}/` | Must specify full path: `npx remotion render ... videos/{name}/output.mp4` |
 | Audio/video timing mismatch | Use `timing.json`, don't hardcode |
 | Section not syncing | `[SECTION:name]` must match component names |

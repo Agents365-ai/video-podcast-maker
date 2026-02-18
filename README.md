@@ -12,6 +12,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Script Writing** - Structured narration with section markers
 - **Azure TTS** - High-quality Chinese/English text-to-speech
 - **Remotion Video** - React-based video composition with animations
+- **Real-time Preview** - Remotion Studio for instant debugging before render
 - **Auto Timing** - Audio-video sync via `timing.json`
 - **BGM Mixing** - Background music overlay with FFmpeg
 - **Subtitle Burning** - Optional SRT subtitle embedding
@@ -213,7 +214,7 @@ If this project helps you, consider supporting the author:
 
 ## Author
 
-**探索未至之境**
+**Agents365-ai**
 
 - Bilibili: https://space.bilibili.com/441831884
-- GitHub: https://github.com/niehu2018
+- GitHub: https://github.com/Agents365-ai
