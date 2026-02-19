@@ -12,6 +12,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Script Writing** - Structured narration with section markers
 - **Azure TTS** - High-quality Chinese/English text-to-speech
 - **Remotion Video** - React-based video composition with animations
+- **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
 - **Auto Timing** - Audio-video sync via `timing.json`
 - **BGM Mixing** - Background music overlay with FFmpeg
@@ -131,7 +132,24 @@ This opens a browser-based editor where you can:
 | **Audio** | BGM volume (0-0.3) |
 | **Animation** | Enable/disable entrance animations |
 
-![Remotion Studio Props Panel](images/remotion-studio-props.png)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Remotion Studio                                                │
+├──────────────────────────────────┬──────────────────────────────┤
+│                                  │  Props Panel                 │
+│                                  │  ─────────────────────────── │
+│     Video Preview                │  primaryColor    [#4f6ef7]   │
+│     (Real-time)                  │  backgroundColor [#ffffff]   │
+│                                  │  titleSize       [====80===] │
+│     ┌─────────────────────┐      │  showProgressBar [✓]         │
+│     │   Your Video Here   │      │  progressBarHeight [==130==] │
+│     │                     │      │  bgmVolume       [=0.05====] │
+│     └─────────────────────┘      │  enableAnimations [✓]        │
+│                                  │                              │
+│  ◀──────────●──────────────▶     │  [Render Video]              │
+│  Timeline                        │                              │
+└──────────────────────────────────┴──────────────────────────────┘
+```
 
 ## Output Structure
 
