@@ -55,7 +55,7 @@ sudo apt install ffmpeg nodejs python3 python3-pip
 pip install azure-cognitiveservices-speech requests
 
 # Node.js 依赖（在项目目录下运行）
-npm install remotion @remotion/cli @remotion/player
+npm install remotion @remotion/cli @remotion/player zod
 ```
 
 ### 所需 API 密钥
@@ -94,19 +94,31 @@ export DASHSCOPE_API_KEY="your-dashscope-api-key"
 
 Claude 会自动引导你完成整个流程。
 
-### 使用 Remotion Studio 预览
+### 预览与可视化编辑
 
-在渲染最终视频前，使用 Remotion Studio 实时预览和调试：
+在渲染最终视频前，使用 Remotion Studio 实时预览和可视化编辑样式：
 
 ```bash
 npx remotion studio src/remotion/index.ts
 ```
 
 这会打开一个浏览器编辑器，你可以：
+- **可视化样式编辑** - 在右侧面板调整颜色、字体、尺寸
 - 逐帧拖动时间轴查看效果
 - 编辑组件时实时看到更新
 - 即时调试时间和动画
-- 避免为小修改进行耗时的完整渲染
+
+#### 可编辑属性
+
+| 分类 | 属性 |
+|------|------|
+| **颜色** | 主色调、背景色、文字颜色、强调色 |
+| **字体** | 标题大小 (60-120)、副标题、正文 |
+| **进度条** | 显示/隐藏、高度、字号、激活颜色 |
+| **音频** | BGM 音量 (0-0.3) |
+| **动画** | 启用/禁用入场动画 |
+
+![Remotion Studio 属性面板](images/remotion-studio-props.png)
 
 ## 输出结构
 

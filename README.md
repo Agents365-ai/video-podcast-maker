@@ -55,7 +55,7 @@ sudo apt install ffmpeg nodejs python3 python3-pip
 pip install azure-cognitiveservices-speech requests
 
 # Node.js dependencies (run in project directory)
-npm install remotion @remotion/cli @remotion/player
+npm install remotion @remotion/cli @remotion/player zod
 ```
 
 ### API Keys Required
@@ -107,19 +107,31 @@ Claude will guide you through the entire workflow automatically.
 
 For manual setup or customization, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
-### Preview with Remotion Studio
+### Preview & Visual Editing with Remotion Studio
 
-Before rendering the final video, use Remotion Studio to preview and debug in real-time:
+Before rendering the final video, use Remotion Studio to preview and visually edit styles:
 
 ```bash
 npx remotion studio src/remotion/index.ts
 ```
 
 This opens a browser-based editor where you can:
+- **Visual Style Editing** - Adjust colors, fonts, and sizes in the right panel
 - Scrub through the timeline frame-by-frame
 - See live updates as you edit components
 - Debug timing and animations instantly
-- Avoid costly full renders for small tweaks
+
+#### Editable Properties
+
+| Category | Properties |
+|----------|-----------|
+| **Colors** | Primary color, background, text color, accent |
+| **Typography** | Title size (60-120), subtitle size, body size |
+| **Progress Bar** | Show/hide, height, font size, active color |
+| **Audio** | BGM volume (0-0.3) |
+| **Animation** | Enable/disable entrance animations |
+
+![Remotion Studio Props Panel](images/remotion-studio-props.png)
 
 ## Output Structure
 
