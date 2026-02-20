@@ -12,7 +12,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Script Writing** - Structured narration with section markers
 - **Azure TTS** - High-quality Chinese/English text-to-speech
 - **Remotion Video** - React-based video composition with animations
-- **Design System** - Powered by [remotion-design-master](../remotion-design-master/) for professional layouts and components
+- **Design System** - Powered by [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) for professional layouts and components
 - **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
 - **Auto Timing** - Audio-video sync via `timing.json`
@@ -31,7 +31,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 ### Design System: remotion-design-master
 
-This skill utilizes **[remotion-design-master](../remotion-design-master/)** for all Remotion components and visual design:
+This skill utilizes **[remotion-design-master](https://github.com/Agents365-ai/remotion-design-master)** for all Remotion components and visual design:
 
 ```bash
 # Install design components
@@ -47,7 +47,7 @@ cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 - **Design Tokens** - Centralized colors, typography, spacing
 - **Hard Constraints** - Non-negotiable rules for professional output
 
-See [remotion-design-master SKILL.md](../remotion-design-master/SKILL.md) for full component documentation.
+See [remotion-design-master SKILL.md](https://github.com/Agents365-ai/remotion-design-master/blob/main/SKILL.md) for full component documentation.
 
 ## Workflow
 
@@ -112,7 +112,7 @@ Then reload: `source ~/.zshrc`
 |----------|-------------|
 | [Quick Start](docs/QUICKSTART.md) | 5-minute guide to get started |
 | [SKILL.md](SKILL.md) | Complete 14-step workflow |
-| [remotion-design-master](../remotion-design-master/) | Design system, components, hard constraints |
+| [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) | Design system, components, hard constraints |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Error diagnosis and fixes |
 | [Media Assets](docs/MEDIA_ASSETS.md) | Asset sources and naming |
 
@@ -191,7 +191,7 @@ videos/{video-name}/
 
 ## Design Principles
 
-> **Note:** Design principles and components are now centralized in [remotion-design-master](../remotion-design-master/). See that skill for the complete design system.
+> **Note:** Design principles and components are now centralized in [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master). See that skill for the complete design system.
 
 **"Fill the screen, no empty space"** - Text and UI should maximize screen usage for visual impact.
 
