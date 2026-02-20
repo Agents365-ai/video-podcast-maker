@@ -3,7 +3,7 @@ name: video-podcast-maker
 description: Use when user provides a topic and wants an automated video podcast created - handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music
 author: 探索未至之境
 created: 2025-01-27
-updated: 2026-02-14
+updated: 2026-02-20
 bilibili: https://space.bilibili.com/441831884
 ---
 
@@ -14,8 +14,6 @@ bilibili: https://space.bilibili.com/441831884
 > **5分钟上手？** 查看 [docs/QUICKSTART.md](docs/QUICKSTART.md)
 >
 > **遇到问题？** 查看 [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
->
-> **组件参考？** 查看 [docs/COMPONENTS.md](docs/COMPONENTS.md)
 
 打开 Claude Code，直接说：**"帮我制作一个关于 [你的主题] 的 B站视频播客"**
 
@@ -53,110 +51,23 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 ---
 
-## 核心设计原则
+## Design System
 
-> **"宁可撑爆，不可留白"** — 文字和UI必须占满屏幕，最大化视觉冲击力。
-
-| 规则 | 数值 | 说明 |
-|------|------|------|
-| **内容宽度** | ≥85% 屏幕 | 不要缩在中间 |
-| **页面边距** | 30-50px | 极窄，内容贴边 |
-| **主标题** | 80-100px | 超大粗体 |
-| **副标题** | 48-64px | 醒目清晰 |
-| **数据数字** | 64-140px | 数据即主角 |
-| **元素间距** | 24-40px | 紧凑排列 |
-
----
-
-## 硬约束规则（验收标准）
-
-> **布局约束是单元测试，不满足即重写。**
-
-### 必须满足
-
-| ID | 约束 | 检查方法 |
-|----|------|----------|
-| **L1** | 根容器 `position: absolute; inset: 0` | 检查最外层 style |
-| **L2** | 根容器 `overflow: hidden; padding: 0; margin: 0` | 检查最外层 style |
-| **L3** | 媒体 `width: 100%; height: 100%` | 检查所有 Img/Video |
-| **L4** | 默认 `objectFit: cover`，非 16:9 用双层结构 | 检查媒体组件 |
-| **L5** | 内容区宽度 ≥85% 屏幕 | 检查 maxWidth |
-| **L6** | 主标题 ≥80px，副标题 ≥48px | 检查 fontSize |
-| **L7** | 页面边距 ≤50px | 检查 padding |
-| **L8** | 底部留 80-100px 给字幕 | 检查 paddingBottom |
-
-### 禁止的写法
-
-```tsx
-// ❌ 禁止：会导致缩小居中
-style={{ margin: 'auto' }}
-style={{ justifyContent: 'center', alignItems: 'center' }}  // 对根容器
-style={{ maxWidth: 600 }}  // 太小
-style={{ objectFit: 'contain' }}  // 除非用双层结构
-
-// ✅ 正确：使用预制组件
-<FullBleed>
-  <ContentArea>
-    <CoverMedia src={...} />
-  </ContentArea>
-</FullBleed>
-```
-
-### 自检清单
-
-生成 Remotion 组件后必须确认：
-1. [ ] 根容器使用 `<FullBleed>` 或 `position: absolute; inset: 0`
-2. [ ] 所有 Img/Video 为 `width: 100%; height: 100%`
-3. [ ] 无 `margin: auto` 或 `placeItems: center`
-4. [ ] 主标题 ≥80px
-5. [ ] 页面 padding ≤50px
-6. [ ] 非 16:9 素材使用 `<DualLayerMedia>`
-
-**任一项不满足，必须重写。**
-
----
-
-## FullBleed 布局系统
-
-> **用预制组件代替自由布局。** 详见 [docs/COMPONENTS.md](docs/COMPONENTS.md)
-
-### 安装
+**使用 `remotion-design-master` skill 提供的设计系统。**
 
 ```bash
-cp ~/.claude/skills/video-podcast-maker/FullBleedLayout.tsx src/remotion/
+# 安装设计组件
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 ```
 
-### 核心组件
+设计系统包含：
+- **布局组件**: FullBleed, ContentArea, CoverMedia, DualLayerMedia
+- **动画组件**: FadeIn, SpringPop, SlideIn, Typewriter
+- **数据展示**: DataDisplay, AnimatedCounter, ProgressBar
+- **导航组件**: ChapterProgressBar, SectionIndicator
+- **主题**: minimalWhite (默认), darkTech, gradientVibrant
 
-| 组件 | 用途 | 硬约束 |
-|------|------|--------|
-| `<FullBleed>` | 章节根容器 | `position: absolute; inset: 0; overflow: hidden` |
-| `<ContentArea>` | 内容区域 | 宽度 85%-95%，底部留白 |
-| `<CoverMedia>` | 图片/视频 | `width/height: 100%; objectFit: cover` |
-| `<DualLayerMedia>` | 非 16:9 素材 | 模糊背景层 + 清晰前景层 |
-| `<KenBurnsMedia>` | 带缩放的媒体 | cover + 缩放动效 |
-
-### 基本用法
-
-```tsx
-import {
-  FullBleed, ContentArea, CoverMedia, DualLayerMedia,
-  FadeIn, SpringPop, Title, DataDisplay, tokens, font
-} from './FullBleedLayout'
-
-const HeroSection = () => (
-  <FullBleed background={tokens.colors.bg}>
-    <ContentArea>
-      <FadeIn>
-        <Title size="hero">主标题</Title>
-      </FadeIn>
-      <FadeIn delay={15}>
-        <Title size="medium" color={tokens.colors.textMuted}>副标题</Title>
-      </FadeIn>
-    </ContentArea>
-  </FullBleed>
-)
-```
+**硬约束规则、组件文档、视觉风格** 详见 `remotion-design-master` skill。
 
 ---
 
@@ -421,6 +332,8 @@ cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 
 ```tsx
 import timingData from '../public/timing.json'
+import { FullBleed, ContentArea, FadeIn, Title } from './design'
+import { minimalWhite } from './design/themes'
 
 // 4K 分辨率 + scale(2) 容器
 <Composition
@@ -445,98 +358,7 @@ export const MyVideo = () => (
 )
 ```
 
-**视觉风格**: 见 [docs/VISUAL_STYLES.md](docs/VISUAL_STYLES.md)
-
-**组件参考**: 见 [docs/COMPONENTS.md](docs/COMPONENTS.md)
-
-### 章节进度条（可选）
-
-**询问用户是否需要底部章节进度条**，显示当前播放进度和章节名称。
-
-默认样式：白底简约风格
-- 圆角胶囊形状章节按钮
-- 当前章节蓝色高亮 + 内部进度填充
-- 已播章节浅灰色
-- 底部蓝色总进度条
-
-如果用户需要，添加 `<ChapterProgressBar />` 组件：
-
-```tsx
-// 章节数据（从 timing.json 生成，添加中文 label）
-const chapters = [
-  { name: "hero", label: "开场", start_frame: 0, duration_frames: 532 },
-  { name: "features", label: "功能介绍", start_frame: 532, duration_frames: 900 },
-  // ... 根据实际章节填写
-]
-const TOTAL_FRAMES = timingData.total_frames
-
-const ChapterProgressBar = () => {
-  const frame = useCurrentFrame()
-  const progress = frame / TOTAL_FRAMES
-
-  return (
-    <div style={{
-      position: 'absolute', bottom: 0, left: 0, right: 0, height: 130,
-      background: '#fff', borderTop: '1px solid #e5e7eb',
-      display: 'flex', alignItems: 'center', padding: '0 50px', gap: 16,
-      fontFamily: font,
-    }}>
-      {chapters.map((ch) => {
-        const chStart = ch.start_frame / TOTAL_FRAMES
-        const chEnd = (ch.start_frame + ch.duration_frames) / TOTAL_FRAMES
-        const isActive = progress >= chStart && progress < chEnd
-        const isPast = progress >= chEnd
-        const chProgress = isActive ? (progress - chStart) / (chEnd - chStart) : isPast ? 1 : 0
-
-        return (
-          <div key={ch.name} style={{
-            flex: ch.duration_frames,
-            height: 80, borderRadius: 40, position: 'relative', overflow: 'hidden',
-            background: isActive ? '#4f6ef7' : isPast ? '#f3f4f6' : '#f9fafb',
-            border: isActive ? 'none' : '1px solid #e5e7eb',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            {isActive && (
-              <div style={{
-                position: 'absolute', left: 0, top: 0, bottom: 0,
-                width: `${chProgress * 100}%`,
-                background: 'rgba(255,255,255,0.25)',
-                borderRadius: 40,
-              }} />
-            )}
-            <span style={{
-              position: 'relative', zIndex: 1,
-              color: isActive ? '#fff' : isPast ? '#374151' : '#9ca3af',
-              fontSize: 60, fontWeight: isActive ? 700 : 500,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              padding: '0 20px',
-            }}>{ch.label}</span>
-          </div>
-        )
-      })}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 4,
-        background: '#e5e7eb',
-      }}>
-        <div style={{ height: '100%', width: `${progress * 100}%`, background: '#4f6ef7' }} />
-      </div>
-    </div>
-  )
-}
-
-// 在主视频组件中添加
-export const MyVideo = () => (
-  <AbsoluteFill style={{ background: '#fff' }}>
-    <Audio src={staticFile('podcast_audio.wav')} />
-    <AbsoluteFill style={{ transform: 'scale(2)', transformOrigin: 'top left', width: '50%', height: '50%' }}>
-      {/* 章节内容 */}
-    </AbsoluteFill>
-    <ChapterProgressBar />  {/* 添加进度条 */}
-  </AbsoluteFill>
-)
-```
-
-详细组件文档见 [docs/COMPONENTS.md](docs/COMPONENTS.md#8-chapter-progress-bar)
+**章节进度条**: 使用 `remotion-design-master` 的 `<ChapterProgressBar />` 组件（可选）。
 
 ---
 
@@ -770,8 +592,6 @@ Available at `~/.claude/skills/video-podcast-maker/music/`:
 | Subtitle invisible on white | Use dark color `PrimaryColour=&H00333333` |
 | Video blurry | Use `--video-bitrate 16M` and `-crf 18 -preset slow` |
 | Not 4K | Composition 3840x2160, `scale(2)` wrapper |
-| Text too small | Title 80-100px, subtitle 48-64px |
-| Too much whitespace | Content ≥85% width, card 900-1100px |
 
 ---
 
@@ -822,6 +642,5 @@ pip install dashscope requests      # imagenty
 |-----|---------|
 | [QUICKSTART.md](docs/QUICKSTART.md) | 5分钟快速入门 |
 | [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | 故障排除指南 |
-| [COMPONENTS.md](docs/COMPONENTS.md) | Remotion 组件参考 |
-| [VISUAL_STYLES.md](docs/VISUAL_STYLES.md) | 视觉风格规范 |
 | [MEDIA_ASSETS.md](docs/MEDIA_ASSETS.md) | 素材来源推荐 |
+| **remotion-design-master** | 组件参考、视觉风格、硬约束规则 |

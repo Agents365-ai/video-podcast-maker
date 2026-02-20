@@ -223,6 +223,11 @@ If this project helps you, consider supporting the author:
       <br>
       <b>Alipay</b>
     </td>
+    <td align="center">
+      <img src="images/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
+      <br>
+      <b>Buy Me a Coffee</b>
+    </td>
   </tr>
 </table>
 
