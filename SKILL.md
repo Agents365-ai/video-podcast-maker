@@ -364,6 +364,8 @@ export const MyVideo = () => (
 
 ## Step 8.5: Preview & Debug (Optional)
 
+**Claude behavior:** Ask before skipping: "要先用 Remotion Studio 预览吗？可以在 4K 渲染前发现问题，节省时间。"
+
 Use Remotion Studio for real-time preview before final render:
 
 ```bash
@@ -430,7 +432,9 @@ ffmpeg -y \
 
 ## Step 11: Add Subtitles (可选)
 
-**询问用户是否需要字幕。** 如不需要：
+**Claude behavior:** Ask before skipping: "需要烧录字幕吗？字幕可以提高视频的可访问性。"
+
+如不需要字幕：
 ```bash
 cp videos/{name}/video_with_bgm.mp4 videos/{name}/final_video.mp4
 ```
@@ -518,7 +522,7 @@ echo "✓ 文件大小: $SIZE"
 
 ## Step 14: Cleanup (可选)
 
-> **重要**: 此步骤需要用户确认后执行。
+**Claude behavior:** Ask before skipping: "要清理临时文件吗？可以释放磁盘空间，但会删除中间产物。"
 
 ### 14.1 列出临时文件
 
