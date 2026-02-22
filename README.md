@@ -35,7 +35,10 @@ This skill utilizes **[remotion-design-master](https://github.com/Agents365-ai/r
 
 ```bash
 # Install design components
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+TEMP_DIR=$(mktemp -d)
+git clone --depth 1 https://github.com/Agents365-ai/remotion-design-master.git "$TEMP_DIR/rdm"
+cp -r "$TEMP_DIR/rdm/src/"* src/remotion/design/
+rm -rf "$TEMP_DIR"
 ```
 
 **What it provides:**
@@ -208,7 +211,10 @@ videos/{video-name}/
 
 ```bash
 # Install all design components
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+TEMP_DIR=$(mktemp -d)
+git clone --depth 1 https://github.com/Agents365-ai/remotion-design-master.git "$TEMP_DIR/rdm"
+cp -r "$TEMP_DIR/rdm/src/"* src/remotion/design/
+rm -rf "$TEMP_DIR"
 ```
 
 | Component | Purpose |

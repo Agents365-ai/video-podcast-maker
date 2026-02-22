@@ -57,7 +57,10 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 ```bash
 # 安装设计组件
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+TEMP_DIR=$(mktemp -d)
+git clone --depth 1 https://github.com/Agents365-ai/remotion-design-master.git "$TEMP_DIR/rdm"
+cp -r "$TEMP_DIR/rdm/src/"* src/remotion/design/
+rm -rf "$TEMP_DIR"
 ```
 
 设计系统包含：
