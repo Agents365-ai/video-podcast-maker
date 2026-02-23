@@ -30,7 +30,7 @@
 
 ## 工作流程
 
-![工作流程](images/workflow.png)
+![工作流程](docs/workflow.png)
 
 ## 环境要求
 

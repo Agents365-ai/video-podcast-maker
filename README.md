@@ -54,7 +54,7 @@ See [remotion-design-master SKILL.md](https://github.com/Agents365-ai/remotion-d
 
 ## Workflow
 
-![Workflow](images/workflow.png)
+![Workflow](docs/workflow.png)
 
 ## Requirements
 
