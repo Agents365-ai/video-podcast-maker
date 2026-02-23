@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Automated pipeline to create professional video podcasts from a topic",
   "scripts": {
+    "setup": "./scripts/setup-design.sh",
     "studio": "remotion studio src/remotion/index.ts",
     "render": "remotion render src/remotion/index.ts",
     "build": "remotion bundle src/remotion/index.ts"
