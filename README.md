@@ -245,17 +245,17 @@ If this project helps you, consider supporting the author:
 <table>
   <tr>
     <td align="center">
-      <img src="images/wechat-pay.png" width="180" alt="WeChat Pay">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/wechat-pay.png" width="180" alt="WeChat Pay">
       <br>
       <b>WeChat Pay</b>
     </td>
     <td align="center">
-      <img src="images/alipay.png" width="180" alt="Alipay">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/alipay.png" width="180" alt="Alipay">
       <br>
       <b>Alipay</b>
     </td>
     <td align="center">
-      <img src="images/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
       <br>
       <b>Buy Me a Coffee</b>
     </td>

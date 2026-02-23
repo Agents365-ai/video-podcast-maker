@@ -186,17 +186,17 @@ MIT
 <table>
   <tr>
     <td align="center">
-      <img src="images/wechat-pay.png" width="180" alt="微信支付">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/wechat-pay.png" width="180" alt="微信支付">
       <br>
       <b>微信支付</b>
     </td>
     <td align="center">
-      <img src="images/alipay.png" width="180" alt="支付宝">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/alipay.png" width="180" alt="支付宝">
       <br>
       <b>支付宝</b>
     </td>
     <td align="center">
-      <img src="images/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
+      <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/buymeacoffee.png" width="180" alt="Buy Me a Coffee">
       <br>
       <b>Buy Me a Coffee</b>
     </td>
