@@ -1,24 +1,18 @@
 # Design System
 
-This folder contains components from `remotion-design-master`.
+Components from [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master).
 
 ## Setup
 
-Run the setup script to copy the design system:
-
 ```bash
-./scripts/setup-design.sh
+npm run setup
 ```
 
-Or manually copy:
-
-```bash
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
-```
+This script will:
+1. Clone from GitHub if not available locally
+2. Copy design components to this folder
 
 ## Usage
-
-After setup, import components:
 
 ```tsx
 import { FullBleed, ContentArea, FadeIn, Title } from './design'
