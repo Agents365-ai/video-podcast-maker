@@ -1,0 +1,45 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#6366F1', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4F46E5', 'lineColor': '#94A3B8', 'secondaryColor': '#F1F5F9', 'tertiaryColor': '#fff', 'fontSize': '14px', 'fontFamily': 'system-ui, sans-serif'}}}%%
+
+flowchart LR
+    subgraph PLAN["📋 Planning"]
+        direction TB
+        A[/"🎯 Topic"/] --> B["💡 Brainstorm"]
+        B --> C["🔍 Research"]
+        C --> D["📐 Sections"]
+    end
+
+    subgraph CONTENT["✍️ Content"]
+        direction TB
+        E["📝 Script"] --> F["🏷️ Publish Info"]
+        F --> G["🖼️ Thumbnail"]
+    end
+
+    subgraph PROD["🎬 Production"]
+        direction TB
+        H["🎙️ TTS Audio"] --> I["⚛️ Remotion"]
+        I --> J["👁️ Preview"]
+        J --> K["🎞️ Render 4K"]
+    end
+
+    subgraph POST["🎛️ Post"]
+        direction TB
+        L["🎵 Mix BGM"] --> M["📜 Subtitles"]
+    end
+
+    subgraph OUT["📦 Output"]
+        direction TB
+        N["✅ Verify"] --> O["🧹 Cleanup"]
+        O --> P[/"🎉 MP4"/]
+    end
+
+    PLAN --> CONTENT --> PROD --> POST --> OUT
+
+    style A fill:#10B981,stroke:#059669,color:#fff
+    style P fill:#10B981,stroke:#059669,color:#fff
+    style J fill:#F59E0B,stroke:#D97706,color:#fff
+
+    style PLAN fill:#EEF2FF,stroke:#6366F1,color:#3730A3
+    style CONTENT fill:#FEF3C7,stroke:#F59E0B,color:#92400E
+    style PROD fill:#DBEAFE,stroke:#3B82F6,color:#1E40AF
+    style POST fill:#FCE7F3,stroke:#EC4899,color:#9D174D
+    style OUT fill:#D1FAE5,stroke:#10B981,color:#065F46
