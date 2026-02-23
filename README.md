@@ -31,26 +31,30 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 ### Design System: remotion-design-master
 
-This skill utilizes **[remotion-design-master](https://github.com/Agents365-ai/remotion-design-master)** for all Remotion components and visual design:
+This skill utilizes **[remotion-design-master](https://github.com/Agents365-ai/remotion-design-master)** for all Remotion components and visual design.
 
 ```bash
-# Install design components
-TEMP_DIR=$(mktemp -d)
-git clone --depth 1 https://github.com/Agents365-ai/remotion-design-master.git "$TEMP_DIR/rdm"
-cp -r "$TEMP_DIR/rdm/src/"* src/remotion/design/
-rm -rf "$TEMP_DIR"
+npm run setup  # Auto-clones from GitHub and installs design components
 ```
 
-**What it provides:**
-- **Layout Components** - FullBleed, ContentArea, CoverMedia, DualLayerMedia
-- **Animation Primitives** - FadeIn, SpringPop, SlideIn, Typewriter
-- **Data Display** - DataDisplay, AnimatedCounter, ProgressBar
-- **Navigation** - ChapterProgressBar, SectionIndicator
-- **Themes** - minimalWhite (default), darkTech, gradientVibrant
-- **Design Tokens** - Centralized colors, typography, spacing
-- **Hard Constraints** - Non-negotiable rules for professional output
+**Core Principle:** "Fill the screen, no empty space" - maximize screen usage for visual impact.
 
-See [remotion-design-master SKILL.md](https://github.com/Agents365-ai/remotion-design-master/blob/main/SKILL.md) for full component documentation.
+| Element | Size | Notes |
+|---------|------|-------|
+| Content width | ≥85% screen | Don't shrink to center |
+| Main title | 80-100px | Bold, attention-grabbing |
+| Data numbers | 64-140px | Data as hero |
+
+**Components:**
+
+| Component | Purpose |
+|-----------|---------|
+| `<FullBleed>` | Root container with `inset: 0` |
+| `<ContentArea>` | Content area, 85%-95% width |
+| `<FadeIn>` | Fade + slide up animation |
+| `<ChapterProgressBar>` | Video chapter indicator |
+
+See [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) for full documentation.
 
 ## Workflow
 
@@ -191,42 +195,6 @@ videos/{video-name}/
 ├── video_with_bgm.mp4       # With BGM (temp)
 └── final_video.mp4          # Final output
 ```
-
-## Design Principles
-
-> **Note:** Design principles and components are now centralized in [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master). See that skill for the complete design system.
-
-**"Fill the screen, no empty space"** - Text and UI should maximize screen usage for visual impact.
-
-| Element | Size | Notes |
-|---------|------|-------|
-| Content width | ≥85% screen | Don't shrink to center |
-| Page margin | 30-50px | Minimal margins |
-| Main title | 80-100px | Bold, attention-grabbing |
-| Subtitle | 48-64px | Clear and visible |
-| Data numbers | 64-140px | Data as hero |
-| Card width | 900-1100px (1080p) | Fill the space |
-
-### Layout Components (from remotion-design-master)
-
-```bash
-# Install all design components
-TEMP_DIR=$(mktemp -d)
-git clone --depth 1 https://github.com/Agents365-ai/remotion-design-master.git "$TEMP_DIR/rdm"
-cp -r "$TEMP_DIR/rdm/src/"* src/remotion/design/
-rm -rf "$TEMP_DIR"
-```
-
-| Component | Purpose |
-|-----------|---------|
-| `<FullBleed>` | Root container with `inset: 0` |
-| `<ContentArea>` | Content area, 85%-95% width |
-| `<CoverMedia>` | Media with `objectFit: cover` |
-| `<DualLayerMedia>` | Blur background + clear foreground |
-| `<FadeIn>` | Fade + slide up animation |
-| `<SpringPop>` | Elastic scale entrance |
-| `<DataDisplay>` | Large number with label |
-| `<ChapterProgressBar>` | Video chapter indicator |
 
 ## Background Music
 
