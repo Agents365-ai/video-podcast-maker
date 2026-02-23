@@ -1,4 +1,27 @@
+# Environment
 .env
 .DS_Store
+
+# Claude
 CLAUDE.md
 .playwright-mcp/
+
+# Node
+node_modules/
+dist/
+out/
+bundle/
+
+# Video outputs
+videos/
+*.wav
+*.mp4
+*.srt
+
+# Python
+__pycache__/
+*.pyc
+
+# Temp files
+part_*.wav
+concat_list.txt
