@@ -1,5 +1,10 @@
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate } from 'remotion'
 
+// Design system imports - run `npm run setup` first to install
+// import { FullBleed, ContentArea, FadeIn, Title } from './design'
+// import { minimalWhite } from './design/themes'
+// import { ChapterProgressBar } from './design/components/navigation'
+
 // Import timing data
 let timingData = { sections: [], fps: 30, total_frames: 900 }
 try {
