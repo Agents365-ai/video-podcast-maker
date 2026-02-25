@@ -72,10 +72,10 @@ rm -rf "$TEMP_DIR"
 
 **硬约束规则、组件文档、视觉风格** 详见 `remotion-design-master` skill。
 
-> ⚠️ **HARD CONSTRAINT: 必须使用设计系统组件**
+> ⚠️ **HARD CONSTRAINT: 优先使用设计系统组件**
 >
 > 在 Step 8 创建视频组件时，**禁止**从零实现已有组件。必须优先检查并使用 `remotion-design-master` 提供的组件：
-> - ChapterProgressBar (章节进度条) - **必须使用**
+> - ChapterProgressBar (章节进度条) - **默认使用**（可选关闭）
 > - FadeIn, SlideIn (动画) - 优先使用
 > - FullBleed, ContentArea (布局) - 优先使用
 >
@@ -364,16 +364,18 @@ python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{n
 ls ~/.claude/skills/remotion-design-master/src/components/
 ```
 
-### 必用组件清单
+### 推荐组件清单
 
-| 组件 | 用途 | 路径 | 必须使用 |
+| 组件 | 用途 | 路径 | 使用建议 |
 |------|------|------|----------|
-| **ChapterProgressBar** | 底部章节进度条 | `navigation/ChapterProgressBar.tsx` | ✅ 必须 |
+| **ChapterProgressBar** | 底部章节进度条 | `navigation/ChapterProgressBar.tsx` | ✅ 默认使用 |
 | **FadeIn** | 淡入动画 | `animations/FadeIn.tsx` | 推荐 |
 | **SlideIn** | 滑入动画 | `animations/SlideIn.tsx` | 推荐 |
 | **FullBleed** | 全屏布局 | `layouts/FullBleed.tsx` | 推荐 |
 | **ContentArea** | 内容区域 | `layouts/ContentArea.tsx` | 推荐 |
 | **Title** | 标题组件 | `ui/Title.tsx` | 推荐 |
+
+> **注意**：ChapterProgressBar 默认启用。如需关闭，请在 Step 8 时告知 Claude。
 
 ### 验证命令
 
@@ -494,7 +496,7 @@ export const MyVideo = () => (
 | **进度指示** | 当前章节内显示白色进度条，底部显示总进度 |
 | **4K 缩放** | 内容区域使用 `scale(2)` 从 1920×1080 放大到 3840×2160 |
 
-**⚠️ ChapterProgressBar 是必须组件**，不是可选的。它提供用户导航和进度反馈。
+**ChapterProgressBar 默认启用**，提供用户导航和进度反馈。如不需要，可在创建视频组件时告知 Claude 关闭。
 
 ---
 
@@ -722,7 +724,7 @@ Available at `~/.claude/skills/video-podcast-maker/music/`:
 
 | Mistake | Fix |
 |---------|-----|
-| **重新实现已有组件** | **必须先检查 remotion-design-master，使用现有组件** |
+| **重新实现已有组件** | **优先检查 remotion-design-master，使用现有组件** |
 | ChapterProgressBar 放在 scale(2) 内 | 必须放在 scale(2) 容器**外部**，否则宽度被压缩 |
 | 进度条章节等宽分配 | 使用 `flex: ch.duration_frames` 按时长比例分配 |
 | Numbers in Arabic digits | Write in Chinese: "3999" → "三千九百九十九" |
