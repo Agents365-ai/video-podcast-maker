@@ -88,12 +88,20 @@ pip install azure-cognitiveservices-speech requests
 
 > **Important:** This skill requires a Remotion project as the foundation.
 
+**Understanding the components:**
+
+| Component | Source | Purpose |
+|-----------|--------|---------|
+| **Remotion Project** | `npx create-video` | Base framework with `src/`, `public/`, `package.json` |
+| **remotion-design-master** | Claude Code skill | Design components (FullBleed, FadeIn, etc.) copied into your project |
+| **video-podcast-maker** | Claude Code skill | Workflow orchestration (this skill) |
+
 ```bash
-# Step 1: Create a new Remotion project
+# Step 1: Create a new Remotion project (base framework)
 npx create-video@latest my-video-project
 cd my-video-project
 
-# Step 2: Install design system from remotion-design-master
+# Step 2: Install design system from remotion-design-master (components)
 mkdir -p src/remotion/design
 cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 
