@@ -4,24 +4,27 @@
 
 ---
 
-## 1. 环境准备
+## 0. 前置检查清单
 
-### 必需软件
+开始前，确保以下环境已就绪：
 
-| 软件 | 安装命令 (macOS) |
-|------|-----------------|
-| Node.js 18+ | `brew install node` |
-| Python 3.8+ | `brew install python3` |
-| FFmpeg | `brew install ffmpeg` |
+### 系统工具
 
-### 必需 API 密钥
+| 工具 | 检查命令 | 安装 (macOS) |
+|------|----------|--------------|
+| Node.js 18+ | `node -v` | `brew install node` |
+| Python 3.8+ | `python3 --version` | `brew install python3` |
+| FFmpeg | `ffmpeg -version` | `brew install ffmpeg` |
 
-**Azure Speech** - TTS 语音合成（必需）
+### API 密钥
 
 ```bash
-# 添加到 ~/.zshrc
+# Azure Speech (必需) - 添加到 ~/.zshrc
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
+
+# 验证
+echo $AZURE_SPEECH_KEY  # 应显示你的密钥
 ```
 
 获取方式：[Azure 门户](https://portal.azure.com/) → 创建"语音服务"资源
@@ -34,7 +37,76 @@ pip install azure-cognitiveservices-speech requests
 
 ---
 
-## 2. 最快路径
+## 1. Remotion 项目设置
+
+> **重要**: video-podcast-maker 需要一个 Remotion 项目作为基础。
+
+### 方式 A: 创建新项目（推荐新手）
+
+```bash
+# 创建 Remotion 项目
+npx create-video@latest my-video-project
+cd my-video-project
+
+# 验证安装
+npx remotion studio  # 应打开浏览器预览
+```
+
+### 方式 B: 使用已有项目
+
+```bash
+cd your-existing-project
+
+# 确保已安装 Remotion
+npm install remotion @remotion/cli @remotion/player
+```
+
+---
+
+## 2. 安装设计系统
+
+video-podcast-maker 使用 `remotion-design-master` 提供的组件库。
+
+```bash
+# 在你的 Remotion 项目根目录执行
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+```
+
+**验证安装：**
+
+```bash
+ls src/remotion/design/
+# 应看到: layout/ animation/ components/ themes/ tokens/ ...
+```
+
+设计系统包含：
+- **布局组件**: FullBleed, ContentArea, CoverMedia, DualLayerMedia
+- **动画组件**: FadeIn, SpringPop, SlideIn, Typewriter
+- **数据展示**: DataDisplay, AnimatedCounter, ProgressBar
+- **主题**: minimalWhite (默认), darkTech, gradientVibrant
+
+---
+
+## 3. 快速验证
+
+运行以下命令确认环境就绪：
+
+```bash
+# 一键检查所有依赖
+echo "=== 环境检查 ===" && \
+node -v && \
+python3 --version && \
+ffmpeg -version 2>&1 | head -1 && \
+[ -n "$AZURE_SPEECH_KEY" ] && echo "✓ AZURE_SPEECH_KEY 已设置" || echo "✗ AZURE_SPEECH_KEY 未设置" && \
+[ -d "src/remotion/design" ] && echo "✓ 设计系统已安装" || echo "✗ 设计系统未安装"
+```
+
+全部显示 ✓ 后，你就可以开始了。
+
+---
+
+## 4. 最快路径
 
 打开 Claude Code，直接说：
 
@@ -44,7 +116,7 @@ Claude 会自动引导你完成所有步骤。无需记住任何命令。
 
 ---
 
-## 3. 12 步工作流速览
+## 5. 14 步工作流速览
 
 | 步骤 | 做什么 | 产出 |
 |------|--------|------|
@@ -61,10 +133,12 @@ Claude 会自动引导你完成所有步骤。无需记住任何命令。
 | **10. 混音** | FFmpeg 叠加 BGM | `video_with_bgm.mp4` |
 | **11. 字幕** | FFmpeg 烧录字幕（可选） | `final_video.mp4` |
 | **12. 章节时间戳** | 从 timing.json 生成 | 更新 `publish_info.md` |
+| **13. 验证** | 检查输出质量 | 验证报告 |
+| **14. 清理** | 删除临时文件（可选） | 释放空间 |
 
 ---
 
-## 4. 关键文件一览
+## 6. 关键文件一览
 
 ```
 videos/{video-name}/
@@ -88,7 +162,7 @@ public/media/{video-name}/   # Remotion 素材目录
 
 ---
 
-## 5. 常用命令
+## 7. 常用命令
 
 ### TTS 音频生成
 
@@ -140,7 +214,7 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ---
 
-## 6. podcast.txt 脚本格式
+## 8. podcast.txt 脚本格式
 
 ```text
 [SECTION:hero]
@@ -166,11 +240,12 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ---
 
-## 7. 下一步
+## 9. 下一步
 
 - 完整文档：[SKILL.md](../SKILL.md)
-- 中文说明：[README_CN.md](../README_CN.md)
-- 布局规范：[FullBleedLayout.tsx](../FullBleedLayout.tsx)
+- 故障排除：[TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- 素材来源：[MEDIA_ASSETS.md](MEDIA_ASSETS.md)
+- 设计系统：`remotion-design-master` skill
 
 **可选 API 密钥：**
 
@@ -187,11 +262,17 @@ export DASHSCOPE_API_KEY="..."     # 阿里云百炼 (中文优化)
 **Q: TTS 报错 "AZURE_SPEECH_KEY not set"**
 A: 确保已设置环境变量并 `source ~/.zshrc`
 
-**Q: Remotion 渲染失败**
+**Q: Remotion 渲染失败 "Cannot find module './design'"**
+A: 运行 `cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/` 安装设计系统
+
+**Q: Remotion 渲染失败 "timing.json not found"**
 A: 检查 `timing.json` 是否复制到 `public/`，章节名称是否与组件匹配
 
 **Q: 视频内容缩在中间**
 A: 遵循"宁可撑爆，不可留白"原则，使用 `<FullBleed>` 组件，内容宽度 ≥85%
+
+**Q: 没有 src/remotion/ 目录**
+A: 需要先创建 Remotion 项目，见上方"1. Remotion 项目设置"
 
 ---
 
