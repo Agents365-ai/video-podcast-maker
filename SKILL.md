@@ -131,6 +131,27 @@ rm -rf public/media/{name}
 
 ## Workflow
 
+### Prerequisites (One-time Setup)
+
+在开始任何视频项目前，确保已完成以下设置：
+
+```bash
+# 1. 创建 Remotion 项目（如已有则跳过）
+npx create-video@latest my-video-project
+cd my-video-project
+
+# 2. 安装设计系统
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+
+# 3. 验证
+npx remotion studio  # 应打开浏览器预览
+```
+
+详细步骤见 [docs/QUICKSTART.md](docs/QUICKSTART.md)
+
+### Video Production Steps
+
 | Step | Tool | Output |
 |------|------|--------|
 | **0. Define Direction** | brainstorming | `topic_definition.md` |
