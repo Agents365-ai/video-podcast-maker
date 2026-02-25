@@ -72,6 +72,15 @@ rm -rf "$TEMP_DIR"
 
 **硬约束规则、组件文档、视觉风格** 详见 `remotion-design-master` skill。
 
+> ⚠️ **HARD CONSTRAINT: 必须使用设计系统组件**
+>
+> 在 Step 8 创建视频组件时，**禁止**从零实现已有组件。必须优先检查并使用 `remotion-design-master` 提供的组件：
+> - ChapterProgressBar (章节进度条) - **必须使用**
+> - FadeIn, SlideIn (动画) - 优先使用
+> - FullBleed, ContentArea (布局) - 优先使用
+>
+> 如果设计系统组件不满足需求，应先扩展设计系统，而非在视频组件中重复实现。
+
 ---
 
 ## 文件路径与命名规范
@@ -162,6 +171,7 @@ npx remotion studio  # 应打开浏览器预览
 | **5. Publish Info (Part 1)** | Claude | `publish_info.md` |
 | **6. Thumbnail** | Remotion/imagen/imagenty | `thumbnail_*.png` |
 | **7. Generate Audio** | generate_tts.py | `.wav`, `.srt`, `timing.json` |
+| **7.5. Component Check** | remotion-design-master | ✅ 组件清单确认 |
 | **8. Create Video** | Remotion | Composition ready |
 | **9. Render** | remotion render | `output.mp4` |
 | **10. Add BGM** | FFmpeg | `video_with_bgm.mp4` |
@@ -345,6 +355,43 @@ python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{n
 
 ---
 
+## Step 7.5: Design System Component Check (必做)
+
+在创建视频组件前，**必须**检查 `remotion-design-master` 设计系统可用组件：
+
+```bash
+# 列出所有可用组件
+ls ~/.claude/skills/remotion-design-master/src/components/
+```
+
+### 必用组件清单
+
+| 组件 | 用途 | 路径 | 必须使用 |
+|------|------|------|----------|
+| **ChapterProgressBar** | 底部章节进度条 | `navigation/ChapterProgressBar.tsx` | ✅ 必须 |
+| **FadeIn** | 淡入动画 | `animations/FadeIn.tsx` | 推荐 |
+| **SlideIn** | 滑入动画 | `animations/SlideIn.tsx` | 推荐 |
+| **FullBleed** | 全屏布局 | `layouts/FullBleed.tsx` | 推荐 |
+| **ContentArea** | 内容区域 | `layouts/ContentArea.tsx` | 推荐 |
+| **Title** | 标题组件 | `ui/Title.tsx` | 推荐 |
+
+### 验证命令
+
+```bash
+# 检查设计系统是否已安装
+[ -d "src/remotion/design" ] && echo "✓ 设计系统已安装" || echo "✗ 需要安装设计系统"
+
+# 检查 ChapterProgressBar 是否存在
+[ -f "src/remotion/design/components/navigation/ChapterProgressBar.tsx" ] && echo "✓ ChapterProgressBar 可用" || echo "⚠ 需要从设计系统复制"
+```
+
+如果设计系统未安装，执行：
+```bash
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+```
+
+---
+
 ## Step 8: Create Remotion Composition
 
 复制文件到 public/:
@@ -352,37 +399,102 @@ python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{n
 cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 ```
 
-使用 `timing.json` 同步：
+使用 `timing.json` 同步。
+
+### 标准视频模板（必须遵循）
 
 ```tsx
-import timingData from '../public/timing.json'
-import { FullBleed, ContentArea, FadeIn, Title } from './design'
-import { minimalWhite } from './design/themes'
+import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame } from 'remotion'
+import timingData from '../../public/timing.json'
 
-// 4K 分辨率 + scale(2) 容器
-<Composition
-  durationInFrames={timingData.total_frames}
-  fps={timingData.fps}
-  width={3840}
-  height={2160}
-  ...
-/>
+// 章节中文名映射
+const sectionNamesCN: Record<string, string> = {
+  hero: '开场',
+  // ... 其他章节映射
+  outro: '结语',
+}
+
+// 颜色配置
+const colors = { primary: '#2563eb', text: '#1f2937', muted: '#6b7280' }
+const font = 'PingFang SC, -apple-system, sans-serif'
+
+// ⚠️ 必须使用设计系统的 ChapterProgressBar 或按此模式实现
+const ChapterProgressBar = () => {
+  const frame = useCurrentFrame()
+  const totalFrames = timingData.total_frames
+  const progress = frame / totalFrames
+
+  return (
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, width: '100%', height: 110,
+      background: '#fff', borderTop: '2px solid #e5e7eb',
+      display: 'flex', alignItems: 'center', padding: '0 50px', gap: 16,
+      fontFamily: font,
+    }}>
+      {timingData.sections.map((ch: any) => {
+        const chStart = ch.start_frame / totalFrames
+        const chEnd = (ch.start_frame + ch.duration_frames) / totalFrames
+        const isActive = progress >= chStart && progress < chEnd
+        const isPast = progress >= chEnd
+        const chProgress = isActive ? (progress - chStart) / (chEnd - chStart) : isPast ? 1 : 0
+
+        return (
+          <div key={ch.name} style={{
+            flex: ch.duration_frames, // 按时长分配宽度
+            height: 64, borderRadius: 32, position: 'relative', overflow: 'hidden',
+            background: isActive ? colors.primary : isPast ? '#f3f4f6' : '#f9fafb',
+            border: isActive ? 'none' : '2px solid #e5e7eb',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {isActive && (
+              <div style={{
+                position: 'absolute', left: 0, top: 0, bottom: 0,
+                width: `${chProgress * 100}%`,
+                background: 'rgba(255,255,255,0.25)', borderRadius: 32,
+              }} />
+            )}
+            <span style={{
+              position: 'relative', zIndex: 1,
+              color: isActive ? '#fff' : isPast ? '#374151' : '#9ca3af',
+              fontSize: 32, fontWeight: isActive ? 700 : 500,
+            }}>{sectionNamesCN[ch.name] || ch.name}</span>
+          </div>
+        )
+      })}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: '#e5e7eb' }}>
+        <div style={{ height: '100%', width: `${progress * 100}%`, background: colors.primary }} />
+      </div>
+    </div>
+  )
+}
 
 export const MyVideo = () => (
   <AbsoluteFill style={{ background: '#fff' }}>
     <Audio src={staticFile('podcast_audio.wav')} />
+    {/* 4K 内容区域 - scale(2) 容器 */}
     <AbsoluteFill style={{ transform: 'scale(2)', transformOrigin: 'top left', width: '50%', height: '50%' }}>
-      {timingData.sections.map(section => (
+      {timingData.sections.map((section: any) => (
         <Sequence key={section.name} from={section.start_frame} durationInFrames={section.duration_frames}>
           <SectionComponent name={section.name} />
         </Sequence>
       ))}
     </AbsoluteFill>
+    {/* ⚠️ 进度条必须放在 scale(2) 容器外部 */}
+    <ChapterProgressBar />
   </AbsoluteFill>
 )
 ```
 
-**章节进度条**: 使用 `remotion-design-master` 的 `<ChapterProgressBar />` 组件（可选）。
+### 关键架构说明
+
+| 要点 | 说明 |
+|------|------|
+| **ChapterProgressBar 位置** | 必须放在 `scale(2)` 容器**外部**，否则宽度会被压缩 |
+| **章节宽度分配** | 使用 `flex: ch.duration_frames` 按时长比例分配 |
+| **进度指示** | 当前章节内显示白色进度条，底部显示总进度 |
+| **4K 缩放** | 内容区域使用 `scale(2)` 从 1920×1080 放大到 3840×2160 |
+
+**⚠️ ChapterProgressBar 是必须组件**，不是可选的。它提供用户导航和进度反馈。
 
 ---
 
@@ -610,6 +722,9 @@ Available at `~/.claude/skills/video-podcast-maker/music/`:
 
 | Mistake | Fix |
 |---------|-----|
+| **重新实现已有组件** | **必须先检查 remotion-design-master，使用现有组件** |
+| ChapterProgressBar 放在 scale(2) 内 | 必须放在 scale(2) 容器**外部**，否则宽度被压缩 |
+| 进度条章节等宽分配 | 使用 `flex: ch.duration_frames` 按时长比例分配 |
 | Numbers in Arabic digits | Write in Chinese: "3999" → "三千九百九十九" |
 | Skipping preview | Use `npx remotion studio` for debugging before final render |
 | Output in `out/` instead of `videos/{name}/` | Must specify full path: `npx remotion render ... videos/{name}/output.mp4` |
