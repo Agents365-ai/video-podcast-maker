@@ -54,9 +54,34 @@ sudo apt install ffmpeg nodejs python3 python3-pip
 
 # Python 依赖
 pip install azure-cognitiveservices-speech requests
+```
 
-# Node.js 依赖（在项目目录下运行）
+### 项目初始化（必需）
+
+> **重要：** 本技能需要一个 Remotion 项目作为基础。
+
+```bash
+# 第一步：创建 Remotion 项目
+npx create-video@latest my-video-project
+cd my-video-project
+
+# 第二步：安装 remotion-design-master 设计系统
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+
+# 第三步：验证安装
+npx remotion studio  # 应打开浏览器预览
+```
+
+如果你已有 Remotion 项目：
+
+```bash
+cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
+
+# 安装设计系统
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 ```
 
 ### 所需 API 密钥
