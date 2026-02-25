@@ -82,9 +82,34 @@ sudo apt install ffmpeg nodejs python3 python3-pip
 
 # Python dependencies
 pip install azure-cognitiveservices-speech requests
+```
 
-# Node.js dependencies (run in project directory)
+### Project Setup (Required)
+
+> **Important:** This skill requires a Remotion project as the foundation.
+
+```bash
+# Step 1: Create a new Remotion project
+npx create-video@latest my-video-project
+cd my-video-project
+
+# Step 2: Install design system from remotion-design-master
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+
+# Step 3: Verify installation
+npx remotion studio  # Should open browser preview
+```
+
+If you already have a Remotion project:
+
+```bash
+cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
+
+# Install design system
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 ```
 
 ### API Keys Required
