@@ -106,6 +106,7 @@ pip install azure-cognitiveservices-speech requests
 # Step 1: Create a new Remotion project (base framework)
 npx create-video@latest my-video-project
 cd my-video-project
+npm i  # Install Remotion dependencies
 
 # Step 2: Install design system from remotion-design-master (components)
 mkdir -p src/remotion/design

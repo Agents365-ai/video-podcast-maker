@@ -47,6 +47,7 @@ pip install azure-cognitiveservices-speech requests
 # 创建 Remotion 项目
 npx create-video@latest my-video-project
 cd my-video-project
+npm i  # 安装依赖
 
 # 验证安装
 npx remotion studio  # 应打开浏览器预览

@@ -78,6 +78,7 @@ pip install azure-cognitiveservices-speech requests
 # 第一步：创建 Remotion 项目（基础框架）
 npx create-video@latest my-video-project
 cd my-video-project
+npm i  # 安装 Remotion 依赖
 
 # 第二步：安装 remotion-design-master 设计系统（组件库）
 mkdir -p src/remotion/design

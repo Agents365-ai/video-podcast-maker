@@ -148,6 +148,7 @@ rm -rf public/media/{name}
 # 1. 创建 Remotion 项目（如已有则跳过）
 npx create-video@latest my-video-project
 cd my-video-project
+npm i  # 安装依赖
 
 # 2. 安装设计系统
 mkdir -p src/remotion/design
