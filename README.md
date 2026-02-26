@@ -64,43 +64,7 @@ See [remotion-design-master](https://github.com/Agents365-ai/remotion-design-mas
 
 This skill is part of a layered architecture with other Remotion-related skills:
 
-```mermaid
-graph TB
-    subgraph APP["🎬 video-podcast-maker"]
-        A[Full Workflow]
-        A --> |"Topic → Research → Script → TTS → Video"| A
-    end
-
-    subgraph UI["🎨 remotion-design-master"]
-        B1[ChapterProgressBar]
-        B2[FadeIn / SlideIn]
-        B3[FullBleed / ContentArea]
-        B4[Theme System]
-    end
-
-    subgraph CORE["⚙️ remotion-best-practices"]
-        C1[Animation API]
-        C2[Composition Structure]
-        C3[Audio Handling]
-        C4[FFmpeg Integration]
-    end
-
-    APP --> UI
-    APP --> CORE
-    UI -.-> CORE
-
-    style APP fill:#e1f5fe,stroke:#01579b
-    style UI fill:#f3e5f5,stroke:#7b1fa2
-    style CORE fill:#e8f5e9,stroke:#2e7d32
-```
-
-| Layer | Skill | Purpose |
-|:-----:|-------|---------|
-| 🎬 **Application** | video-podcast-maker | Complete workflow: Topic → B站 video podcast |
-| 🎨 **UI** | remotion-design-master | Reusable components (progress bar, animations, layouts) |
-| ⚙️ **Foundation** | remotion-best-practices | Remotion framework knowledge (API, audio, subtitles) |
-
-> **Step 8 Dependency:** Video components **must use** `remotion-design-master` components.
+![Skill Architecture](docs/skill-architecture.png)
 
 ## Requirements
 

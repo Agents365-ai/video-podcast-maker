@@ -36,43 +36,7 @@
 
 本技能是 Remotion 相关技能的分层架构的一部分：
 
-```mermaid
-graph TB
-    subgraph APP["🎬 video-podcast-maker"]
-        A[完整工作流]
-        A --> |"主题 → 研究 → 脚本 → TTS → 视频"| A
-    end
-
-    subgraph UI["🎨 remotion-design-master"]
-        B1[ChapterProgressBar]
-        B2[FadeIn / SlideIn]
-        B3[FullBleed / ContentArea]
-        B4[主题色系统]
-    end
-
-    subgraph CORE["⚙️ remotion-best-practices"]
-        C1[动画 API]
-        C2[Composition 结构]
-        C3[音频处理]
-        C4[FFmpeg 集成]
-    end
-
-    APP --> UI
-    APP --> CORE
-    UI -.-> CORE
-
-    style APP fill:#e1f5fe,stroke:#01579b
-    style UI fill:#f3e5f5,stroke:#7b1fa2
-    style CORE fill:#e8f5e9,stroke:#2e7d32
-```
-
-| 层级 | 技能 | 用途 |
-|:----:|------|------|
-| 🎬 **应用层** | video-podcast-maker | 完整工作流：主题 → B站视频播客 |
-| 🎨 **UI 层** | remotion-design-master | 可复用组件库（进度条、动画、布局） |
-| ⚙️ **基础层** | remotion-best-practices | Remotion 框架知识（API、音频、字幕） |
-
-> **Step 8 依赖：** 视频组件**必须使用** `remotion-design-master` 的组件。
+![技能架构](docs/skill-architecture.png)
 
 ## 环境要求
 
