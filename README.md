@@ -60,6 +60,37 @@ See [remotion-design-master](https://github.com/Agents365-ai/remotion-design-mas
 
 ![Workflow](docs/workflow.png)
 
+## Related Skills
+
+This skill is part of a layered architecture with other Remotion-related skills:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    video-podcast-maker                          │
+│         (Full workflow: Topic → Research → Script → TTS → Video)│
+│                                                                 │
+│  ┌─────────────────────┐    ┌─────────────────────────────┐    │
+│  │ remotion-design-    │    │   remotion-best-practices   │    │
+│  │ master              │    │                             │    │
+│  │ (UI Component Lib)  │    │   (Remotion Framework)      │    │
+│  │                     │    │                             │    │
+│  │ • ChapterProgressBar│    │   • Animation API           │    │
+│  │ • FadeIn, SlideIn   │    │   • Composition structure   │    │
+│  │ • FullBleed         │    │   • Audio handling          │    │
+│  │ • Title, ContentArea│    │   • Subtitle rendering      │    │
+│  │ • Theme system      │    │   • FFmpeg integration      │    │
+│  └─────────────────────┘    └─────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Skill | Layer | Purpose |
+|-------|-------|---------|
+| **remotion-best-practices** | Foundation | General Remotion framework knowledge (API, animations, audio, subtitles) |
+| **remotion-design-master** | UI Layer | Reusable component library (progress bar, animations, layouts, themes) |
+| **video-podcast-maker** | Application | Complete workflow that uses both skills above to generate B站 video podcasts |
+
+**Dependency:** When creating video components in Step 8, this skill **requires** components from `remotion-design-master`.
+
 ## Requirements
 
 ### System Requirements
