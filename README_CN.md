@@ -30,13 +30,13 @@
 
 ## 工作流程
 
-![工作流程](docs/workflow_cn.png)
+![工作流程](docs/workflow.png)
 
 ## 相关技能
 
 本技能是 Remotion 相关技能的分层架构的一部分：
 
-![技能架构](docs/skill-architecture_cn.png)
+![技能架构](docs/skill-architecture.png)
 
 ## 环境要求
 
