@@ -21,11 +21,66 @@ dependencies:
 
 ## Quick Start
 
-> **5分钟上手？** 查看 [docs/QUICKSTART.md](docs/QUICKSTART.md)
->
-> **遇到问题？** 查看 [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
-
 打开 Claude Code，直接说：**"帮我制作一个关于 [你的主题] 的 B站视频播客"**
+
+---
+
+## Prerequisites (One-time Setup)
+
+### 0.1 环境检查清单
+
+| 工具 | 检查命令 | 安装 (macOS) |
+|------|----------|--------------|
+| Node.js 18+ | `node -v` | `brew install node` |
+| Python 3.8+ | `python3 --version` | `brew install python3` |
+| FFmpeg | `ffmpeg -version` | `brew install ffmpeg` |
+
+### 0.2 API 密钥
+
+```bash
+# Azure Speech (必需) - 添加到 ~/.zshrc
+export AZURE_SPEECH_KEY="your-azure-speech-key"
+export AZURE_SPEECH_REGION="eastasia"
+
+# 验证
+echo $AZURE_SPEECH_KEY  # 应显示你的密钥
+```
+
+获取方式：[Azure 门户](https://portal.azure.com/) → 创建"语音服务"资源
+
+### 0.3 Python 依赖
+
+```bash
+pip install azure-cognitiveservices-speech requests
+```
+
+### 0.4 Remotion 项目设置
+
+```bash
+# 创建 Remotion 项目（如已有则跳过）
+npx create-video@latest my-video-project
+cd my-video-project
+npm i  # 安装依赖
+
+# 安装设计系统
+mkdir -p src/remotion/design
+cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
+
+# 验证
+npx remotion studio  # 应打开浏览器预览
+```
+
+### 0.5 快速验证
+
+```bash
+# 一键检查所有依赖
+echo "=== 环境检查 ===" && \
+node -v && \
+python3 --version && \
+ffmpeg -version 2>&1 | head -1 && \
+[ -n "$AZURE_SPEECH_KEY" ] && echo "✓ AZURE_SPEECH_KEY 已设置" || echo "✗ AZURE_SPEECH_KEY 未设置" && \
+[ -d "src/remotion/design" ] && echo "✓ 设计系统已安装" || echo "✗ 设计系统未安装"
+```
 
 ---
 
@@ -168,27 +223,7 @@ rm -rf public/media/{name}
 
 ## Workflow
 
-### Prerequisites (One-time Setup)
 
-在开始任何视频项目前，确保已完成以下设置：
-
-```bash
-# 1. 创建 Remotion 项目（如已有则跳过）
-npx create-video@latest my-video-project
-cd my-video-project
-npm i  # 安装依赖
-
-# 2. 安装设计系统
-mkdir -p src/remotion/design
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
-
-# 3. 验证
-npx remotion studio  # 应打开浏览器预览
-```
-
-详细步骤见 [docs/QUICKSTART.md](docs/QUICKSTART.md)
-
-### Video Production Steps
 
 | Step | Tool | Output |
 |------|------|--------|
@@ -361,7 +396,6 @@ Claude 逐章节询问素材来源：
 
 素材保存到 `public/media/{video-name}/`，生成 `media_manifest.json`。
 
-**推荐素材来源**: 见 [docs/MEDIA_ASSETS.md](docs/MEDIA_ASSETS.md)
 
 ---
 
@@ -403,7 +437,47 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 
 ```bash
 cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
+cp ~/.claude/skills/video-podcast-maker/polyphone_db.py .  # 多音字数据库
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+```
+
+### 多音字自动扫描 (推荐)
+
+**在生成 TTS 前，先扫描脚本中的多音字：**
+
+```bash
+# 扫描并报告未处理的多音字
+python3 generate_tts.py --scan-only -i videos/{name}/podcast.txt
+
+# 导出建议的 phonemes.json
+python3 generate_tts.py --scan-only --export-phonemes videos/{name}/phonemes.json -i videos/{name}/podcast.txt
+
+# 自动应用建议并生成 TTS
+python3 generate_tts.py --scan-polyphones --auto-fix -i videos/{name}/podcast.txt -o videos/{name}
+```
+
+**扫描报告示例：**
+```
+══════════════════════════════════════════════════
+           多音字扫描报告
+══════════════════════════════════════════════════
+
+✅ 已处理 (3):
+   下载 → xià zǎi
+   微调 → wēi tiáo
+
+⚠️  检测到未处理多音字 (5):
+   Line 1: "模型" - 建议: mó xíng
+   Line 4: "向量" - 建议: xiàng liàng
+   Line 7: "调用" - 建议: diào yòng
+
+❓ 无法自动判断 (2):
+   Line 10: "行" (默认: xíng)
+
+建议操作:
+  1. 运行 --export-phonemes phonemes.json 导出建议
+  2. 或使用 --auto-fix 自动应用
+══════════════════════════════════════════════════
 ```
 
 ### 多音字处理 (SSML Phoneme)
@@ -433,6 +507,14 @@ TTS 脚本支持三种方式处理多音字，优先级从高到低：
 | 重做/重新/重复 | chóng | "重"作"重复"义 |
 
 **拼音格式**: 使用带声调符号的拼音（如 `zhí xíng qì`），脚本会自动转换为 Azure SAPI 格式。
+
+**扫描选项**:
+| 选项 | 说明 |
+|------|------|
+| `--scan-polyphones` | 扫描并报告多音字后继续生成 TTS |
+| `--scan-only` | 仅扫描，不生成 TTS |
+| `--auto-fix` | 自动应用建议的多音字 |
+| `--export-phonemes PATH` | 导出建议到 JSON 文件 |
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 
@@ -489,68 +571,13 @@ cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 ### 标准视频模板（必须遵循）
 
 ```tsx
-import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame } from 'remotion'
+import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion'
 import timingData from '../../public/timing.json'
+import { ChapterProgressBar } from './design/components/navigation/ChapterProgressBar' // 使用设计系统
 
 // 章节中文名映射
 const sectionNamesCN: Record<string, string> = {
-  hero: '开场',
-  // ... 其他章节映射
-  outro: '结语',
-}
-
-// 颜色配置
-const colors = { primary: '#2563eb', text: '#1f2937', muted: '#6b7280' }
-const font = 'PingFang SC, -apple-system, sans-serif'
-
-// ⚠️ 必须使用设计系统的 ChapterProgressBar 或按此模式实现
-const ChapterProgressBar = () => {
-  const frame = useCurrentFrame()
-  const totalFrames = timingData.total_frames
-  const progress = frame / totalFrames
-
-  return (
-    <div style={{
-      position: 'absolute', bottom: 0, left: 0, width: '100%', height: 110,
-      background: '#fff', borderTop: '2px solid #e5e7eb',
-      display: 'flex', alignItems: 'center', padding: '0 50px', gap: 16,
-      fontFamily: font,
-    }}>
-      {timingData.sections.map((ch: any) => {
-        const chStart = ch.start_frame / totalFrames
-        const chEnd = (ch.start_frame + ch.duration_frames) / totalFrames
-        const isActive = progress >= chStart && progress < chEnd
-        const isPast = progress >= chEnd
-        const chProgress = isActive ? (progress - chStart) / (chEnd - chStart) : isPast ? 1 : 0
-
-        return (
-          <div key={ch.name} style={{
-            flex: ch.duration_frames, // 按时长分配宽度
-            height: 64, borderRadius: 32, position: 'relative', overflow: 'hidden',
-            background: isActive ? colors.primary : isPast ? '#f3f4f6' : '#f9fafb',
-            border: isActive ? 'none' : '2px solid #e5e7eb',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            {isActive && (
-              <div style={{
-                position: 'absolute', left: 0, top: 0, bottom: 0,
-                width: `${chProgress * 100}%`,
-                background: 'rgba(255,255,255,0.25)', borderRadius: 32,
-              }} />
-            )}
-            <span style={{
-              position: 'relative', zIndex: 1,
-              color: isActive ? '#fff' : isPast ? '#374151' : '#9ca3af',
-              fontSize: 32, fontWeight: isActive ? 700 : 500,
-            }}>{sectionNamesCN[ch.name] || ch.name}</span>
-          </div>
-        )
-      })}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: '#e5e7eb' }}>
-        <div style={{ height: '100%', width: `${progress * 100}%`, background: colors.primary }} />
-      </div>
-    </div>
-  )
+  hero: '开场', features: '功能', demo: '演示', summary: '总结', outro: '结语',
 }
 
 export const MyVideo = () => (
@@ -569,6 +596,8 @@ export const MyVideo = () => (
   </AbsoluteFill>
 )
 ```
+
+> **完整 ChapterProgressBar 实现** 见 `remotion-design-master` 设计系统。
 
 ### 关键架构说明
 
@@ -804,25 +833,6 @@ Available at `~/.claude/skills/video-podcast-maker/music/`:
 
 ---
 
-## Common Mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| **重新实现已有组件** | **优先检查 remotion-design-master，使用现有组件** |
-| ChapterProgressBar 放在 scale(2) 内 | 必须放在 scale(2) 容器**外部**，否则宽度被压缩 |
-| 进度条章节等宽分配 | 使用 `flex: ch.duration_frames` 按时长比例分配 |
-| Numbers in Arabic digits | Write in Chinese: "3999" → "三千九百九十九" |
-| Skipping preview | Use `npx remotion studio` for debugging before final render |
-| Output in `out/` instead of `videos/{name}/` | Must specify full path: `npx remotion render ... videos/{name}/output.mp4` |
-| Audio/video timing mismatch | Use `timing.json`, don't hardcode |
-| Section not syncing | `[SECTION:name]` must match component names |
-| TTS chunks too long | Keep MAX_CHARS=400 |
-| Subtitle font missing | Use PingFang SC (mac), Microsoft YaHei (win) |
-| Subtitle invisible on white | Use dark color `PrimaryColour=&H00333333` |
-| Video blurry | Use `--video-bitrate 16M` and `-crf 18 -preset slow` |
-| Not 4K | Composition 3840x2160, `scale(2)` wrapper |
-
----
 
 ## Requirements
 
@@ -865,11 +875,61 @@ pip install dashscope requests      # imagenty
 
 ---
 
-## Documentation
+## Troubleshooting (常见问题)
 
-| Doc | Content |
-|-----|---------|
-| [QUICKSTART.md](docs/QUICKSTART.md) | 5分钟快速入门 |
-| [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | 故障排除指南 |
-| [MEDIA_ASSETS.md](docs/MEDIA_ASSETS.md) | 素材来源推荐 |
-| **remotion-design-master** | 组件参考、视觉风格、硬约束规则 |
+### TTS: Azure API 密钥错误
+
+**症状**: `Error: Authentication failed`, `HTTP 401 Unauthorized`
+
+**解决方案**:
+```bash
+# 检查环境变量
+echo $AZURE_SPEECH_KEY
+echo $AZURE_SPEECH_REGION
+
+# 设置环境变量
+export AZURE_SPEECH_KEY="your-key-here"
+export AZURE_SPEECH_REGION="eastasia"
+```
+
+---
+
+
+---
+
+### FFmpeg: BGM 混音问题
+
+**症状**: BGM 音量过大盖住人声，BGM 结尾突然中断
+
+**解决方案**:
+```bash
+# 基础混音（人声为主，BGM 降低）
+ffmpeg -i voice.mp3 -i bgm.mp3 \
+  -filter_complex "[0:a]volume=1.0[voice];[1:a]volume=0.15[bgm];[voice][bgm]amix=inputs=2:duration=first" \
+  -ac 2 output.mp3
+
+# 带淡入淡出的混音
+ffmpeg -i voice.mp3 -i bgm.mp3 \
+  -filter_complex "
+    [0:a]volume=1.0[voice];
+    [1:a]volume=0.15,afade=t=in:st=0:d=2,afade=t=out:st=58:d=2[bgm];
+    [voice][bgm]amix=inputs=2:duration=first
+  " output.mp3
+```
+
+---
+
+### 快速检查清单
+
+**渲染前检查**:
+- [ ] 所有素材文件存在
+- [ ] timing.json 格式正确
+- [ ] 音频时长与 timing 匹配
+- [ ] 环境变量已设置
+- [ ] 磁盘空间充足 (>20GB for 4K)
+
+**渲染后检查**:
+- [ ] 视频时长正确
+- [ ] 音画同步
+- [ ] 字幕显示正常
+- [ ] 无黑屏/空白帧
