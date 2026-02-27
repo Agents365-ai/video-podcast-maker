@@ -20,6 +20,8 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Subtitle Burning** - Optional SRT subtitle embedding
 - **4K Output** - 3840x2160 resolution for crisp uploads
 - **Chapter Progress Bar** - Visual timeline showing current section during playback
+- **Bilingual TTS** - Chinese/English mixed narration with Azure Speech
+- **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
 
 ### Bilibili Optimizations
 
@@ -58,13 +60,13 @@ See [remotion-design-master](https://github.com/Agents365-ai/remotion-design-mas
 
 ## Workflow
 
-![Workflow](docs/workflow.png)
+![Workflow](assets/workflow.png)
 
 ## Related Skills
 
 This skill is part of a layered architecture with other Remotion-related skills:
 
-![Skill Architecture](docs/skill-architecture.png)
+![Skill Architecture](assets/skill-architecture.png)
 
 ## Requirements
 
@@ -157,12 +159,8 @@ Then reload: `source ~/.zshrc`
 
 | Document | Description |
 |----------|-------------|
-| [Quick Start](docs/QUICKSTART.md) | 5-minute guide to get started |
-| [SKILL.md](SKILL.md) | Complete 14-step workflow |
+| [SKILL.md](SKILL.md) | Complete 14-step workflow with pronunciation correction |
 | [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) | Design system, components, hard constraints |
-| [Troubleshooting](docs/TROUBLESHOOTING.md) | Error diagnosis and fixes |
-| [Media Assets](docs/MEDIA_ASSETS.md) | Asset sources and naming |
-
 ## Quick Start
 
 ### Usage
@@ -172,9 +170,7 @@ This skill is designed for use with [Claude Code](https://claude.ai/claude-code)
 > "Create a video podcast about [your topic]"
 
 Claude will guide you through the entire workflow automatically.
-
-For manual setup or customization, see [docs/QUICKSTART.md](docs/QUICKSTART.md).
-
+Claude will guide you through the entire workflow automatically.
 ### Preview & Visual Editing with Remotion Studio
 
 Before rendering the final video, use Remotion Studio to preview and visually edit styles:

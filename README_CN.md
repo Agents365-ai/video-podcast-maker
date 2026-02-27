@@ -19,6 +19,8 @@
 - **字幕烧录** - 可选 SRT 字幕嵌入
 - **4K 输出** - 3840x2160 分辨率，画质清晰
 - **章节进度条** - 可视化时间轴，实时显示当前章节
+- **中英混读** - Azure Speech 支持中英文混合旁白
+- **发音校正** - 内置多音字词典 + 自定义拼音支持
 
 ### B站优化
 
@@ -30,13 +32,13 @@
 
 ## 工作流程
 
-![工作流程](docs/workflow.png)
+![工作流程](assets/workflow.png)
 
 ## 相关技能
 
 本技能是 Remotion 相关技能的分层架构的一部分：
 
-![技能架构](docs/skill-architecture.png)
+![技能架构](assets/skill-architecture.png)
 
 ## 环境要求
 

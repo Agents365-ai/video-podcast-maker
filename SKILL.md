@@ -437,52 +437,12 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 
 ```bash
 cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
-cp ~/.claude/skills/video-podcast-maker/polyphone_db.py .  # 多音字数据库
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 
-### 多音字自动扫描 (推荐)
+### 多音字/发音校正 (SSML Phoneme)
 
-**在生成 TTS 前，先扫描脚本中的多音字：**
-
-```bash
-# 扫描并报告未处理的多音字
-python3 generate_tts.py --scan-only -i videos/{name}/podcast.txt
-
-# 导出建议的 phonemes.json
-python3 generate_tts.py --scan-only --export-phonemes videos/{name}/phonemes.json -i videos/{name}/podcast.txt
-
-# 自动应用建议并生成 TTS
-python3 generate_tts.py --scan-polyphones --auto-fix -i videos/{name}/podcast.txt -o videos/{name}
-```
-
-**扫描报告示例：**
-```
-══════════════════════════════════════════════════
-           多音字扫描报告
-══════════════════════════════════════════════════
-
-✅ 已处理 (3):
-   下载 → xià zǎi
-   微调 → wēi tiáo
-
-⚠️  检测到未处理多音字 (5):
-   Line 1: "模型" - 建议: mó xíng
-   Line 4: "向量" - 建议: xiàng liàng
-   Line 7: "调用" - 建议: diào yòng
-
-❓ 无法自动判断 (2):
-   Line 10: "行" (默认: xíng)
-
-建议操作:
-  1. 运行 --export-phonemes phonemes.json 导出建议
-  2. 或使用 --auto-fix 自动应用
-══════════════════════════════════════════════════
-```
-
-### 多音字处理 (SSML Phoneme)
-
-TTS 脚本支持三种方式处理多音字，优先级从高到低：
+TTS 脚本支持三种方式校正发音，优先级从高到低：
 
 **1. 内联标注** (最高优先级) - 在 podcast.txt 中直接标注：
 ```text
@@ -500,6 +460,7 @@ TTS 脚本支持三种方式处理多音字，优先级从高到低：
 ```
 
 **3. 内置词典** - 预置常见多音字（自动应用）：
+
 | 词语 | 拼音 | 说明 |
 |------|------|------|
 | 执行/运行/并行 | xíng | "行"作"执行"义 |
@@ -508,16 +469,7 @@ TTS 脚本支持三种方式处理多音字，优先级从高到低：
 
 **拼音格式**: 使用带声调符号的拼音（如 `zhí xíng qì`），脚本会自动转换为 Azure SAPI 格式。
 
-**扫描选项**:
-| 选项 | 说明 |
-|------|------|
-| `--scan-polyphones` | 扫描并报告多音字后继续生成 TTS |
-| `--scan-only` | 仅扫描，不生成 TTS |
-| `--auto-fix` | 自动应用建议的多音字 |
-| `--export-phonemes PATH` | 导出建议到 JSON 文件 |
-
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
-
 ---
 
 ## Step 7.5: Design System Component Check (必做)
@@ -645,6 +597,54 @@ npx remotion still src/remotion/index.ts CompositionId videos/{name}/frame_300.p
 1. Use `remotion studio` for iterative development
 2. Quick preview render to check full flow
 3. Final 4K render when satisfied
+
+---
+
+## Step 8.5: Preview & Pronunciation Check (预览并校正发音)
+
+**在渲染最终视频前，使用 Remotion Studio 预览音频和视频，检查发音准确性。**
+
+### 1. 启动 Remotion Studio 预览
+
+```bash
+npx remotion studio
+```
+
+### 2. 检查发音
+
+播放音频，仔细听每个词的发音。如果发现发音不准确：
+
+**方法 A: 内联标注** (推荐，立即生效)
+```text
+# 在 podcast.txt 中直接标注错误发音
+这个词语[zhèng què de fā yīn]需要校正
+```
+
+**方法 B: 项目词典** (推荐，可复用)
+```json
+// 在 videos/{name}/phonemes.json 中添加
+{
+  "词语": "zhèng què de fā yīn"
+}
+```
+
+### 3. 重新生成 TTS
+
+```bash
+# 修改后重新生成
+python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+
+# 重新复制到 public/
+cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
+```
+
+### 4. 重新预览
+
+```bash
+npx remotion studio
+```
+
+重复步骤 2-4 直到发音满意。
 
 ---
 
