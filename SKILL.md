@@ -387,6 +387,9 @@ Claude 逐章节询问素材来源：
 2. **本地文件** - 指定路径
 3. **网页截图** - Playwright 截图
 4. **网络检索** - 搜索下载
+   - **Unsplash** (https://unsplash.com) - 高质量免费图片
+   - **Pexels** (https://pexels.com) - 免费 CC0 图片
+   - **Pixabay** (https://pixabay.com) - 免费素材库
 5. **AI 生成** - 使用 imagen skill（需用户确认）
 
 如果用户选择 AI 生成，调用 imagen skill 生成图片：
