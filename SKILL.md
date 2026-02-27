@@ -118,8 +118,8 @@ public/media/{video-name}/              # 素材目录 (Remotion 可访问)
 
 **章节名称 `{section}`**: 全小写英文，下划线分隔，与 `[SECTION:xxx]` 一致
 
-**缩略图命名**:
-| 类型 | 16:9 | 4:3 |
+**缩略图命名** (⚠️ 16:9 和 4:3 **都是必须的**，B站不同位置使用不同比例):
+| 类型 | 16:9 (播放页横版) | 4:3 (推荐流/动态竖版) |
 |------|------|-----|
 | Remotion | `thumbnail_remotion_16x9.png` | `thumbnail_remotion_4x3.png` |
 | AI | `thumbnail_ai_16x9.png` | `thumbnail_ai_4x3.png` |
@@ -228,6 +228,38 @@ Design 5-7 sections:
 - Comparison/Analysis (30-45s)
 - Summary (20-30s)
 
+### Content Density Selection
+
+Before designing, assign each section a density tier based on content volume:
+
+| Tier | Items | Title Scale | Best For |
+|------|-------|-------------|----------|
+| **Impact** | 1 | 1.5x (330px) | Hook, hero, CTA, brand moment |
+| **Standard** | 2-3 | 1.0x (220px) | Features, comparison, demo |
+| **Compact** | 4-6 | 0.8x (176px) | Feature grid, ecosystem |
+| **Dense** | 6+ | 0.65x (143px) | Data tables, detailed comparisons |
+
+Example section plan with tiers:
+```
+hero: Impact (1 brand moment)
+features: Standard (3 feature cards)
+ecosystem: Compact (5 integration icons)
+performance: Standard (2 comparison bars)
+cta: Impact (1 call-to-action)
+```
+
+### Title Position Confirmation
+
+使用 AskUserQuestion 询问用户标题位置偏好：
+
+| 位置 | 风格 | 适用场景 |
+|------|------|----------|
+| **顶部居中** | 视频风格 | 大多数视频内容 (推荐) |
+| **顶部左侧** | 演示风格 | 商务/正式内容 |
+| **全屏居中** | 英雄风格 | 仅用于 Hook/Hero 场景 |
+
+**规则：** 单个视频内保持标题位置一致。
+
 ---
 
 ## Step 3: Write Narration Script
@@ -321,7 +353,7 @@ Claude 逐章节询问素材来源：
 2. **AI文生图（imagen skill）** - 使用 imagen skill 生成创意封面
 3. **两者都生成** - 同时生成两种风格供选择
 
-每种方式生成 **两个比例**: 16:9 和 4:3
+⚠️ **必须生成两个比例**: 16:9 (播放页) 和 4:3 (推荐流/动态)，缺一不可
 
 **Remotion 渲染封面**:
 ```bash
@@ -708,7 +740,8 @@ videos/{name}/
 ├── timing.json          # 时间轴
 ├── topic_research.md    # 研究资料
 ├── publish_info.md      # 发布信息
-└── thumbnail_*.png      # 封面图
+├── thumbnail_*_16x9.png # 封面图 16:9 (必须)
+└── thumbnail_*_4x3.png  # 封面图 4:3 (必须)
 ```
 
 ---
