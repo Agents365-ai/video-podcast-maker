@@ -391,6 +391,8 @@ Claude 逐章节询问素材来源：
    - **Pexels** (https://pexels.com) - 免费 CC0 图片
    - **Pixabay** (https://pixabay.com) - 免费素材库
    - **unDraw** (https://undraw.co) - 开源 SVG 插图
+   - **StockSnap** (https://stocksnap.io) - 高清免费图片
+   - **Simple Icons** (https://simpleicons.org) - 品牌 SVG 图标
 5. **AI 生成** - 使用 imagen skill（需用户确认）
 
 如果用户选择 AI 生成，调用 imagen skill 生成图片：
