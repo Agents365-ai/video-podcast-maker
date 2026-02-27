@@ -3,9 +3,19 @@ name: video-podcast-maker
 description: Use when user provides a topic and wants an automated video podcast created - handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music
 author: 探索未至之境
 created: 2025-01-27
-updated: 2026-02-20
+updated: 2026-02-27
 bilibili: https://space.bilibili.com/441831884
+dependencies:
+  - remotion-design-master
 ---
+
+> **⚠️ REQUIRED: Load Design System First**
+>
+> This skill depends on `remotion-design-master`. **You MUST invoke it before proceeding:**
+> ```
+> Skill tool: skill="remotion-design-master"
+> ```
+> The design system provides all Remotion components, layout constraints, and visual guidelines.
 
 # Video Podcast Maker
 
@@ -88,29 +98,47 @@ rm -rf "$TEMP_DIR"
 ### 目录结构
 
 ```
-videos/{video-name}/                    # 视频项目目录
-├── topic_definition.md                 # Step 0: 主题定义
-├── topic_research.md                   # Step 1: 研究资料
-├── podcast.txt                         # Step 3: 旁白脚本
-├── media_manifest.json                 # Step 4: 素材清单
-├── publish_info.md                     # Step 5+12: 发布信息
-├── podcast_audio.wav                   # Step 7: TTS 音频
-├── podcast_audio.srt                   # Step 7: 字幕文件
-├── timing.json                         # Step 7: 时间轴
-├── thumbnail_*.png                     # Step 6: 封面
-├── output.mp4                          # Step 9: Remotion 输出
-├── video_with_bgm.mp4                  # Step 10: 添加 BGM
-├── final_video.mp4                     # Step 11: 最终输出
-└── bgm.mp3                             # 背景音乐
-
-public/media/{video-name}/              # 素材目录 (Remotion 可访问)
-├── {section}_{index}.{ext}             # 通用素材
-├── {section}_screenshot.png            # 网页截图
-├── {section}_screenshot_cropped.png    # 裁剪后截图
-├── {section}_logo.png                  # Logo
-├── {section}_web_{index}.{ext}         # 网络图片
-└── {section}_ai.png                    # AI 生成图片
+project-root/                           # Remotion 项目根目录
+├── src/remotion/                       # Remotion 源码 (符合 remotion-design-master 规范)
+│   ├── design/                         # 设计系统 (从 remotion-design-master 复制)
+│   │   ├── tokens/                     # 设计 tokens
+│   │   ├── themes/                     # 主题 (minimalWhite, darkTech...)
+│   │   ├── layout/                     # 布局组件 (FullBleed, ContentArea...)
+│   │   ├── animation/                  # 动画组件 (FadeIn, SlideIn...)
+│   │   └── components/                 # UI 组件
+│   ├── compositions/                   # 视频 Composition 定义
+│   ├── Root.tsx                        # Remotion 入口
+│   └── index.ts                        # 导出
+│
+├── public/media/{video-name}/          # 素材目录 (Remotion staticFile() 可访问)
+│   ├── {section}_{index}.{ext}         # 通用素材
+│   ├── {section}_screenshot.png        # 网页截图
+│   ├── {section}_logo.png              # Logo
+│   ├── {section}_web_{index}.{ext}     # 网络图片
+│   └── {section}_ai.png                # AI 生成图片
+│
+├── videos/{video-name}/                # 视频项目资产 (非 Remotion 代码)
+│   ├── topic_definition.md             # Step 0: 主题定义
+│   ├── topic_research.md               # Step 1: 研究资料
+│   ├── podcast.txt                     # Step 3: 旁白脚本
+│   ├── media_manifest.json             # Step 4: 素材清单
+│   ├── publish_info.md                 # Step 5+12: 发布信息
+│   ├── podcast_audio.wav               # Step 7: TTS 音频
+│   ├── podcast_audio.srt               # Step 7: 字幕文件
+│   ├── timing.json                     # Step 7: 时间轴
+│   ├── thumbnail_*.png                 # Step 6: 封面
+│   ├── output.mp4                      # Step 9: Remotion 输出
+│   ├── video_with_bgm.mp4              # Step 10: 添加 BGM
+│   ├── final_video.mp4                 # Step 11: 最终输出
+│   └── bgm.mp3                         # 背景音乐
+│
+└── remotion.config.ts                  # Remotion 配置
 ```
+
+> ⚠️ **重要**: Remotion 渲染时必须指定完整输出路径，否则默认输出到 `out/`:
+> ```bash
+> npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4
+> ```
 
 ### 命名规则
 
