@@ -11,7 +11,15 @@ import azure.cognitiveservices.speech as speechsdk
 import subprocess
 import re
 import time
+import uuid
 from xml.sax.saxutils import escape
+
+# Import polyphone database
+try:
+    from polyphone_db import POLYPHONE_DATABASE, find_polyphone_chars, suggest_pronunciation, get_all_polyphone_words
+    POLYPHONE_DB_AVAILABLE = True
+except ImportError:
+    POLYPHONE_DB_AVAILABLE = False
 
 
 # ============ 多音字处理函数 ============
@@ -133,6 +141,160 @@ BUILTIN_POLYPHONES = {
 }
 
 
+# ============ 多音字扫描功能 ============
+def scan_polyphones(text, phoneme_dict):
+    """Scan text for polyphone characters and generate report
+
+    Args:
+        text: Input text to scan
+        phoneme_dict: Already-applied phoneme dictionary
+
+    Returns dict with:
+        covered: List of polyphone words already in phoneme_dict
+        uncovered: List of detected polyphone occurrences not covered
+        suggestions: Dict of word -> pinyin suggestions
+        ambiguous: List of characters that couldn't be auto-determined
+    """
+    if not POLYPHONE_DB_AVAILABLE:
+        return {"error": "polyphone_db.py not found", "covered": [], "uncovered": [], "suggestions": {}, "ambiguous": []}
+
+    result = {"covered": [], "uncovered": [], "suggestions": {}, "ambiguous": []}
+
+    # Get all known polyphone words from database
+    all_polyphone_words = get_all_polyphone_words()
+
+    # Track covered words (already in phoneme_dict)
+    for word in phoneme_dict:
+        if any(c in POLYPHONE_DATABASE for c in word):
+            result["covered"].append({"word": word, "pinyin": phoneme_dict[word]})
+
+    # Find polyphone characters in text
+    polyphone_positions = find_polyphone_chars(text)
+
+    # Track which positions are covered by phoneme_dict words
+    covered_positions = set()
+    for word in phoneme_dict:
+        start = 0
+        while True:
+            pos = text.find(word, start)
+            if pos == -1:
+                break
+            for i in range(pos, pos + len(word)):
+                covered_positions.add(i)
+            start = pos + 1
+
+    # Check uncovered polyphone characters
+    lines = text.split('\n')
+    line_starts = [0]
+    for line in lines[:-1]:
+        line_starts.append(line_starts[-1] + len(line) + 1)
+
+    def get_line_number(pos):
+        for i, start in enumerate(line_starts):
+            if i + 1 < len(line_starts) and pos < line_starts[i + 1]:
+                return i + 1
+            elif i + 1 == len(line_starts) and pos >= start:
+                return i + 1
+        return 1
+
+    for pos, char in polyphone_positions:
+        if pos in covered_positions:
+            continue
+
+        # Get surrounding context
+        ctx_start = max(0, pos - 10)
+        ctx_end = min(len(text), pos + 11)
+        context_before = text[ctx_start:pos]
+        context_after = text[pos + 1:ctx_end]
+        context = text[ctx_start:ctx_end]
+
+        # Try to find matching word pattern
+        pinyin, matched_word = suggest_pronunciation(char, context_before, context_after)
+        line_num = get_line_number(pos)
+
+        if matched_word:
+            # Found a known word pattern
+            if matched_word not in result["suggestions"]:
+                result["uncovered"].append({
+                    "line": line_num,
+                    "char": char,
+                    "word": matched_word,
+                    "context": context.strip(),
+                    "suggestion": pinyin
+                })
+                result["suggestions"][matched_word] = pinyin
+        else:
+            # Ambiguous - couldn't determine pronunciation
+            result["ambiguous"].append({
+                "line": line_num,
+                "char": char,
+                "context": context.strip(),
+                "default": pinyin
+            })
+
+    return result
+
+
+def print_polyphone_report(report):
+    """Print formatted polyphone scan report"""
+    print("\n" + "═" * 50)
+    print("           多音字扫描报告")
+    print("═" * 50)
+
+    if report.get("error"):
+        print(f"\n❌ 错误: {report['error']}")
+        return
+
+    # Covered words
+    if report["covered"]:
+        print(f"\n✅ 已处理 ({len(report['covered'])}):")
+        for item in report["covered"][:10]:
+            print(f"   {item['word']} → {item['pinyin']}")
+        if len(report["covered"]) > 10:
+            print(f"   ... 及其他 {len(report['covered']) - 10} 条")
+
+    # Uncovered words with suggestions
+    if report["uncovered"]:
+        print(f"\n⚠️  检测到未处理多音字 ({len(report['uncovered'])}):")
+        for item in report["uncovered"]:
+            print(f"   Line {item['line']}: \"{item['word']}\" - 建议: {item['suggestion']}")
+            print(f"            上下文: \"{item['context']}\"")
+
+    # Ambiguous characters
+    if report["ambiguous"]:
+        seen = set()
+        unique_ambiguous = []
+        for item in report["ambiguous"]:
+            key = (item["char"], item["context"][:20])
+            if key not in seen:
+                seen.add(key)
+                unique_ambiguous.append(item)
+
+        print(f"\n❓ 无法自动判断 ({len(unique_ambiguous)}):")
+        for item in unique_ambiguous[:5]:
+            print(f"   Line {item['line']}: \"{item['char']}\" (默认: {item['default']})")
+            print(f"            上下文: \"{item['context']}\"")
+        if len(unique_ambiguous) > 5:
+            print(f"   ... 及其他 {len(unique_ambiguous) - 5} 处")
+
+    # Summary and suggestions
+    if report["suggestions"]:
+        print("\n" + "─" * 50)
+        print("建议操作:")
+        print("  1. 运行 --export-phonemes phonemes.json 导出建议")
+        print("  2. 或使用 --auto-fix 自动应用")
+        print("  3. 或手动添加到 phonemes.json:")
+        print("     {")
+        for word, pinyin in list(report["suggestions"].items())[:5]:
+            print(f'       "{word}": "{pinyin}",')
+        print("     }")
+
+    if not report["uncovered"] and not report["ambiguous"]:
+        print("\n✅ 所有多音字已处理完毕!")
+
+    print("═" * 50 + "\n")
+
+
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
     epilog='Environment: AZURE_SPEECH_KEY (required), AZURE_SPEECH_REGION (default: eastasia), TTS_RATE (default: +5%, range: -50% to +200%)'
@@ -140,6 +302,10 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
+parser.add_argument('--scan-polyphones', '-s', action='store_true', help='Scan and report unhandled polyphone characters before TTS')
+parser.add_argument('--auto-fix', action='store_true', help='Automatically apply polyphone suggestions (use with --scan-polyphones)')
+parser.add_argument('--export-phonemes', type=str, metavar='PATH', help='Export suggested phonemes to JSON file (use with --scan-polyphones)')
+parser.add_argument('--scan-only', action='store_true', help='Only scan for polyphones, do not generate TTS')
 args = parser.parse_args()
 
 key = os.environ.get("AZURE_SPEECH_KEY")
@@ -202,6 +368,36 @@ file_phonemes = load_phoneme_dict(args.input, args.phonemes)
 phoneme_dict = {**BUILTIN_POLYPHONES, **file_phonemes, **inline_phonemes}
 print(f"✓ 多音字词典: {len(phoneme_dict)} 条 (内置{len(BUILTIN_POLYPHONES)} + 文件{len(file_phonemes)} + 内联{len(inline_phonemes)})")
 
+# ═══ 多音字扫描 ═══
+if args.scan_polyphones or args.scan_only:
+    if not POLYPHONE_DB_AVAILABLE:
+        print("⚠️  警告: polyphone_db.py 未找到，无法进行多音字扫描")
+    else:
+        report = scan_polyphones(clean_text, phoneme_dict)
+        print_polyphone_report(report)
+
+        # Export suggestions to JSON if requested
+        if args.export_phonemes and report["suggestions"]:
+            export_data = {**file_phonemes, **report["suggestions"]}
+            with open(args.export_phonemes, 'w', encoding='utf-8') as f:
+                json.dump(export_data, f, ensure_ascii=False, indent=2)
+            print(f"✓ 已导出建议到: {args.export_phonemes} ({len(report['suggestions'])} 条新增)")
+
+        # Auto-fix: apply suggestions to phoneme_dict
+        if args.auto_fix and report["suggestions"]:
+            phoneme_dict.update(report["suggestions"])
+            print(f"✓ 已自动应用 {len(report['suggestions'])} 条多音字建议")
+
+        # Scan-only mode: exit after report
+        if args.scan_only:
+            print("\n--scan-only 模式: 仅扫描，不生成 TTS")
+            sys.exit(0)
+
+        # If uncovered polyphones found and not auto-fix, warn user
+        if report["uncovered"] and not args.auto_fix:
+            print("⚠️  发现未处理多音字，继续生成 TTS...")
+            print("   提示: 使用 --auto-fix 自动应用建议，或 --export-phonemes 导出后手动修改\n")
+
 if not sections:
     sections = [{'name': 'main', 'first_text': '', 'start_time': 0, 'end_time': None}]
     print("提示: 未检测到章节标记 [SECTION:name]，将生成单一章节")
@@ -237,12 +433,14 @@ print(f"分成 {len(chunks)} 段")
 def mark_english_terms(text):
     """自动识别并标记英文词汇，保留已有的XML标签"""
     # Preserve existing XML tags by replacing them with placeholders
+    # Use UUID-based placeholders to avoid conflicts with text content
     tags = []
     tag_pattern = r'<[^>]+>'
+    placeholder_prefix = f"__XMLTAG_{uuid.uuid4().hex[:8]}_"
 
     def save_tag(m):
         tags.append(m.group(0))
-        return f'\x00TAG{len(tags)-1}\x00'
+        return f'{placeholder_prefix}{len(tags)-1}__'
 
     text_with_placeholders = re.sub(tag_pattern, save_tag, text)
 
@@ -281,7 +479,7 @@ def mark_english_terms(text):
 
     # Restore the saved tags
     for i, tag in enumerate(tags):
-        result = result.replace(f'\x00TAG{i}\x00', tag)
+        result = result.replace(f'{placeholder_prefix}{i}__', tag)
 
     return result
 
