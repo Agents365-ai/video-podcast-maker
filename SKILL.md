@@ -406,11 +406,33 @@ cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 
-**多音字处理** - 使用同音字替换：
-| 原词 | 替换为 | 说明 |
-|------|--------|------|
-| 一行命令 | 一航命令 | "航" 只有 háng |
-| 代码行 | 代码航 | 同上 |
+### 多音字处理 (SSML Phoneme)
+
+TTS 脚本支持三种方式处理多音字，优先级从高到低：
+
+**1. 内联标注** (最高优先级) - 在 podcast.txt 中直接标注：
+```text
+每个执行器[zhí xíng qì]都有自己的上下文窗口
+如果不合格，就打回重做[chóng zuò]
+```
+
+**2. 项目词典** - 在 `videos/{name}/phonemes.json` 中定义：
+```json
+{
+  "执行器": "zhí xíng qì",
+  "重做": "chóng zuò",
+  "一行命令": "yì háng mìng lìng"
+}
+```
+
+**3. 内置词典** - 预置常见多音字（自动应用）：
+| 词语 | 拼音 | 说明 |
+|------|------|------|
+| 执行/运行/并行 | xíng | "行"作"执行"义 |
+| 一行命令/代码行 | háng | "行"作"行列"义 |
+| 重做/重新/重复 | chóng | "重"作"重复"义 |
+
+**拼音格式**: 使用带声调符号的拼音（如 `zhí xíng qì`），脚本会自动转换为 Azure SAPI 格式。
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 

@@ -13,12 +13,133 @@ import re
 import time
 from xml.sax.saxutils import escape
 
+
+# ============ 多音字处理函数 ============
+def load_phoneme_dict(input_file, phoneme_file=None):
+    """Load phoneme dictionary from JSON file
+
+    Searches in order:
+    1. Explicit --phonemes argument
+    2. phonemes.json in same directory as input file
+    3. Global ~/.config/video-podcast-maker/phonemes.json
+    """
+    search_paths = []
+    if phoneme_file:
+        search_paths.append(phoneme_file)
+    search_paths.append(os.path.join(os.path.dirname(input_file), 'phonemes.json'))
+    search_paths.append(os.path.expanduser('~/.config/video-podcast-maker/phonemes.json'))
+
+    for path in search_paths:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                print(f"✓ 加载多音字词典: {path} ({len(data)} 条)")
+                return data
+    return {}
+
+
+def extract_inline_phonemes(text):
+    """Extract inline phoneme markers from text: 执行器[zhí xíng qì]
+
+    Returns: (clean_text, phoneme_dict)
+    """
+    pattern = r'([\u4e00-\u9fff]+)\[([a-zA-Zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü\s]+)\]'
+    phonemes = {}
+
+    def extract(m):
+        word, pinyin = m.group(1), m.group(2)
+        phonemes[word] = pinyin
+        return word
+
+    clean = re.sub(pattern, extract, text)
+    return clean, phonemes
+
+
+def pinyin_to_sapi(pinyin):
+    """Convert pinyin with tone marks to SAPI format with numeric tones
+
+    Example: "zhí xíng qì" -> "zhi 2 xing 2 qi 4"
+    """
+    tone_map = {
+        'ā': ('a', '1'), 'á': ('a', '2'), 'ǎ': ('a', '3'), 'à': ('a', '4'),
+        'ē': ('e', '1'), 'é': ('e', '2'), 'ě': ('e', '3'), 'è': ('e', '4'),
+        'ī': ('i', '1'), 'í': ('i', '2'), 'ǐ': ('i', '3'), 'ì': ('i', '4'),
+        'ō': ('o', '1'), 'ó': ('o', '2'), 'ǒ': ('o', '3'), 'ò': ('o', '4'),
+        'ū': ('u', '1'), 'ú': ('u', '2'), 'ǔ': ('u', '3'), 'ù': ('u', '4'),
+        'ǖ': ('v', '1'), 'ǘ': ('v', '2'), 'ǚ': ('v', '3'), 'ǜ': ('v', '4'), 'ü': ('v', '5'),
+    }
+
+    syllables = pinyin.split()
+    result = []
+
+    for syllable in syllables:
+        tone = '5'  # neutral tone
+        converted = ''
+        for char in syllable:
+            if char in tone_map:
+                base, t = tone_map[char]
+                converted += base
+                tone = t
+            else:
+                converted += char
+        result.append(f"{converted} {tone}")
+
+    return ' '.join(result)
+
+
+def apply_phonemes(text, phoneme_dict):
+    """Apply SSML phoneme tags for multi-character words
+
+    Uses SAPI alphabet with numeric tones for Azure TTS compatibility.
+    Phoneme dict format: {"执行器": "zhí xíng qì", "重做": "chóng zuò"}
+    """
+    if not phoneme_dict:
+        return text
+
+    # Sort by length (longest first) to avoid partial replacements
+    sorted_words = sorted(phoneme_dict.keys(), key=len, reverse=True)
+
+    result = text
+    for word in sorted_words:
+        pinyin = phoneme_dict[word]
+        sapi_pinyin = pinyin_to_sapi(pinyin)
+        # Use sapi alphabet (Azure TTS native format)
+        phoneme_tag = f'<phoneme alphabet="sapi" ph="{sapi_pinyin}">{word}</phoneme>'
+        result = result.replace(word, phoneme_tag)
+
+    return result
+
+
+# Built-in phoneme dictionary for common polyphones
+BUILTIN_POLYPHONES = {
+    # "行" as háng (row/line)
+    '一行命令': 'yì háng mìng lìng',
+    '一行代码': 'yì háng dài mǎ',
+    '命令行': 'mìng lìng háng',
+    '代码行': 'dài mǎ háng',
+    '多行': 'duō háng',
+    '行数': 'háng shù',
+    '几行': 'jǐ háng',
+    # "重" as chóng (repeat)
+    '重做': 'chóng zuò',
+    '重新': 'chóng xīn',
+    '重复': 'chóng fù',
+    '重试': 'chóng shì',
+    # "行" as xíng (execute)
+    '执行器': 'zhí xíng qì',
+    '执行': 'zhí xíng',
+    '运行': 'yùn xíng',
+    '并行': 'bìng xíng',
+}
+
+
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
     epilog='Environment: AZURE_SPEECH_KEY (required), AZURE_SPEECH_REGION (default: eastasia), TTS_RATE (default: +5%, range: -50% to +200%)'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
+parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 args = parser.parse_args()
 
 key = os.environ.get("AZURE_SPEECH_KEY")
@@ -67,6 +188,20 @@ for i, match in enumerate(matches):
 
 clean_text = re.sub(section_pattern, '', text).strip()
 
+# Extract inline phoneme markers: 执行器[zhí xíng qì]
+clean_text, inline_phonemes = extract_inline_phonemes(clean_text)
+if inline_phonemes:
+    print(f"✓ 提取内联多音字标注: {len(inline_phonemes)} 条")
+    for word, pinyin in inline_phonemes.items():
+        print(f"    {word} → {pinyin}")
+
+# Load phoneme dictionary (file-based)
+file_phonemes = load_phoneme_dict(args.input, args.phonemes)
+
+# Merge: inline > file > builtin (priority order)
+phoneme_dict = {**BUILTIN_POLYPHONES, **file_phonemes, **inline_phonemes}
+print(f"✓ 多音字词典: {len(phoneme_dict)} 条 (内置{len(BUILTIN_POLYPHONES)} + 文件{len(file_phonemes)} + 内联{len(inline_phonemes)})")
+
 if not sections:
     sections = [{'name': 'main', 'first_text': '', 'start_time': 0, 'end_time': None}]
     print("提示: 未检测到章节标记 [SECTION:name]，将生成单一章节")
@@ -100,8 +235,21 @@ print(f"分成 {len(chunks)} 段")
 
 
 def mark_english_terms(text):
-    """自动识别并标记英文词汇"""
-    result = escape(text)
+    """自动识别并标记英文词汇，保留已有的XML标签"""
+    # Preserve existing XML tags by replacing them with placeholders
+    tags = []
+    tag_pattern = r'<[^>]+>'
+
+    def save_tag(m):
+        tags.append(m.group(0))
+        return f'\x00TAG{len(tags)-1}\x00'
+
+    text_with_placeholders = re.sub(tag_pattern, save_tag, text)
+
+    # Escape the text (now without XML tags)
+    result = escape(text_with_placeholders)
+
+    # Process multi-word English phrases
     multi_word_phrases = [
         "Claude Code", "Final Cut Pro", "Visual Studio Code", "VS Code",
         "Google Chrome", "Open AI", "OpenAI", "GPT 4", "GPT-4"
@@ -111,6 +259,7 @@ def mark_english_terms(text):
         if escaped in result:
             result = result.replace(escaped, f'<lang xml:lang="en-US">{escaped}</lang>')
 
+    # Process individual English words
     pattern = r'\b[A-Za-z][A-Za-z0-9\-\.]*[A-Za-z0-9]\b|\b[A-Za-z]{2,}\b'
     matches = list(re.finditer(pattern, result))
 
@@ -130,30 +279,9 @@ def mark_english_terms(text):
             continue
         result = result[:start] + f'<lang xml:lang="en-US">{word}</lang>' + result[end:]
 
-    return result
-
-
-def fix_polyphones(text):
-    """处理多音字，使用同音字替换确保正确发音
-
-    注：SSML phoneme 标签在 Azure TTS 中不稳定，改用文本替换法
-    "行"(háng) 替换为 "航"（只有一个读音）
-    """
-    polyphone_rules = [
-        # "行" 读 háng 的情况（行列义）→ 用 "航" 替换
-        (r'一行命令', '一航命令'),
-        (r'一行代码', '一航代码'),
-        (r'命令行', '命令航'),
-        (r'代码行', '代码航'),
-        (r'多行', '多航'),
-        (r'行数', '航数'),
-        (r'几行', '几航'),
-        (r'(\d+)行', r'\1航'),
-    ]
-
-    result = text
-    for pattern, replacement in polyphone_rules:
-        result = re.sub(pattern, replacement, result)
+    # Restore the saved tags
+    for i, tag in enumerate(tags):
+        result = result.replace(f'\x00TAG{i}\x00', tag)
 
     return result
 
@@ -179,9 +307,11 @@ for i, chunk in enumerate(chunks):
         })
     synth.synthesis_word_boundary.connect(word_boundary_cb)
 
-    # 先处理多音字（文本替换），再处理英文（会escape）
-    chunk_fixed = fix_polyphones(chunk)
-    processed = mark_english_terms(chunk_fixed)
+    # 先处理多音字（在原始文本上），再处理英文标记
+    # apply_phonemes works on raw text and adds phoneme tags
+    chunk_with_phonemes = apply_phonemes(chunk, phoneme_dict)
+    # mark_english_terms escapes special chars and adds lang tags
+    processed = mark_english_terms(chunk_with_phonemes)
 
     ssml = f"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
                xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="zh-CN">
