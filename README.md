@@ -128,6 +128,7 @@ Then reload: `source ~/.zshrc`
 | Document | Description |
 |----------|-------------|
 | [SKILL.md](SKILL.md) | Complete 14-step workflow with pronunciation correction |
+
 ## Quick Start
 
 ### Usage
@@ -137,7 +138,7 @@ This skill is designed for use with [Claude Code](https://claude.ai/claude-code)
 > "Create a video podcast about [your topic]"
 
 Claude will guide you through the entire workflow automatically.
-Claude will guide you through the entire workflow automatically.
+
 ### Preview & Visual Editing with Remotion Studio
 
 Before rendering the final video, use Remotion Studio to preview and visually edit styles:
@@ -157,7 +158,7 @@ This opens a browser-based editor where you can:
 | Category | Properties |
 |----------|-----------|
 | **Colors** | Primary color, background, text color, accent |
-| **Typography** | Title size (60-120), subtitle size, body size |
+| **Typography** | Title size (72-120), subtitle size, body size |
 | **Progress Bar** | Show/hide, height, font size, active color |
 | **Audio** | BGM volume (0-0.3) |
 | **Animation** | Enable/disable entrance animations |
