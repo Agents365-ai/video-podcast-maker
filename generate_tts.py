@@ -101,13 +101,22 @@ def apply_phonemes(text, phoneme_dict):
     # Sort by length (longest first) to avoid partial replacements
     sorted_words = sorted(phoneme_dict.keys(), key=len, reverse=True)
 
+    # Use placeholders to prevent nested replacements
+    placeholders = {}
     result = text
-    for word in sorted_words:
-        pinyin = phoneme_dict[word]
+
+    for i, word in enumerate(sorted_words):
+        if word not in result:
+            continue
+        placeholder = f"__PH_{i}__"
+        placeholders[placeholder] = (word, phoneme_dict[word])
+        result = result.replace(word, placeholder)
+
+    # Replace placeholders with actual phoneme tags
+    for placeholder, (word, pinyin) in placeholders.items():
         sapi_pinyin = pinyin_to_sapi(pinyin)
-        # Use sapi alphabet (Azure TTS native format)
         phoneme_tag = f'<phoneme alphabet="sapi" ph="{sapi_pinyin}">{word}</phoneme>'
-        result = result.replace(word, phoneme_tag)
+        result = result.replace(placeholder, phoneme_tag)
 
     return result
 
