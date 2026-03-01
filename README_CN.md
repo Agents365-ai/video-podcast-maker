@@ -21,6 +21,7 @@
 - **章节进度条** - 可视化时间轴，实时显示当前章节
 - **中英混读** - Azure Speech 支持中英文混合旁白
 - **发音校正** - 内置多音字词典 + 自定义拼音支持
+- **B站模板** - 开箱即用的 Remotion 模板（`Video.tsx`、`Root.tsx`、`Thumbnail.tsx`、`podcast.txt`），快速搭建项目
 
 ### B站优化
 
