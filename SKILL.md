@@ -483,6 +483,40 @@ cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
 
 **ChapterProgressBar 默认启用**，提供用户导航和进度反馈。如不需要，可在创建视频组件时告知 Claude 关闭。
 
+### 一键三连片尾
+
+**Claude behavior:** 使用 AskUserQuestion 询问用户片尾一键三连的实现方式：
+
+> "片尾一键三连动画如何实现？"
+>
+> - **使用预制 MP4 动画（推荐）** — 直接嵌入专业制作的一键三连动画视频，黑白两版可选
+> - **Remotion 代码生成** — 用 Remotion 组件渲染自定义一键三连动画
+
+**预制 MP4 用法：**
+
+```bash
+# 复制到项目 public 目录
+cp ~/.claude/skills/video-podcast-maker/assets/bilibili-triple-white.mp4 public/media/{video-name}/
+# 或黑色背景版本
+cp ~/.claude/skills/video-podcast-maker/assets/bilibili-triple-black.mp4 public/media/{video-name}/
+```
+
+```tsx
+// 在 outro section 中使用 <OffthreadVideo> 嵌入
+import { OffthreadVideo, staticFile } from "remotion";
+
+// 白色背景版
+<OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />
+// 黑色背景版
+<OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-black.mp4")} />
+```
+
+可用素材：
+| 文件 | 背景 | 适用场景 |
+|------|------|----------|
+| `bilibili-triple-white.mp4` | 白色 | 默认白色主题视频 |
+| `bilibili-triple-black.mp4` | 黑色 | 深色主题视频 |
+
 ---
 
 ## Step 8.5: Studio Preview

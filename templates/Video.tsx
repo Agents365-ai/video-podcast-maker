@@ -282,6 +282,11 @@ const SectionComponent = ({
       );
 
     case "outro":
+      // Option A: Use pre-made MP4 animation (recommended)
+      // import { OffthreadVideo, staticFile } from "remotion";
+      // return <OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />;
+
+      // Option B: Remotion-generated outro
       return (
         <FullBleedLayout bg={props.backgroundColor}>
           <div
