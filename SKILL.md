@@ -223,7 +223,9 @@ rm -rf public/media/{name}
 
 ## Workflow
 
+### Progress Tracking
 
+在 Step 0 开始时，使用 `TaskCreate` 创建所有步骤的 tasks，每步开始时 `TaskUpdate` 为 `in_progress`，完成后标记 `completed`。
 
 | Step | Tool | Output |
 |------|------|--------|
