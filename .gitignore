@@ -12,10 +12,6 @@ dist/
 out/
 bundle/
 
-# Design system (copied from remotion-design-master)
-src/remotion/design/*
-!src/remotion/design/README.md
-
 # Video outputs
 videos/
 *.wav
