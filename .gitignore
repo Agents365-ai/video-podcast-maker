@@ -18,8 +18,9 @@ videos/
 *.mp4
 *.srt
 
-# Keep asset mp4s
+# Keep assets
 !assets/*.mp4
+!assets/*.mp3
 
 # Python
 __pycache__/

@@ -196,7 +196,7 @@ videos/{视频名称}/
 
 ## 背景音乐
 
-`music/` 目录下包含：
+`assets/` 目录下包含：
 - `perfect-beauty-191271.mp3` - 轻快积极
 - `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
 

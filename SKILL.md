@@ -627,7 +627,7 @@ ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/out
 ## Step 10: Mix with Background Music
 
 ```bash
-cp ~/.claude/skills/video-podcast-maker/music/perfect-beauty-191271.mp3 videos/{name}/bgm.mp3
+cp ~/.claude/skills/video-podcast-maker/assets/perfect-beauty-191271.mp3 videos/{name}/bgm.mp3
 
 ffmpeg -y \
   -i videos/{name}/output.mp4 \
@@ -787,7 +787,7 @@ videos/{name}/
 
 ## Background Music Options
 
-Available at `~/.claude/skills/video-podcast-maker/music/`:
+Available at `~/.claude/skills/video-podcast-maker/assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 

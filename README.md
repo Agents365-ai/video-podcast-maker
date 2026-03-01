@@ -201,7 +201,7 @@ videos/{video-name}/
 
 ## Background Music
 
-Included tracks in `music/`:
+Included tracks in `assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 
