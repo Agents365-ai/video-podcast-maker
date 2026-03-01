@@ -23,15 +23,15 @@ export const videoSchema = z.object({
   textColor: z.string().describe("正文文字颜色"),
   accentColor: z.string().describe("强调色（CTA、高亮）"),
 
-  // 字体大小
-  titleSize: z.number().min(60).max(120).describe("标题字号"),
-  subtitleSize: z.number().min(32).max(64).describe("副标题字号"),
-  bodySize: z.number().min(20).max(40).describe("正文字号"),
+  // 字体大小 (1080p design space, auto scale(2) to 4K)
+  titleSize: z.number().min(72).max(120).describe("标题字号 (hero/section title)"),
+  subtitleSize: z.number().min(30).max(68).describe("副标题字号"),
+  bodySize: z.number().min(24).max(40).describe("正文字号"),
 
-  // 进度条设置
+  // 进度条设置 (native 4K, outside scale(2))
   showProgressBar: z.boolean().describe("显示底部进度条"),
   progressBarHeight: z.number().min(80).max(150).describe("进度条高度"),
-  progressFontSize: z.number().min(40).max(80).describe("进度条文字大小"),
+  progressFontSize: z.number().min(28).max(60).describe("进度条文字大小"),
   progressActiveColor: z.string().describe("进度条激活颜色"),
 
   // 音频设置
@@ -52,15 +52,16 @@ export const defaultVideoProps: VideoProps = {
   textColor: "#1a1a1a",
   accentColor: "#FF6B6B",
 
-  // 字体大小 (1080p 设计稿尺寸，4K 会自动 scale(2))
+  // 字体大小 (1080p design space, auto scale(2) to 4K)
+  // Reference: PluginComparison hero=72, Superpowers hero=120, section=80
   titleSize: 80,
-  subtitleSize: 48,
+  subtitleSize: 40,
   bodySize: 28,
 
-  // 进度条
+  // 进度条 (native 4K, matches Superpowers reference)
   showProgressBar: true,
   progressBarHeight: 130,
-  progressFontSize: 60,
+  progressFontSize: 38,
   progressActiveColor: "#4f6ef7",
 
   // 音频

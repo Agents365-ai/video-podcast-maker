@@ -66,7 +66,8 @@ const useEntrance = (enabled: boolean) => {
   return { opacity, translateY };
 };
 
-// 章节进度条组件
+// 章节进度条组件 (matches Superpowers reference style)
+// Renders at native 4K resolution (outside scale(2) wrapper)
 const ChapterProgressBar = ({
   props,
   chapters,
@@ -89,11 +90,11 @@ const ChapterProgressBar = ({
         right: 0,
         height: props.progressBarHeight,
         background: "#fff",
-        borderTop: "1px solid #e5e7eb",
+        borderTop: "2px solid #e5e7eb",
         display: "flex",
         alignItems: "center",
-        padding: "0 50px",
-        gap: 16,
+        padding: "0 60px",
+        gap: 20,
         fontFamily: "PingFang SC, Microsoft YaHei, sans-serif",
       }}
     >
@@ -103,20 +104,18 @@ const ChapterProgressBar = ({
         const isActive = progress >= chStart && progress < chEnd;
         const isPast = progress >= chEnd;
         const chProgress = isActive ? (progress - chStart) / (chEnd - chStart) : isPast ? 1 : 0;
-        const buttonHeight = props.progressBarHeight - 50;
-        const borderRadius = buttonHeight / 2;
 
         return (
           <div
             key={ch.name}
             style={{
               flex: ch.duration_frames,
-              height: buttonHeight,
-              borderRadius,
+              height: 76,
+              borderRadius: 38,
               position: "relative",
               overflow: "hidden",
               background: isActive ? props.progressActiveColor : isPast ? "#f3f4f6" : "#f9fafb",
-              border: isActive ? "none" : "1px solid #e5e7eb",
+              border: isActive ? "none" : "2px solid #e5e7eb",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -131,7 +130,7 @@ const ChapterProgressBar = ({
                   bottom: 0,
                   width: `${chProgress * 100}%`,
                   background: "rgba(255,255,255,0.25)",
-                  borderRadius,
+                  borderRadius: 38,
                 }}
               />
             )}
@@ -153,14 +152,14 @@ const ChapterProgressBar = ({
           </div>
         );
       })}
-      {/* 底部总进度条 */}
+      {/* Bottom progress line */}
       <div
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
-          height: 4,
+          height: 5,
           background: "#e5e7eb",
         }}
       >
@@ -189,16 +188,21 @@ const SectionComponent = ({
   const animStyle = { opacity, transform: `translateY(${translateY}px)` };
 
   switch (section.name) {
+    // Reference font sizes (1080p design space):
+    // Hero title: 72-120px/800wt, Section title: 72-80px/700-800wt
+    // Subtitle: 30-40px, Card title: 34-38px, Body: 26-34px, Tags: 20-26px
+
     case "hero":
       return (
         <FullBleedLayout bg={props.backgroundColor}>
           <div
             style={{
+              position: "absolute",
+              inset: 0,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              height: "100%",
               textAlign: "center",
               ...animStyle,
             }}
@@ -206,7 +210,7 @@ const SectionComponent = ({
             <h1
               style={{
                 fontSize: props.titleSize,
-                fontWeight: 700,
+                fontWeight: 800,
                 color: props.primaryColor,
               }}
             >
@@ -217,7 +221,8 @@ const SectionComponent = ({
                 fontSize: props.subtitleSize,
                 color: props.textColor,
                 marginTop: 20,
-                opacity: 0.8,
+                opacity: 0.5,
+                fontWeight: 500,
               }}
             >
               副标题或引导语
@@ -229,54 +234,101 @@ const SectionComponent = ({
     case "overview":
       return (
         <PaddedLayout bg={props.backgroundColor}>
-          <div style={animStyle}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              padding: "80px 100px",
+              display: "flex",
+              flexDirection: "column",
+              ...animStyle,
+            }}
+          >
             <h2
               style={{
-                fontSize: props.subtitleSize,
-                fontWeight: 600,
-                marginBottom: 30,
+                fontSize: 80,
+                fontWeight: 700,
+                marginBottom: 12,
                 color: props.primaryColor,
               }}
             >
               今天的内容
             </h2>
-            <ul
-              style={{
-                fontSize: props.bodySize,
-                lineHeight: 2,
-                color: props.textColor,
-              }}
-            >
-              <li>要点一</li>
-              <li>要点二</li>
-              <li>要点三</li>
-            </ul>
+            <p style={{ fontSize: 30, color: "rgba(0,0,0,0.5)", marginBottom: 40 }}>
+              Section description here
+            </p>
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 28, width: "100%", maxWidth: 800 }}>
+                <div style={{
+                  background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
+                  borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", gap: 24,
+                }}>
+                  <div style={{ fontSize: 52 }}>💡</div>
+                  <div style={{ fontSize: 34, fontWeight: 600, color: props.textColor }}>要点一</div>
+                </div>
+                <div style={{
+                  background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
+                  borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", gap: 24,
+                }}>
+                  <div style={{ fontSize: 52 }}>🎯</div>
+                  <div style={{ fontSize: 34, fontWeight: 600, color: props.textColor }}>要点二</div>
+                </div>
+                <div style={{
+                  background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
+                  borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", gap: 24,
+                }}>
+                  <div style={{ fontSize: 52 }}>✅</div>
+                  <div style={{ fontSize: 34, fontWeight: 600, color: props.textColor }}>要点三</div>
+                </div>
+              </div>
+            </div>
           </div>
         </PaddedLayout>
       );
 
     case "summary":
       return (
-        <FullBleedLayout bg="#f5f5f5">
-          <div style={{ padding: 40, ...animStyle }}>
-            <h2
+        <FullBleedLayout bg={props.backgroundColor}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "80px 100px",
+              ...animStyle,
+            }}
+          >
+            <div
               style={{
-                fontSize: props.subtitleSize,
-                fontWeight: 600,
-                color: props.primaryColor,
+                background: `linear-gradient(135deg, ${props.primaryColor}10, ${props.accentColor}10)`,
+                borderRadius: 28,
+                padding: "56px 72px",
+                textAlign: "center",
               }}
             >
-              总结
-            </h2>
-            <p
-              style={{
-                fontSize: props.bodySize,
-                marginTop: 20,
-                color: props.textColor,
-              }}
-            >
-              核心结论...
-            </p>
+              <h2
+                style={{
+                  fontSize: 52,
+                  fontWeight: 700,
+                  color: props.primaryColor,
+                  marginBottom: 28,
+                }}
+              >
+                总结
+              </h2>
+              <p
+                style={{
+                  fontSize: 30,
+                  color: props.textColor,
+                  lineHeight: 1.6,
+                }}
+              >
+                核心结论...
+              </p>
+            </div>
           </div>
         </FullBleedLayout>
       );
@@ -286,65 +338,102 @@ const SectionComponent = ({
       // import { OffthreadVideo, staticFile } from "remotion";
       // return <OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />;
 
-      // Option B: Remotion-generated outro
+      // Option B: Remotion-generated outro (matches reference style)
       return (
         <FullBleedLayout bg={props.backgroundColor}>
           <div
             style={{
+              position: "absolute",
+              inset: 0,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              height: "100%",
               ...animStyle,
             }}
           >
             <h2
               style={{
-                fontSize: props.titleSize * 0.75,
+                fontSize: 80,
                 fontWeight: 700,
                 color: props.textColor,
+                marginBottom: 48,
               }}
             >
               感谢观看
             </h2>
+            <div style={{ display: "flex", gap: 40 }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 64 }}>👍</div>
+                <div style={{ fontSize: 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>点赞</div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 64 }}>⭐</div>
+                <div style={{ fontSize: 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>收藏</div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 64 }}>🔔</div>
+                <div style={{ fontSize: 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>关注</div>
+              </div>
+            </div>
             <p
               style={{
-                fontSize: props.subtitleSize * 0.75,
-                color: props.accentColor,
-                marginTop: 30,
+                fontSize: 36,
+                color: props.primaryColor,
+                marginTop: 48,
               }}
             >
-              一键三连 👍
+              下期再见！
             </p>
           </div>
         </FullBleedLayout>
       );
 
     default:
-      // 通用 content section 渲染
+      // Generic content section (matches reference Card layout)
       return (
         <PaddedLayout bg={props.backgroundColor}>
-          <div style={animStyle}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              padding: "80px 100px",
+              display: "flex",
+              flexDirection: "column",
+              ...animStyle,
+            }}
+          >
             <h2
               style={{
-                fontSize: props.subtitleSize,
-                fontWeight: 600,
-                marginBottom: 20,
+                fontSize: 80,
+                fontWeight: 700,
                 color: props.primaryColor,
               }}
             >
               {section.name}
             </h2>
-            <p
+            <p style={{ fontSize: 30, color: "rgba(0,0,0,0.5)", marginTop: 12 }}>
+              Section description here
+            </p>
+            <div
               style={{
-                fontSize: props.bodySize,
-                color: props.textColor,
-                opacity: 0.8,
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 24,
               }}
             >
-              Section content goes here...
-            </p>
+              <p
+                style={{
+                  fontSize: props.bodySize,
+                  color: props.textColor,
+                  fontWeight: 500,
+                }}
+              >
+                Section content goes here...
+              </p>
+            </div>
           </div>
         </PaddedLayout>
       );

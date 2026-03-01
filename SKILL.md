@@ -126,6 +126,78 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 ---
 
+## Visual Design Reference
+
+以下尺寸来自已验证的生产视频（1080p 设计空间，`scale(2)` 放大到 4K），**必须遵循**：
+
+### Typography Scale (1080p design space)
+
+| Element | Size | Weight | When to Use |
+|---------|------|--------|-------------|
+| **Hero Title** | 72–120px | 800 | Opening section, brand moment |
+| **Section Title** | 72–80px | 700–800 | Each section's main heading |
+| **Large Emphasis** | 40–68px | 600–700 | Key statements, conclusions, quotes |
+| **Subtitle / Description** | 30–40px | 500–600 | Under section titles, subheadings |
+| **Card Title** | 34–38px | 700 | Feature cards, list group headers |
+| **Body Text** | 26–34px | 500–600 | Paragraphs, list items, descriptions |
+| **Tags / Pills** | 20–26px | 600 | Labels, badges, categories |
+
+> **Anti-patterns (NEVER do):**
+> - No text smaller than 18px in 1080p design space
+> - No hero title smaller than 72px
+> - No section title smaller than 60px
+> - No card/body text smaller than 24px
+
+### Layout Patterns
+
+| Pattern | Specification |
+|---------|---------------|
+| **Card** | `borderRadius: 20–28px`, `padding: 28–44px`, `border: 1–3px solid`, `boxShadow: 0 10px 40px rgba(0,0,0,0.08)` |
+| **Section Padding** | `padding: 40–80px` on content sections, `60–100px` on hero sections |
+| **Grid Gap** | `gap: 20–40px` between cards/items |
+| **Hero / Impact** | Full viewport centered (flexbox center), no excessive padding |
+| **Content Max Width** | 800–950px for centered blocks, or full width with padding |
+
+### FadeIn Animation Pattern
+
+```tsx
+const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
+  const frame = useCurrentFrame()
+  const opacity = interpolate(frame - delay, [0, 15], [0, 1], { extrapolateRight: 'clamp' })
+  const y = interpolate(frame - delay, [0, 15], [20, 0], { extrapolateRight: 'clamp' })
+  return <div style={{ opacity, transform: `translateY(${y}px)` }}>{children}</div>
+}
+```
+
+### Glow Effect Pattern
+
+```tsx
+const Glow = ({ color, x, y, size }: { color: string; x: string; y: string; size: number }) => (
+  <div style={{
+    position: 'absolute', left: x, top: y, width: size, height: size,
+    background: `radial-gradient(circle, ${color}08 0%, transparent 70%)`,
+    transform: 'translate(-50%, -50%)', pointerEvents: 'none',
+  }} />
+)
+```
+
+### Progress Bar Specification (native 4K, outside `scale(2)`)
+
+| Property | Value |
+|----------|-------|
+| **Bar Height** | 130px |
+| **Background** | `#fff`, `borderTop: 2px solid #e5e7eb` |
+| **Padding** | `0 60px`, `gap: 20px` |
+| **Pill Height** | 76px, `borderRadius: 38px` |
+| **Pill Width** | `flex: ch.duration_frames` (proportional by chapter length) |
+| **Active State** | Solid primary color bg, white text, weight 700, inner progress overlay `rgba(255,255,255,0.25)` |
+| **Past State** | `#f3f4f6` bg |
+| **Future State** | `#f9fafb` bg, `2px solid #e5e7eb` border |
+| **Text Size** | 38px |
+| **Bottom Line** | 5px full-width, `#e5e7eb` bg with primary color fill |
+
+---
+
 ## 文件路径与命名规范
 
 ### 目录结构
