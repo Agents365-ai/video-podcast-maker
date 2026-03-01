@@ -129,7 +129,7 @@ Then reload: `source ~/.zshrc`
 
 | Document | Description |
 |----------|-------------|
-| [SKILL.md](SKILL.md) | Complete 14-step workflow with pronunciation correction |
+| [SKILL.md](SKILL.md) | Complete 15-step workflow with pronunciation correction |
 
 ## Quick Start
 

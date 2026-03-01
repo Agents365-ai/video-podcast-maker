@@ -190,18 +190,18 @@ project-root/                           # Remotion 项目根目录
 │   └── {section}_ai.png                # AI 生成图片
 │
 ├── videos/{video-name}/                # 视频项目资产 (非 Remotion 代码)
-│   ├── topic_definition.md             # Step 0: 主题定义
-│   ├── topic_research.md               # Step 1: 研究资料
-│   ├── podcast.txt                     # Step 3: 旁白脚本
-│   ├── media_manifest.json             # Step 4: 素材清单
-│   ├── publish_info.md                 # Step 5+12: 发布信息
-│   ├── podcast_audio.wav               # Step 7: TTS 音频
-│   ├── podcast_audio.srt               # Step 7: 字幕文件
-│   ├── timing.json                     # Step 7: 时间轴
-│   ├── thumbnail_*.png                 # Step 6: 封面
-│   ├── output.mp4                      # Step 9: Remotion 输出
-│   ├── video_with_bgm.mp4              # Step 10: 添加 BGM
-│   ├── final_video.mp4                 # Step 11: 最终输出
+│   ├── topic_definition.md             # Step 1: 主题定义
+│   ├── topic_research.md               # Step 2: 研究资料
+│   ├── podcast.txt                     # Step 4: 旁白脚本
+│   ├── media_manifest.json             # Step 5: 素材清单
+│   ├── publish_info.md                 # Step 6+13: 发布信息
+│   ├── podcast_audio.wav               # Step 8: TTS 音频
+│   ├── podcast_audio.srt               # Step 8: 字幕文件
+│   ├── timing.json                     # Step 8: 时间轴
+│   ├── thumbnail_*.png                 # Step 7: 封面
+│   ├── output.mp4                      # Step 10: Remotion 输出
+│   ├── video_with_bgm.mp4              # Step 11: 添加 BGM
+│   ├── final_video.mp4                 # Step 12: 最终输出
 │   └── bgm.mp3                         # 背景音乐
 │
 └── remotion.config.ts                  # Remotion 配置
@@ -242,47 +242,46 @@ rm -rf public/media/{name}
 
 ### Progress Tracking
 
-在 Step 0 开始时，使用 `TaskCreate` 创建所有步骤的 tasks，每步开始时 `TaskUpdate` 为 `in_progress`，完成后标记 `completed`。
+在 Step 1 开始时，使用 `TaskCreate` **按以下列表逐条创建 tasks**（不要合并或省略），每步开始时 `TaskUpdate` 为 `in_progress`，完成后标记 `completed`：
 
-| Step | Tool | Output |
-|------|------|--------|
-| **0. Define Direction** | `brainstorming` | `topic_definition.md` |
-| **1. Research** | WebSearch, WebFetch | `topic_research.md` |
-| **2. Design Sections** | `brainstorming` | 5-7 sections plan |
-| **3. Write Script** | Claude | `podcast.txt` |
-| **4. Collect Media** | Playwright/WebSearch | `media_manifest.json` |
-| **5. Publish Info (Part 1)** | Claude | `publish_info.md` |
-| **6. Thumbnail** | Remotion/imagen/imagenty | `thumbnail_*.png` |
-| **7. Generate Audio** | generate_tts.py | `.wav`, `.srt`, `timing.json` |
-| **8. Create Video** | Remotion | Composition ready |
-| **8.5. Studio Preview** | remotion studio | ✅ Preview verified |
-| **9. Render** | remotion render | `output.mp4` |
-| **10. Add BGM** | FFmpeg | `video_with_bgm.mp4` |
-| **11. Subtitles** | FFmpeg + SRT | `final_video.mp4` |
-| **12. Publish Info (Part 2)** | Claude | Update chapters |
-| **13. Verify** | Claude | Verification report |
-| **14. Cleanup** | Claude | Remove temp files |
+```
+ 1. Define topic direction (brainstorming) → topic_definition.md
+ 2. Research topic → topic_research.md
+ 3. Design video sections (5-7 chapters)
+ 4. Write narration script → podcast.txt
+ 5. Collect media assets → media_manifest.json
+ 6. Generate publish info (Part 1) → publish_info.md
+ 7. Generate thumbnails (16:9 + 4:3) → thumbnail_*.png
+ 8. Generate TTS audio → podcast_audio.wav, timing.json
+ 9. Create Remotion composition + Studio preview
+10. Render 4K video → output.mp4
+11. Mix background music → video_with_bgm.mp4
+12. Add subtitles (optional) → final_video.mp4
+13. Complete publish info (Part 2) → chapter timestamps
+14. Verify output (resolution, sync, files)
+15. Cleanup temp files (optional)
+```
 
 ### Validation Checkpoints
 
-**After Step 7 (TTS)**:
+**After Step 8 (TTS)**:
 - [ ] `podcast_audio.wav` exists and plays correctly
 - [ ] `timing.json` has all sections with correct timestamps
 - [ ] `podcast_audio.srt` encoding is UTF-8
 
-**After Step 9 (Render)**:
+**After Step 10 (Render)**:
 - [ ] `output.mp4` resolution is 3840x2160
 - [ ] Audio-video sync verified
 - [ ] No black frames
 
-**After Step 11 (Final)**:
+**After Step 12 (Final)**:
 - [ ] `final_video.mp4` resolution is 3840x2160
 - [ ] Subtitles display correctly (if added)
 - [ ] File size is reasonable
 
 ---
 
-## Step 0: Define Topic Direction
+## Step 1: Define Topic Direction
 
 使用 `brainstorming` skill 确认：
 1. **目标受众**: 技术开发者 / 普通用户 / 学生 / 专业人士
@@ -295,13 +294,13 @@ rm -rf public/media/{name}
 
 ---
 
-## Step 1: Research Topic
+## Step 2: Research Topic
 
 Use WebSearch and WebFetch. Save to `videos/{name}/topic_research.md`.
 
 ---
 
-## Step 2: Design Video Sections
+## Step 3: Design Video Sections
 
 Design 5-7 sections:
 - Hero/Intro (15-25s)
@@ -344,7 +343,7 @@ cta: Impact (1 call-to-action)
 
 ---
 
-## Step 3: Write Narration Script
+## Step 4: Write Narration Script
 
 Create `videos/{name}/podcast.txt` with section markers:
 
@@ -397,7 +396,7 @@ Create `videos/{name}/podcast.txt` with section markers:
 
 ---
 
-## Step 4: Collect Media Assets
+## Step 5: Collect Media Assets
 
 **首先询问用户**：是否需要使用 **imagen skill** 生成 AI 图片素材？
 
@@ -424,7 +423,7 @@ Claude 逐章节询问素材来源：
 
 ---
 
-## Step 5: Generate Publish Info (Part 1)
+## Step 6: Generate Publish Info (Part 1)
 
 基于 `podcast.txt` 生成 `publish_info.md`:
 - 标题（数字 + 主题 + 吸引词）
@@ -433,7 +432,7 @@ Claude 逐章节询问素材来源：
 
 ---
 
-## Step 6: Generate Video Thumbnail
+## Step 7: Generate Video Thumbnail
 
 **询问用户选择封面生成方式**:
 1. **Remotion生成** - 代码控制，风格与视频一致
@@ -458,7 +457,7 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 
 ---
 
-## Step 7: Generate TTS Audio
+## Step 8: Generate TTS Audio
 
 ```bash
 cp ~/.claude/skills/video-podcast-maker/generate_tts.py .
@@ -497,7 +496,7 @@ TTS 脚本支持三种方式校正发音，优先级从高到低：
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 ---
 
-## Step 8: Create Remotion Composition
+## Step 9: Create Remotion Composition + Studio Preview
 
 复制文件到 public/:
 ```bash
@@ -562,51 +561,28 @@ import { OffthreadVideo, staticFile } from "remotion";
 | `bilibili-triple-white.mp4` | 白色 | 默认白色主题视频 |
 | `bilibili-triple-black.mp4` | 黑色 | 深色主题视频 |
 
----
-
-## Step 8.5: Studio Preview
+### Studio Preview (included in this step)
 
 **Claude behavior:** 使用 AskUserQuestion 询问用户：
 
 > "建议先启动 Remotion Studio 预览，迭代修改满意后再渲染最终 4K 视频，可以节省大量渲染时间。是否启动预览？"
 >
-> - **是（推荐）** — 启动 Studio 预览，迭代修改，满意后再执行 Step 9 渲染
+> - **是（推荐）** — 启动 Studio 预览，迭代修改，满意后再执行渲染
 > - **否** — 跳过预览，直接渲染 4K 视频
 
-Use Remotion Studio for real-time preview before final render:
-
 ```bash
-# Start Remotion Studio (opens browser)
 npx remotion studio src/remotion/index.ts
 ```
 
-**Studio features:**
-- Real-time preview with timeline scrubbing
-- Hot reload on code changes
-- Visual debugging of animations and layout
-
-**Alternative: Quick preview render**
-```bash
-# 720p preview (~4x faster than 4K)
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --scale 0.33 --crf 28
-
-# Preview first 10 seconds only
-npx remotion render src/remotion/index.ts CompositionId videos/{name}/preview.mp4 --frames 0-300 --scale 0.5
-
-# Static frame screenshots
-npx remotion still src/remotion/index.ts CompositionId videos/{name}/frame_0.png --frame 0
-npx remotion still src/remotion/index.ts CompositionId videos/{name}/frame_300.png --frame 300
-```
-
-**Recommended workflow:**
-1. Use `remotion studio` for iterative development
-2. Check pronunciation — if incorrect, fix in `podcast.txt` (inline `[拼音]`) or `phonemes.json`, re-run `generate_tts.py`, copy to `public/`
-3. Quick preview render to check full flow
-4. Final 4K render when satisfied
+**Preview workflow:**
+1. `remotion studio` for iterative development (real-time preview, hot reload)
+2. Check pronunciation — if incorrect, fix in `podcast.txt` or `phonemes.json`, re-run `generate_tts.py`, copy to `public/`
+3. Quick preview render: `npx remotion render ... --scale 0.33 --crf 28`
+4. Satisfied → proceed to Step 10
 
 ---
 
-## Step 9: Render Video
+## Step 10: Render Video
 
 > Use `npx remotion studio` for preview, then render directly for final output.
 
@@ -622,7 +598,7 @@ ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/out
 
 ---
 
-## Step 10: Mix with Background Music
+## Step 11: Mix with Background Music
 
 ```bash
 cp ~/.claude/skills/video-podcast-maker/assets/perfect-beauty-191271.mp3 videos/{name}/bgm.mp3
@@ -638,7 +614,7 @@ ffmpeg -y \
 
 ---
 
-## Step 11: Add Subtitles (可选)
+## Step 12: Add Subtitles (可选)
 
 **Claude behavior:** Ask before skipping: "需要烧录字幕吗？字幕可以提高视频的可访问性。"
 
@@ -661,7 +637,7 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ---
 
-## Step 12: Complete Publish Info (Part 2)
+## Step 13: Complete Publish Info (Part 2)
 
 从 `timing.json` 生成 B站章节：
 
@@ -676,11 +652,11 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 
 ---
 
-## Step 13: Verify Output
+## Step 14: Verify Output
 
 视频完成后，执行以下验证：
 
-### 13.1 文件存在性检查
+### 14.1 文件存在性检查
 
 ```bash
 VIDEO_DIR="videos/{name}"
@@ -690,7 +666,7 @@ for f in podcast.txt podcast_audio.wav podcast_audio.srt timing.json output.mp4 
 done
 ```
 
-### 13.2 技术指标验证
+### 14.2 技术指标验证
 
 ```bash
 echo "=== 技术指标 ==="
@@ -711,7 +687,7 @@ SIZE=$(ls -lh "$VIDEO_DIR/final_video.mp4" | awk '{print $5}')
 echo "✓ 文件大小: $SIZE"
 ```
 
-### 13.3 验证报告模板
+### 14.3 验证报告模板
 
 完成验证后，向用户报告：
 
@@ -723,16 +699,16 @@ echo "✓ 文件大小: $SIZE"
 ✓ 编码: h264
 ✓ 大小: XXX MB
 
-是否需要清理临时文件？(Step 14)
+是否需要清理临时文件？(Step 15)
 ```
 
 ---
 
-## Step 14: Cleanup (可选)
+## Step 15: Cleanup (可选)
 
 **Claude behavior:** Ask before skipping: "要清理临时文件吗？可以释放磁盘空间，但会删除中间产物。"
 
-### 14.1 列出临时文件
+### 15.1 列出临时文件
 
 执行前，先向用户展示将被删除的文件：
 
@@ -748,12 +724,12 @@ echo "=== 将保留的文件 ==="
 ls -lh "$VIDEO_DIR"/final_video.mp4 "$VIDEO_DIR"/podcast_audio.wav "$VIDEO_DIR"/podcast_audio.srt "$VIDEO_DIR"/timing.json "$VIDEO_DIR"/podcast.txt 2>/dev/null | awk '{print $9, "(" $5 ")"}'
 ```
 
-### 14.2 用户确认
+### 15.2 用户确认
 
 **询问用户**:
 > 以上临时文件将被删除，保留最终成品和源文件。是否继续？
 
-### 14.3 执行清理
+### 15.3 执行清理
 
 用户确认后执行：
 
@@ -766,7 +742,7 @@ rm -f "$VIDEO_DIR"/video_with_bgm.mp4
 echo "✓ 临时文件已清理"
 ```
 
-### 14.4 清理后文件结构
+### 15.4 清理后文件结构
 
 ```
 videos/{name}/
