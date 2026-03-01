@@ -563,7 +563,12 @@ import { ChapterProgressBar } from './design/components/navigation/ChapterProgre
 
 ## Step 8.5: Studio Preview
 
-**Claude behavior:** Ask before skipping: "要先用 Remotion Studio 预览吗？可以在 4K 渲染前发现问题，节省时间。"
+**Claude behavior:** 使用 AskUserQuestion 询问用户：
+
+> "建议先启动 Remotion Studio 预览，迭代修改满意后再渲染最终 4K 视频，可以节省大量渲染时间。是否启动预览？"
+>
+> - **是（推荐）** — 启动 Studio 预览，迭代修改，满意后再执行 Step 9 渲染
+> - **否** — 跳过预览，直接渲染 4K 视频
 
 Use Remotion Studio for real-time preview before final render:
 
