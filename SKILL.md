@@ -530,34 +530,22 @@ cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 
 ### 标准视频模板（必须遵循）
 
-```tsx
-import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion'
-import timingData from '../../public/timing.json'
-import { ChapterProgressBar } from './design/components/navigation/ChapterProgressBar' // 使用设计系统
+使用 `templates/Video.tsx` 作为起点，已包含完整实现（4K 缩放、章节进度条、音频集成）。
 
-// 章节中文名映射
-const sectionNamesCN: Record<string, string> = {
-  hero: '开场', features: '功能', demo: '演示', summary: '总结', outro: '结语',
-}
-
-export const MyVideo = () => (
-  <AbsoluteFill style={{ background: '#fff' }}>
-    <Audio src={staticFile('podcast_audio.wav')} />
-    {/* 4K 内容区域 - scale(2) 容器 */}
-    <AbsoluteFill style={{ transform: 'scale(2)', transformOrigin: 'top left', width: '50%', height: '50%' }}>
-      {timingData.sections.map((section: any) => (
-        <Sequence key={section.name} from={section.start_frame} durationInFrames={section.duration_frames}>
-          <SectionComponent name={section.name} />
-        </Sequence>
-      ))}
-    </AbsoluteFill>
-    {/* ⚠️ 进度条必须放在 scale(2) 容器外部 */}
-    <ChapterProgressBar />
-  </AbsoluteFill>
-)
+```bash
+cp ~/.claude/skills/video-podcast-maker/templates/Video.tsx src/remotion/
+cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
 ```
 
-> **完整 ChapterProgressBar 实现** 见 `remotion-design-master` 设计系统。
+模板中的 ChapterProgressBar 是**自包含实现**，无需额外依赖。如果已安装 `remotion-design-master`，也可替换为设计系统版本：
+
+```tsx
+// 方式 A: 使用模板自带的 ChapterProgressBar（默认，无需额外安装）
+// 已内置在 templates/Video.tsx 中
+
+// 方式 B: 使用 remotion-design-master 的 ChapterProgressBar
+import { ChapterProgressBar } from './design/components/navigation/ChapterProgressBar'
+```
 
 ### 关键架构说明
 

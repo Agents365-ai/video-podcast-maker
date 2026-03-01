@@ -1,6 +1,6 @@
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate } from 'remotion'
 
-// Design system imports - run `npm run setup` first to install
+// Optional: design system imports (install remotion-design-master first)
 // import { FullBleed, ContentArea, FadeIn, Title } from './design'
 // import { minimalWhite } from './design/themes'
 // import { ChapterProgressBar } from './design/components/navigation'
