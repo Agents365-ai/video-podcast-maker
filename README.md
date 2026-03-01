@@ -37,9 +37,13 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 ## Related Skills
 
-This skill is part of a layered architecture with other Remotion-related skills:
+This skill works alongside other Remotion-related skills (all optional):
 
-![Skill Architecture](assets/skill-architecture.png)
+- **remotion-best-practices** - General Remotion patterns and best practices
+- **remotion-design-master** - Design system with components and themes (optional, for structured design)
+- **ffmpeg** - Advanced audio/video processing
+- **imagen / imagenty** - AI thumbnail generation
+
 
 ## Requirements
 

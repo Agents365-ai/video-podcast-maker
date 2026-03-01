@@ -37,9 +37,13 @@
 
 ## 相关技能
 
-本技能是 Remotion 相关技能的分层架构的一部分：
+本技能可与以下 Remotion 相关技能配合使用（均为可选）：
 
-![技能架构](assets/skill-architecture.png)
+- **remotion-best-practices** - Remotion 通用模式与最佳实践
+- **remotion-design-master** - 设计系统，提供组件和主题（可选，适合结构化设计）
+- **ffmpeg** - 高级音视频处理
+- **imagen / imagenty** - AI 封面生成
+
 
 ## 环境要求
 
