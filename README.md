@@ -22,6 +22,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Chapter Progress Bar** - Visual timeline showing current section during playback
 - **Bilingual TTS** - Chinese/English mixed narration with Azure Speech
 - **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
+- **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 
 ### Bilibili Optimizations
 
