@@ -5,7 +5,17 @@ author: 探索未至之境
 created: 2025-01-27
 updated: 2026-02-27
 bilibili: https://space.bilibili.com/441831884
+dependencies:
+  - remotion-best-practices
+  - find-skills
 ---
+
+> **REQUIRED: Load Remotion Best Practices First**
+>
+> This skill depends on `remotion-best-practices` (official Remotion best practices). **You MUST invoke it before proceeding:**
+> ```
+> Skill tool: skill="remotion-best-practices"
+> ```
 
 # Video Podcast Maker
 

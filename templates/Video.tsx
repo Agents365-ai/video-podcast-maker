@@ -75,7 +75,7 @@ const ChapterProgressBar = ({
   chapters: typeof timing.sections;
 }) => {
   const frame = useCurrentFrame();
-  const totalFrames = timing.totalFrames;
+  const totalFrames = timing.total_frames;
   const progress = frame / totalFrames;
 
   if (!props.showProgressBar) return null;

@@ -80,7 +80,7 @@ export const RemotionRoot = () => {
       <Composition
         id={VIDEO_ID}
         component={Video}
-        durationInFrames={timing.totalFrames}
+        durationInFrames={timing.total_frames}
         fps={30}
         width={3840}
         height={2160}
@@ -97,22 +97,13 @@ export const RemotionRoot = () => {
         defaultProps={{ aspectRatio: "16:9" }}
       />
 
-      {/* 4:3 缩略图 - 部分平台需要 */}
+      {/* 4:3 缩略图 - B站推荐流/动态 */}
       <Still
         id="Thumbnail4x3"
         component={Thumbnail}
-        width={1600}
-        height={1200}
+        width={1200}
+        height={900}
         defaultProps={{ aspectRatio: "4:3" }}
-      />
-
-      {/* 1:1 缩略图 - 社交媒体分享 */}
-      <Still
-        id="Thumbnail1x1"
-        component={Thumbnail}
-        width={1080}
-        height={1080}
-        defaultProps={{ aspectRatio: "1:1" }}
       />
     </>
   );

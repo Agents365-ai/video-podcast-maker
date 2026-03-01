@@ -17,7 +17,7 @@ cp ~/.claude/skills/video-podcast-maker/templates/podcast.txt videos/{name}/
 | `podcast.txt` | Script template with `[SECTION:xxx]` markers |
 | `Video.tsx` | Main video composition component |
 | `Root.tsx` | Remotion root with Composition and Still registrations |
-| `Thumbnail.tsx` | Thumbnail component (简约纯白 style) |
+| `Thumbnail.tsx` | Thumbnail component (white centered, 16:9 + 4:3) |
 
 ## Note on TypeScript Errors
 

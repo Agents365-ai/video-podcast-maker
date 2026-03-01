@@ -37,12 +37,13 @@
 
 ## 相关技能
 
-本技能可与以下 Remotion 相关技能配合使用（均为可选）：
+本技能依赖 **remotion-best-practices**，并可与其他可选技能配合使用：
 
-- **remotion-best-practices** - Remotion 通用模式与最佳实践
+- **remotion-best-practices** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范）
+- **find-skills** - 官方技能发现工具（必需，用于查找和安装更多技能）
 - **remotion-design-master** - 设计系统，提供组件和主题（可选，适合结构化设计）
-- **ffmpeg** - 高级音视频处理
-- **imagen / imagenty** - AI 封面生成
+- **ffmpeg** - 高级音视频处理（可选）
+- **imagen / imagenty** - AI 封面生成（可选）
 
 
 ## 环境要求
