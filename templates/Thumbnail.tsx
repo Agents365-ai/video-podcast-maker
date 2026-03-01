@@ -1,7 +1,7 @@
 /**
- * Video Thumbnail Template — Fill-the-Frame Design
+ * Video Thumbnail Template — White Centered Design
  *
- * Dark gradient background, large text filling the entire frame.
+ * White background, all content centered vertically and horizontally.
  * Optimized for Bilibili mobile feed (~170px display width).
  *
  * Customize: title, subtitle, tags, icons
@@ -15,93 +15,87 @@ interface ThumbnailProps {
   subtitle?: string;
   tags?: string[];
   icons?: string[];
-  background?: string;
 }
+
+const font = "'PingFang SC', 'Noto Sans SC', sans-serif";
 
 export const Thumbnail = ({
   aspectRatio = "16:9",
-  title = "大标题占满",
-  subtitle = "副标题铺满宽度",
+  title = "视频封面标题",
+  subtitle = "副标题铺满整个画面宽度区域",
   tags = ["标签A", "标签B"],
-  icons = ["🚀", "⚡"],
-  background = "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
+  icons = ["🚀", "⚡", "🔥"],
 }: ThumbnailProps) => {
-  const isWide = aspectRatio === "16:9";
-  const titleSize = isWide ? 260 : 220;
-  const subtitleSize = isWide ? 120 : 100;
-  const tagSize = 80;
-  const iconSize = 140;
+  const compact = aspectRatio === "4:3";
+  const titleSize = compact ? 150 : 160;
+  const subtitleSize = compact ? 56 : 60;
 
   return (
-    <AbsoluteFill style={{
-      background,
-      fontFamily: "'PingFang SC', 'Noto Sans SC', 'Source Han Sans SC', sans-serif",
-    }}>
-      {/* 4K scale(2) wrapper */}
-      <AbsoluteFill style={{
-        transform: "scale(2)",
-        transformOrigin: "top left",
-        width: "50%",
-        height: "50%",
-      }}>
-        <div style={{
+    <AbsoluteFill style={{ background: "#ffffff", fontFamily: font }}>
+      <div
+        style={{
           position: "absolute",
           inset: 0,
-          padding: 20,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-        }}>
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
-              {tags.map((tag, i) => (
-                <div key={i} style={{
-                  background: "rgba(249,115,22,0.25)",
-                  border: "3px solid rgba(249,115,22,0.4)",
-                  borderRadius: 24,
-                  padding: "12px 28px",
-                  fontSize: tagSize,
-                  fontWeight: 700,
-                  color: "#fb923c",
-                }}>{tag}</div>
-              ))}
+          alignItems: "center",
+          padding: "40px 50px",
+          gap: 24,
+        }}
+      >
+        {/* Tags + Icons row */}
+        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          {tags.map((tag, i) => (
+            <div
+              key={i}
+              style={{
+                background: "rgba(249,115,22,0.1)",
+                border: "3px solid rgba(249,115,22,0.3)",
+                borderRadius: 24,
+                padding: "14px 36px",
+                fontSize: 44,
+                fontWeight: 700,
+                color: "#f97316",
+              }}
+            >
+              {tag}
             </div>
-          )}
+          ))}
+          {icons.map((icon, i) => (
+            <span key={i} style={{ fontSize: 80 }}>
+              {icon}
+            </span>
+          ))}
+        </div>
 
-          {/* Title — fills width */}
-          <div style={{
+        {/* Title */}
+        <div
+          style={{
             fontSize: titleSize,
             fontWeight: 900,
-            letterSpacing: 4,
-            color: "#fff",
-            lineHeight: 1.1,
-            width: "100%",
-          }}>
-            {title}
-          </div>
+            letterSpacing: 6,
+            color: "#1a1a2e",
+            lineHeight: 1.2,
+            textAlign: "center",
+          }}
+        >
+          {title}
+        </div>
 
-          {/* Subtitle — fills width */}
-          <div style={{
+        {/* Subtitle */}
+        <div
+          style={{
             fontSize: subtitleSize,
             fontWeight: 700,
-            color: "rgba(255,255,255,0.7)",
-            marginTop: 16,
-            width: "100%",
-          }}>
-            {subtitle}
-          </div>
-
-          {/* Icons */}
-          {icons.length > 0 && (
-            <div style={{ display: "flex", gap: 24, marginTop: 32 }}>
-              {icons.map((icon, i) => (
-                <span key={i} style={{ fontSize: iconSize }}>{icon}</span>
-              ))}
-            </div>
-          )}
+            color: "#666",
+            letterSpacing: 2,
+            textAlign: "center",
+          }}
+        >
+          {subtitle}
         </div>
-      </AbsoluteFill>
+      </div>
     </AbsoluteFill>
   );
 };
