@@ -6,6 +6,8 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 > **No coding required!** Just describe your topic in plain language - Claude guides you through each step interactively. You make creative decisions, Claude handles all the technical details. Creating your first video podcast is easier than you think.
 
+> **Note:** This project is still under active development and may not be fully mature yet. We are continuously iterating and improving. Your feedback and suggestions are greatly appreciated — feel free to [open an issue](https://github.com/Agents365-ai/video-podcast-maker/issues) or reach out!
+
 ## Features
 
 - **Topic Research** - Web search and content gathering
