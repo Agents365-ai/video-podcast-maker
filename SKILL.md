@@ -229,9 +229,9 @@ rm -rf public/media/{name}
 
 | Step | Tool | Output |
 |------|------|--------|
-| **0. Define Direction** | `superpowers:brainstorming` | `topic_definition.md` |
+| **0. Define Direction** | `brainstorming` | `topic_definition.md` |
 | **1. Research** | WebSearch, WebFetch | `topic_research.md` |
-| **2. Design Sections** | `superpowers:brainstorming` | 5-7 sections plan |
+| **2. Design Sections** | `brainstorming` | 5-7 sections plan |
 | **3. Write Script** | Claude | `podcast.txt` |
 | **4. Collect Media** | Playwright/WebSearch | `media_manifest.json` |
 | **5. Publish Info (Part 1)** | Claude | `publish_info.md` |
@@ -267,7 +267,7 @@ rm -rf public/media/{name}
 
 ## Step 0: Define Topic Direction
 
-使用 `superpowers:brainstorming` skill 确认：
+使用 `brainstorming` skill 确认：
 1. **目标受众**: 技术开发者 / 普通用户 / 学生 / 专业人士
 2. **视频定位**: 科普入门 / 深度解析 / 新闻速报 / 教程实操
 3. **内容范围**: 历史背景 / 技术原理 / 使用方法 / 对比评测
