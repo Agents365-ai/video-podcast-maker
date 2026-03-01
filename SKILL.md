@@ -269,12 +269,12 @@ Design 5-7 sections:
 
 Before designing, assign each section a density tier based on content volume:
 
-| Tier | Items | Title Scale | Best For |
-|------|-------|-------------|----------|
-| **Impact** | 1 | 1.5x (330px) | Hook, hero, CTA, brand moment |
-| **Standard** | 2-3 | 1.0x (220px) | Features, comparison, demo |
-| **Compact** | 4-6 | 0.8x (176px) | Feature grid, ecosystem |
-| **Dense** | 6+ | 0.65x (143px) | Data tables, detailed comparisons |
+| Tier | Items | Best For |
+|------|-------|----------|
+| **Impact** | 1 | Hook, hero, CTA, brand moment — largest text |
+| **Standard** | 2-3 | Features, comparison, demo |
+| **Compact** | 4-6 | Feature grid, ecosystem |
+| **Dense** | 6+ | Data tables, detailed comparisons — smallest text |
 
 Example section plan with tiers:
 ```
@@ -555,56 +555,9 @@ npx remotion still src/remotion/index.ts CompositionId videos/{name}/frame_300.p
 
 **Recommended workflow:**
 1. Use `remotion studio` for iterative development
-2. Quick preview render to check full flow
-3. Final 4K render when satisfied
-
----
-
-## Step 8.5: Preview & Pronunciation Check (预览并校正发音)
-
-**在渲染最终视频前，使用 Remotion Studio 预览音频和视频，检查发音准确性。**
-
-### 1. 启动 Remotion Studio 预览
-
-```bash
-npx remotion studio
-```
-
-### 2. 检查发音
-
-播放音频，仔细听每个词的发音。如果发现发音不准确：
-
-**方法 A: 内联标注** (推荐，立即生效)
-```text
-# 在 podcast.txt 中直接标注错误发音
-这个词语[zhèng què de fā yīn]需要校正
-```
-
-**方法 B: 项目词典** (推荐，可复用)
-```json
-// 在 videos/{name}/phonemes.json 中添加
-{
-  "词语": "zhèng què de fā yīn"
-}
-```
-
-### 3. 重新生成 TTS
-
-```bash
-# 修改后重新生成
-python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
-
-# 重新复制到 public/
-cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
-```
-
-### 4. 重新预览
-
-```bash
-npx remotion studio
-```
-
-重复步骤 2-4 直到发音满意。
+2. Check pronunciation — if incorrect, fix in `podcast.txt` (inline `[拼音]`) or `phonemes.json`, re-run `generate_tts.py`, copy to `public/`
+3. Quick preview render to check full flow
+4. Final 4K render when satisfied
 
 ---
 
@@ -793,48 +746,6 @@ Available at `~/.claude/skills/video-podcast-maker/assets/`:
 
 ---
 
-
-## Requirements
-
-### System Tools
-
-```bash
-brew install ffmpeg node  # macOS
-```
-
-### Python Dependencies
-
-```bash
-pip install azure-cognitiveservices-speech requests
-```
-
-### Node.js Dependencies
-
-```bash
-npm install remotion @remotion/cli @remotion/player
-```
-
-### Environment Variables
-
-```bash
-# Azure TTS (required)
-export AZURE_SPEECH_KEY="your-azure-speech-key"
-export AZURE_SPEECH_REGION="eastasia"
-
-# Optional: AI image generation
-export GEMINI_API_KEY="..."        # imagen (Google)
-export DASHSCOPE_API_KEY="..."     # imagenty (阿里云)
-```
-
-### Optional: AI Image Generation
-
-```bash
-pip install google-genai pillow    # imagen
-pip install dashscope requests      # imagenty
-```
-
----
-
 ## Troubleshooting (常见问题)
 
 ### TTS: Azure API 密钥错误
@@ -851,9 +762,6 @@ echo $AZURE_SPEECH_REGION
 export AZURE_SPEECH_KEY="your-key-here"
 export AZURE_SPEECH_REGION="eastasia"
 ```
-
----
-
 
 ---
 
