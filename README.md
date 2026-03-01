@@ -41,7 +41,6 @@ This skill depends on **remotion-best-practices** and works alongside other opti
 
 - **remotion-best-practices** - Official Remotion best practices (required, provides core Remotion patterns and guidelines)
 - **find-skills** - Official skill discovery tool (required, helps find and install additional skills)
-- **remotion-design-master** - Design system with components and themes (optional, for structured design)
 - **ffmpeg** - Advanced audio/video processing (optional)
 - **imagen / imagenty** - AI thumbnail generation (optional)
 

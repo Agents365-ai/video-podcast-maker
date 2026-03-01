@@ -41,7 +41,6 @@
 
 - **remotion-best-practices** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范）
 - **find-skills** - 官方技能发现工具（必需，用于查找和安装更多技能）
-- **remotion-design-master** - 设计系统，提供组件和主题（可选，适合结构化设计）
 - **ffmpeg** - 高级音视频处理（可选）
 - **imagen / imagenty** - AI 封面生成（可选）
 
