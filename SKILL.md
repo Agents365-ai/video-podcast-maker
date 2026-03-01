@@ -239,6 +239,7 @@ rm -rf public/media/{name}
 | **7. Generate Audio** | generate_tts.py | `.wav`, `.srt`, `timing.json` |
 | **7.5. Component Check** | remotion-design-master | ✅ 组件清单确认 |
 | **8. Create Video** | Remotion | Composition ready |
+| **8.5. Studio Preview** | remotion studio | ✅ Preview verified |
 | **9. Render** | remotion render | `output.mp4` |
 | **10. Add BGM** | FFmpeg | `video_with_bgm.mp4` |
 | **11. Subtitles** | FFmpeg + SRT | `final_video.mp4` |
@@ -560,7 +561,7 @@ import { ChapterProgressBar } from './design/components/navigation/ChapterProgre
 
 ---
 
-## Step 8.5: Preview & Debug (Optional)
+## Step 8.5: Studio Preview
 
 **Claude behavior:** Ask before skipping: "要先用 Remotion Studio 预览吗？可以在 4K 渲染前发现问题，节省时间。"
 
