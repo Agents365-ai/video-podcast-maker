@@ -1,110 +1,107 @@
 /**
- * 视频封面/缩略图模板
+ * Video Thumbnail Template — Fill-the-Frame Design
  *
- * 设计风格：简约纯白
- * - 白色背景，大标题
- * - 数据高亮使用品牌色
- * - 适合技术/知识类视频
+ * Dark gradient background, large text filling the entire frame.
+ * Optimized for Bilibili mobile feed (~170px display width).
  *
- * 【自定义点】: 修改 title, subtitle, highlights
+ * Customize: title, subtitle, tags, icons
  */
 
 import { AbsoluteFill } from "remotion";
 
 interface ThumbnailProps {
-  aspectRatio?: "16:9" | "4:3" | "1:1";
-  // 【自定义点】: 添加更多 props
+  aspectRatio?: "16:9" | "4:3";
   title?: string;
   subtitle?: string;
-  highlights?: { value: string; label: string; color?: string }[];
+  tags?: string[];
+  icons?: string[];
+  background?: string;
 }
 
 export const Thumbnail = ({
   aspectRatio = "16:9",
-  title = "视频标题",
-  subtitle = "副标题或关键信息",
-  highlights = [
-    { value: "99%", label: "准确率", color: "#4CAF50" },
-    { value: "10x", label: "效率提升", color: "#2196F3" },
-    { value: "免费", label: "开源方案", color: "#FF9800" },
-  ]
+  title = "大标题占满",
+  subtitle = "副标题铺满宽度",
+  tags = ["标签A", "标签B"],
+  icons = ["🚀", "⚡"],
+  background = "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
 }: ThumbnailProps) => {
-
-  // 根据比例调整字体大小
-  const titleSize = aspectRatio === "1:1" ? 72 : 100;
-  const subtitleSize = aspectRatio === "1:1" ? 28 : 36;
-  const highlightSize = aspectRatio === "1:1" ? 48 : 64;
+  const isWide = aspectRatio === "16:9";
+  const titleSize = isWide ? 260 : 220;
+  const subtitleSize = isWide ? 120 : 100;
+  const tagSize = 80;
+  const iconSize = 140;
 
   return (
     <AbsoluteFill style={{
-      backgroundColor: "#FFFFFF",
-      padding: 40,
-      fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif"
+      background,
+      fontFamily: "'PingFang SC', 'Noto Sans SC', 'Source Han Sans SC', sans-serif",
     }}>
-      {/* 主标题区域 */}
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        height: "60%"
+      {/* 4K scale(2) wrapper */}
+      <AbsoluteFill style={{
+        transform: "scale(2)",
+        transformOrigin: "top left",
+        width: "50%",
+        height: "50%",
       }}>
-        <h1 style={{
-          fontSize: titleSize,
-          fontWeight: 800,
-          color: "#1a1a1a",
-          margin: 0,
-          lineHeight: 1.2
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          padding: 20,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
         }}>
-          {title}
-        </h1>
-        <p style={{
-          fontSize: subtitleSize,
-          color: "#666",
-          marginTop: 16,
-          fontWeight: 400
-        }}>
-          {subtitle}
-        </p>
-      </div>
+          {/* Tags */}
+          {tags.length > 0 && (
+            <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
+              {tags.map((tag, i) => (
+                <div key={i} style={{
+                  background: "rgba(249,115,22,0.25)",
+                  border: "3px solid rgba(249,115,22,0.4)",
+                  borderRadius: 24,
+                  padding: "12px 28px",
+                  fontSize: tagSize,
+                  fontWeight: 700,
+                  color: "#fb923c",
+                }}>{tag}</div>
+              ))}
+            </div>
+          )}
 
-      {/* 数据高亮区域 */}
-      <div style={{
-        display: "flex",
-        gap: 40,
-        marginTop: "auto"
-      }}>
-        {highlights.map((item, index) => (
-          <div key={index} style={{ textAlign: "center" }}>
-            <div style={{
-              fontSize: highlightSize,
-              fontWeight: 700,
-              color: item.color || "#1a1a1a"
-            }}>
-              {item.value}
-            </div>
-            <div style={{
-              fontSize: 20,
-              color: "#999",
-              marginTop: 4
-            }}>
-              {item.label}
-            </div>
+          {/* Title — fills width */}
+          <div style={{
+            fontSize: titleSize,
+            fontWeight: 900,
+            letterSpacing: 4,
+            color: "#fff",
+            lineHeight: 1.1,
+            width: "100%",
+          }}>
+            {title}
           </div>
-        ))}
-      </div>
 
-      {/* 品牌角标 - 可选 */}
-      {/*
-      <div style={{
-        position: "absolute",
-        bottom: 40,
-        right: 40,
-        fontSize: 24,
-        color: "#ccc"
-      }}>
-        @你的频道名
-      </div>
-      */}
+          {/* Subtitle — fills width */}
+          <div style={{
+            fontSize: subtitleSize,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.7)",
+            marginTop: 16,
+            width: "100%",
+          }}>
+            {subtitle}
+          </div>
+
+          {/* Icons */}
+          {icons.length > 0 && (
+            <div style={{ display: "flex", gap: 24, marginTop: 32 }}>
+              {icons.map((icon, i) => (
+                <span key={i} style={{ fontSize: iconSize }}>{icon}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
