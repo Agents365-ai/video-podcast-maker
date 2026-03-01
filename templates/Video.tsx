@@ -4,7 +4,7 @@
  * 使用说明：
  * 1. 将此文件复制到项目的 src/ 目录
  * 2. 根据需要修改 SectionComponent 中的 section 渲染逻辑
- * 3. 确保 timing.json 和 audio.mp3 已生成
+ * 3. 确保 timing.json 和 podcast_audio.wav 已生成
  * 4. 在 Remotion Studio 右侧面板可实时调整样式
  */
 
@@ -98,8 +98,8 @@ const ChapterProgressBar = ({
       }}
     >
       {chapters.map((ch) => {
-        const chStart = ch.startFrame / totalFrames;
-        const chEnd = (ch.startFrame + ch.durationInFrames) / totalFrames;
+        const chStart = ch.start_frame / totalFrames;
+        const chEnd = (ch.start_frame + ch.duration_frames) / totalFrames;
         const isActive = progress >= chStart && progress < chEnd;
         const isPast = progress >= chEnd;
         const chProgress = isActive ? (progress - chStart) / (chEnd - chStart) : isPast ? 1 : 0;
@@ -110,7 +110,7 @@ const ChapterProgressBar = ({
           <div
             key={ch.name}
             style={{
-              flex: ch.durationInFrames,
+              flex: ch.duration_frames,
               height: buttonHeight,
               borderRadius,
               position: "relative",
@@ -356,8 +356,8 @@ export const Video = (props: VideoProps) => {
         {timing.sections.map((section) => (
           <Sequence
             key={section.name}
-            from={section.startFrame}
-            durationInFrames={section.durationInFrames}
+            from={section.start_frame}
+            durationInFrames={section.duration_frames}
             name={section.name}
           >
             <SectionComponent section={section} props={props} />
@@ -374,7 +374,7 @@ export const Video = (props: VideoProps) => {
       )}
 
       {/* TTS 语音 */}
-      <Audio src={staticFile("audio.mp3")} />
+      <Audio src={staticFile("podcast_audio.wav")} />
     </AbsoluteFill>
   );
 };
