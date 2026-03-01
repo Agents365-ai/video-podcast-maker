@@ -5,17 +5,7 @@ author: 探索未至之境
 created: 2025-01-27
 updated: 2026-02-27
 bilibili: https://space.bilibili.com/441831884
-dependencies:
-  - remotion-design-master
 ---
-
-> **⚠️ REQUIRED: Load Design System First**
->
-> This skill depends on `remotion-design-master`. **You MUST invoke it before proceeding:**
-> ```
-> Skill tool: skill="remotion-design-master"
-> ```
-> The design system provides all Remotion components, layout constraints, and visual guidelines.
 
 # Video Podcast Maker
 
@@ -62,10 +52,6 @@ npx create-video@latest my-video-project
 cd my-video-project
 npm i  # 安装依赖
 
-# 安装设计系统
-mkdir -p src/remotion/design
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
-
 # 验证
 npx remotion studio  # 应打开浏览器预览
 ```
@@ -78,8 +64,7 @@ echo "=== 环境检查 ===" && \
 node -v && \
 python3 --version && \
 ffmpeg -version 2>&1 | head -1 && \
-[ -n "$AZURE_SPEECH_KEY" ] && echo "✓ AZURE_SPEECH_KEY 已设置" || echo "✗ AZURE_SPEECH_KEY 未设置" && \
-[ -d "src/remotion/design" ] && echo "✓ 设计系统已安装" || echo "✗ 设计系统未安装"
+[ -n "$AZURE_SPEECH_KEY" ] && echo "✓ AZURE_SPEECH_KEY 已设置" || echo "✗ AZURE_SPEECH_KEY 未设置"
 ```
 
 ---
@@ -116,35 +101,18 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 ---
 
-## Design System
+## Technical Rules
 
-**使用 `remotion-design-master` skill 提供的设计系统。**
+以下是视频制作的技术硬约束，其他视觉设计和布局由 Claude 根据内容自由发挥：
 
-```bash
-# 安装设计组件
-TEMP_DIR=$(mktemp -d)
-git clone --depth 1 https://github.com/Agents365-ai/remotion-design-master.git "$TEMP_DIR/rdm"
-cp -r "$TEMP_DIR/rdm/src/"* src/remotion/design/
-rm -rf "$TEMP_DIR"
-```
-
-设计系统包含：
-- **布局组件**: FullBleed, ContentArea, CoverMedia, DualLayerMedia
-- **动画组件**: FadeIn, SpringPop, SlideIn, Typewriter
-- **数据展示**: DataDisplay, AnimatedCounter, ProgressBar
-- **导航组件**: ChapterProgressBar, SectionIndicator
-- **主题**: minimalWhite (默认), darkTech, gradientVibrant
-
-**硬约束规则、组件文档、视觉风格** 详见 `remotion-design-master` skill。
-
-> ⚠️ **HARD CONSTRAINT: 优先使用设计系统组件**
->
-> 在 Step 8 创建视频组件时，**禁止**从零实现已有组件。必须优先检查并使用 `remotion-design-master` 提供的组件：
-> - ChapterProgressBar (章节进度条) - **默认使用**（可选关闭）
-> - FadeIn, SlideIn (动画) - 优先使用
-> - FullBleed, ContentArea (布局) - 优先使用
->
-> 如果设计系统组件不满足需求，应先扩展设计系统，而非在视频组件中重复实现。
+| Rule | Requirement |
+|------|-------------|
+| **4K Output** | 3840×2160, use `scale(2)` wrapper over 1920×1080 design space |
+| **Content Width** | ≥85% of screen width, no tiny centered boxes |
+| **Bottom Safe Zone** | Bottom 100px reserved for subtitles |
+| **Audio Sync** | All animations driven by `timing.json` timestamps |
+| **Thumbnail** | Must generate both 16:9 (1920×1080) AND 4:3 (1200×900) |
+| **Font** | PingFang SC / Noto Sans SC for Chinese text |
 
 ---
 
@@ -154,13 +122,7 @@ rm -rf "$TEMP_DIR"
 
 ```
 project-root/                           # Remotion 项目根目录
-├── src/remotion/                       # Remotion 源码 (符合 remotion-design-master 规范)
-│   ├── design/                         # 设计系统 (从 remotion-design-master 复制)
-│   │   ├── tokens/                     # 设计 tokens
-│   │   ├── themes/                     # 主题 (minimalWhite, darkTech...)
-│   │   ├── layout/                     # 布局组件 (FullBleed, ContentArea...)
-│   │   ├── animation/                  # 动画组件 (FadeIn, SlideIn...)
-│   │   └── components/                 # UI 组件
+├── src/remotion/                       # Remotion 源码
 │   ├── compositions/                   # 视频 Composition 定义
 │   ├── Root.tsx                        # Remotion 入口
 │   └── index.ts                        # 导出
@@ -237,7 +199,6 @@ rm -rf public/media/{name}
 | **5. Publish Info (Part 1)** | Claude | `publish_info.md` |
 | **6. Thumbnail** | Remotion/imagen/imagenty | `thumbnail_*.png` |
 | **7. Generate Audio** | generate_tts.py | `.wav`, `.srt`, `timing.json` |
-| **7.5. Component Check** | remotion-design-master | ✅ 组件清单确认 |
 | **8. Create Video** | Remotion | Composition ready |
 | **8.5. Studio Preview** | remotion studio | ✅ Preview verified |
 | **9. Render** | remotion render | `output.mp4` |
@@ -481,45 +442,6 @@ TTS 脚本支持三种方式校正发音，优先级从高到低：
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 ---
 
-## Step 7.5: Design System Component Check (必做)
-
-在创建视频组件前，**必须**检查 `remotion-design-master` 设计系统可用组件：
-
-```bash
-# 列出所有可用组件
-ls ~/.claude/skills/remotion-design-master/src/components/
-```
-
-### 推荐组件清单
-
-| 组件 | 用途 | 路径 | 使用建议 |
-|------|------|------|----------|
-| **ChapterProgressBar** | 底部章节进度条 | `navigation/ChapterProgressBar.tsx` | ✅ 默认使用 |
-| **FadeIn** | 淡入动画 | `animations/FadeIn.tsx` | 推荐 |
-| **SlideIn** | 滑入动画 | `animations/SlideIn.tsx` | 推荐 |
-| **FullBleed** | 全屏布局 | `layouts/FullBleed.tsx` | 推荐 |
-| **ContentArea** | 内容区域 | `layouts/ContentArea.tsx` | 推荐 |
-| **Title** | 标题组件 | `ui/Title.tsx` | 推荐 |
-
-> **注意**：ChapterProgressBar 默认启用。如需关闭，请在 Step 8 时告知 Claude。
-
-### 验证命令
-
-```bash
-# 检查设计系统是否已安装
-[ -d "src/remotion/design" ] && echo "✓ 设计系统已安装" || echo "✗ 需要安装设计系统"
-
-# 检查 ChapterProgressBar 是否存在
-[ -f "src/remotion/design/components/navigation/ChapterProgressBar.tsx" ] && echo "✓ ChapterProgressBar 可用" || echo "⚠ 需要从设计系统复制"
-```
-
-如果设计系统未安装，执行：
-```bash
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
-```
-
----
-
 ## Step 8: Create Remotion Composition
 
 复制文件到 public/:
@@ -538,15 +460,7 @@ cp ~/.claude/skills/video-podcast-maker/templates/Video.tsx src/remotion/
 cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
 ```
 
-模板中的 ChapterProgressBar 是**自包含实现**，无需额外依赖。如果已安装 `remotion-design-master`，也可替换为设计系统版本：
-
-```tsx
-// 方式 A: 使用模板自带的 ChapterProgressBar（默认，无需额外安装）
-// 已内置在 templates/Video.tsx 中
-
-// 方式 B: 使用 remotion-design-master 的 ChapterProgressBar
-import { ChapterProgressBar } from './design/components/navigation/ChapterProgressBar'
-```
+模板中的 ChapterProgressBar 是**自包含实现**，无需额外依赖。
 
 ### 关键架构说明
 

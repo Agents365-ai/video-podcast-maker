@@ -12,7 +12,6 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Script Writing** - Structured narration with section markers
 - **Azure TTS** - High-quality Chinese/English text-to-speech
 - **Remotion Video** - React-based video composition with animations
-- **Design System** - Powered by [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) for professional layouts and components
 - **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
 - **Auto Timing** - Audio-video sync via `timing.json`
@@ -31,33 +30,6 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Thumbnail Generation** - AI (imagen/imagenty) or Remotion, auto-generates 16:9 + 4:3 versions
 - **Visual Style** - Bold text, minimal whitespace, high information density
 - **Publish Info** - Title formulas, tag strategies, description templates
-
-### Design System: remotion-design-master
-
-This skill utilizes **[remotion-design-master](https://github.com/Agents365-ai/remotion-design-master)** for all Remotion components and visual design.
-
-```bash
-npm run setup  # Auto-clones from GitHub and installs design components
-```
-
-**Core Principle:** "Fill the screen, no empty space" - maximize screen usage for visual impact.
-
-| Element | Size | Notes |
-|---------|------|-------|
-| Content width | ≥85% screen | Don't shrink to center |
-| Main title | 80-100px | Bold, attention-grabbing |
-| Data numbers | 64-140px | Data as hero |
-
-**Components:**
-
-| Component | Purpose |
-|-----------|---------|
-| `<FullBleed>` | Root container with `inset: 0` |
-| `<ContentArea>` | Content area, 85%-95% width |
-| `<FadeIn>` | Fade + slide up animation |
-| `<ChapterProgressBar>` | Video chapter indicator |
-
-See [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) for full documentation.
 
 ## Workflow
 
@@ -102,7 +74,6 @@ pip install azure-cognitiveservices-speech requests
 | Component | Source | Purpose |
 |-----------|--------|---------|
 | **Remotion Project** | `npx create-video` | Base framework with `src/`, `public/`, `package.json` |
-| **remotion-design-master** | Claude Code skill | Design components (FullBleed, FadeIn, etc.) copied into your project |
 | **video-podcast-maker** | Claude Code skill | Workflow orchestration (this skill) |
 
 ```bash
@@ -111,11 +82,7 @@ npx create-video@latest my-video-project
 cd my-video-project
 npm i  # Install Remotion dependencies
 
-# Step 2: Install design system from remotion-design-master (components)
-mkdir -p src/remotion/design
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
-
-# Step 3: Verify installation
+# Step 2: Verify installation
 npx remotion studio  # Should open browser preview
 ```
 
@@ -124,10 +91,6 @@ If you already have a Remotion project:
 ```bash
 cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
-
-# Install design system
-mkdir -p src/remotion/design
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 ```
 
 ### API Keys Required
@@ -161,7 +124,6 @@ Then reload: `source ~/.zshrc`
 | Document | Description |
 |----------|-------------|
 | [SKILL.md](SKILL.md) | Complete 14-step workflow with pronunciation correction |
-| [remotion-design-master](https://github.com/Agents365-ai/remotion-design-master) | Design system, components, hard constraints |
 ## Quick Start
 
 ### Usage

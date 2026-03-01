@@ -74,7 +74,6 @@ pip install azure-cognitiveservices-speech requests
 | 组件 | 来源 | 作用 |
 |------|------|------|
 | **Remotion 项目** | `npx create-video` | 基础框架，包含 `src/`、`public/`、`package.json` |
-| **remotion-design-master** | Claude Code skill | 设计组件库（FullBleed、FadeIn 等），复制到你的项目中 |
 | **video-podcast-maker** | Claude Code skill | 工作流编排（本技能） |
 
 ```bash
@@ -83,11 +82,7 @@ npx create-video@latest my-video-project
 cd my-video-project
 npm i  # 安装 Remotion 依赖
 
-# 第二步：安装 remotion-design-master 设计系统（组件库）
-mkdir -p src/remotion/design
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
-
-# 第三步：验证安装
+# 第二步：验证安装
 npx remotion studio  # 应打开浏览器预览
 ```
 
@@ -96,10 +91,6 @@ npx remotion studio  # 应打开浏览器预览
 ```bash
 cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
-
-# 安装设计系统
-mkdir -p src/remotion/design
-cp -r ~/.claude/skills/remotion-design-master/src/* src/remotion/design/
 ```
 
 ### 所需 API 密钥
