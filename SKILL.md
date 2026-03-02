@@ -516,6 +516,31 @@ cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
 
 模板中的 ChapterProgressBar 是**自包含实现**，无需额外依赖。
 
+### 章节转场效果
+
+模板使用 `@remotion/transitions` 的 `TransitionSeries` 实现章节间平滑过渡。
+
+**Studio UI 可配置项：**
+
+| 属性 | 默认值 | 说明 |
+|------|--------|------|
+| `transitionType` | `fade` | 转场类型：fade / slide / wipe / none |
+| `transitionDuration` | `15` (0.5秒) | 转场时长（帧数） |
+
+**可用转场效果：**
+
+| 类型 | 效果 | 适用场景 |
+|------|------|----------|
+| `fade` | 淡入淡出 | 通用，最安全 |
+| `slide` | 从右侧滑入 | 步骤推进、教程类 |
+| `wipe` | 从右侧擦除 | 揭示、转折 |
+| `none` | 硬切（无转场） | 快节奏内容 |
+
+安装依赖（项目中执行）：
+```bash
+npm install @remotion/transitions
+```
+
 ### 关键架构说明
 
 | 要点 | 说明 |

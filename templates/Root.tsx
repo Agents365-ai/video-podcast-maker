@@ -39,6 +39,10 @@ export const videoSchema = z.object({
 
   // 动画设置
   enableAnimations: z.boolean().describe("启用入场动画"),
+
+  // 转场设置
+  transitionType: z.enum(["fade", "slide", "wipe", "none"]).describe("章节转场效果"),
+  transitionDuration: z.number().min(0).max(30).describe("转场时长(帧数, 30帧=1秒)"),
 });
 
 // 类型导出，供 Video.tsx 使用
@@ -69,6 +73,10 @@ export const defaultVideoProps: VideoProps = {
 
   // 动画
   enableAnimations: true,
+
+  // 转场
+  transitionType: "fade",
+  transitionDuration: 15,
 };
 
 // 视频 ID

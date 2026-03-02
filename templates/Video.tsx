@@ -8,7 +8,13 @@
  * 4. 在 Remotion Studio 右侧面板可实时调整样式
  */
 
-import { useCurrentFrame, Audio, Sequence, staticFile, AbsoluteFill, interpolate, spring, useVideoConfig } from "remotion";
+import React from "react";
+import { useCurrentFrame, Audio, staticFile, AbsoluteFill, interpolate, spring, useVideoConfig } from "remotion";
+import { TransitionSeries, linearTiming } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
+import { none } from "@remotion/transitions/none";
 import timing from "../public/timing.json";
 import type { VideoProps } from "./Root";
 
@@ -51,19 +57,33 @@ const PaddedLayout = ({
   </AbsoluteFill>
 );
 
-// 入场动画 Hook
-const useEntrance = (enabled: boolean) => {
+// Transition presentation mapper
+const getPresentation = (type: string) => {
+  switch (type) {
+    case "fade": return fade();
+    case "slide": return slide({ direction: "from-right" });
+    case "wipe": return wipe({ direction: "from-right" });
+    case "none": return none();
+    default: return fade();
+  }
+};
+
+// Spring-based entrance animation with stagger support
+const useEntrance = (enabled: boolean, delay = 0) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   if (!enabled) {
-    return { opacity: 1, translateY: 0 };
+    return { opacity: 1, translateY: 0, scale: 1 };
   }
 
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
-  const translateY = spring({ frame, fps, from: 30, to: 0, durationInFrames: 20 });
+  const progress = spring({ frame, fps, delay, config: { damping: 200 }, durationInFrames: 30 });
 
-  return { opacity, translateY };
+  return {
+    opacity: interpolate(progress, [0, 1], [0, 1]),
+    translateY: interpolate(progress, [0, 1], [40, 0]),
+    scale: interpolate(progress, [0, 1], [0.95, 1]),
+  };
 };
 
 // 章节进度条组件 (matches Superpowers reference style)
@@ -184,8 +204,8 @@ const SectionComponent = ({
   section: typeof timing.sections[0];
   props: VideoProps;
 }) => {
-  const { opacity, translateY } = useEntrance(props.enableAnimations);
-  const animStyle = { opacity, transform: `translateY(${translateY}px)` };
+  const { opacity, translateY, scale } = useEntrance(props.enableAnimations);
+  const animStyle = { opacity, transform: `translateY(${translateY}px) scale(${scale})` };
 
   switch (section.name) {
     // Reference font sizes (1080p design space):
@@ -442,21 +462,39 @@ const SectionComponent = ({
 
 // 主视频组件 - 接收可视化编辑的 props
 export const Video = (props: VideoProps) => {
+  const sections = timing.sections;
+  const transitionFrames = props.transitionDuration;
+  const transitionCount = Math.max(0, sections.length - 1);
+
+  // Compensate for transition overlap: add lost frames to first section
+  // so TransitionSeries total matches timing.total_frames for audio sync
+  const compensatedSections = sections.map((s, i) => ({
+    ...s,
+    duration_frames: i === 0
+      ? s.duration_frames + transitionCount * transitionFrames
+      : s.duration_frames,
+  }));
+
   return (
     <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
       {/* 4K 缩放包装 */}
       <Scale4K>
-        {/* 按 timing.json 生成 Sequence */}
-        {timing.sections.map((section) => (
-          <Sequence
-            key={section.name}
-            from={section.start_frame}
-            durationInFrames={section.duration_frames}
-            name={section.name}
-          >
-            <SectionComponent section={section} props={props} />
-          </Sequence>
-        ))}
+        {/* TransitionSeries with configurable chapter transitions */}
+        <TransitionSeries>
+          {compensatedSections.map((section, i) => (
+            <React.Fragment key={section.name}>
+              <TransitionSeries.Sequence durationInFrames={section.duration_frames}>
+                <SectionComponent section={section} props={props} />
+              </TransitionSeries.Sequence>
+              {i < sections.length - 1 && transitionFrames > 0 && props.transitionType !== "none" && (
+                <TransitionSeries.Transition
+                  presentation={getPresentation(props.transitionType)}
+                  timing={linearTiming({ durationInFrames: transitionFrames })}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </TransitionSeries>
       </Scale4K>
 
       {/* 进度条 - 在 4K 缩放外，保持原始尺寸 */}
