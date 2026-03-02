@@ -5,6 +5,7 @@
 # Claude
 CLAUDE.md
 .playwright-mcp/
+suggestions.md
 
 # Node
 node_modules/

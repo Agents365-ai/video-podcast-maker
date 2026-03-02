@@ -202,6 +202,12 @@ videos/{视频名称}/
 - `perfect-beauty-191271.mp3` - 轻快积极
 - `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
 
+## 开发路线
+
+- [ ] 支持竖屏视频 (9:16)，适配 B站手机端沉浸式播放
+- [ ] Figma 集成，支持封面、图标和布局设计资源导入
+- [ ] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
+
 ## 开源协议
 
 MIT
