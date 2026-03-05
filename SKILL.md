@@ -1,10 +1,13 @@
 ---
 name: video-podcast-maker
 description: Use when user provides a topic and wants an automated video podcast created - handles research, script writing, TTS audio synthesis, Remotion video creation, and final MP4 output with background music
-author: 探索未至之境
+author: Agents365-ai
+category: Content Creation
+version: 1.0.0
 created: 2025-01-27
 updated: 2026-02-27
 bilibili: https://space.bilibili.com/441831884
+github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
   - remotion-best-practices
   - find-skills
