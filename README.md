@@ -136,6 +136,8 @@ This skill is designed for use with [Claude Code](https://claude.ai/claude-code)
 
 Claude will guide you through the entire workflow automatically.
 
+> **Tips:** The quality of first-generation output heavily depends on the model's intelligence and capabilities — the smarter and more advanced the model, the better the results. In our testing, both Codex and Claude Code produce excellent videos on the first try, and OpenCode paired with GLM-5 also delivers solid results. If the initial output isn't perfect, you can preview it in Remotion Studio and ask the coding agent to keep refining until you're satisfied.
+
 ### Preview & Visual Editing with Remotion Studio
 
 Before rendering the final video, use Remotion Studio to preview and visually edit styles:
