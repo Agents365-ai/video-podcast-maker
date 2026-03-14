@@ -10,7 +10,7 @@
 import { AbsoluteFill } from "remotion";
 
 interface ThumbnailProps {
-  aspectRatio?: "16:9" | "4:3";
+  aspectRatio?: "16:9" | "4:3" | "9:16";
   title?: string;
   subtitle?: string;
   tags?: string[];
@@ -26,9 +26,10 @@ export const Thumbnail = ({
   tags = ["标签A", "标签B"],
   icons = ["🚀", "⚡", "🔥"],
 }: ThumbnailProps) => {
+  const vertical = aspectRatio === "9:16";
   const compact = aspectRatio === "4:3";
-  const titleSize = compact ? 150 : 160;
-  const subtitleSize = compact ? 56 : 60;
+  const titleSize = vertical ? 120 : compact ? 150 : 160;
+  const subtitleSize = vertical ? 48 : compact ? 56 : 60;
 
   return (
     <AbsoluteFill style={{ background: "#ffffff", fontFamily: font }}>
@@ -40,12 +41,12 @@ export const Thumbnail = ({
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "40px 50px",
+          padding: 0,
           gap: 24,
         }}
       >
-        {/* Tags + Icons row */}
-        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+        {/* Tags + Icons */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center", justifyContent: "center" }}>
           {tags.map((tag, i) => (
             <div
               key={i}

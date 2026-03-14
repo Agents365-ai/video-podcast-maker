@@ -197,7 +197,7 @@ Included tracks in `assets/`:
 
 ## Roadmap
 
-- [ ] Vertical video support (9:16) for Bilibili mobile-first content
+- [x] Vertical video support (9:16) for Bilibili mobile-first content
 - [ ] Figma integration for thumbnails, icons, and layout design assets
 - [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
 - [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar)

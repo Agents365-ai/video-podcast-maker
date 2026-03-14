@@ -117,21 +117,21 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 | 适合 | 不适合 |
 |------|--------|
-| 知识科普视频 | 竖屏短视频 |
-| 产品对比评测 | 直播录像 |
-| 教程讲解 | 真人出镜 |
-| 新闻资讯解读 | Vlog |
-| 技术深度分析 | 音乐 MV |
+| 知识科普视频 (横屏 16:9) | 直播录像 |
+| 产品对比评测 | 真人出镜 |
+| 教程讲解 | Vlog |
+| 新闻资讯解读 | 音乐 MV |
+| 竖屏精华片段 (9:16) | |
 
 ### 输出规格
 
-| 参数 | 值 |
-|------|-----|
-| **分辨率** | 3840×2160 (4K) |
-| **帧率** | 30 fps |
-| **编码** | H.264, 16Mbps |
-| **音频** | AAC, 192kbps |
-| **时长** | 1-15 分钟 |
+| 参数 | 横屏 (16:9) | 竖屏 (9:16) |
+|------|-------------|-------------|
+| **分辨率** | 3840×2160 (4K) | 2160×3840 (4K) |
+| **帧率** | 30 fps | 30 fps |
+| **编码** | H.264, 16Mbps | H.264, 16Mbps |
+| **音频** | AAC, 192kbps | AAC, 192kbps |
+| **时长** | 1-15 分钟 | 60-90 秒 (精华片段) |
 
 ---
 
@@ -141,11 +141,12 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 
 | Rule | Requirement |
 |------|-------------|
+| **Single Project** | All videos live under `videos/{name}/` in the user's Remotion project. NEVER create a new project/repo for each video. Remotion code, templates, and components are shared; only per-video assets (podcast.txt, audio, timing.json, output MP4) go in each subfolder. |
 | **4K Output** | 3840×2160, use `scale(2)` wrapper over 1920×1080 design space |
 | **Content Width** | ≥85% of screen width, no tiny centered boxes |
 | **Bottom Safe Zone** | Bottom 100px reserved for subtitles |
 | **Audio Sync** | All animations driven by `timing.json` timestamps |
-| **Thumbnail** | Must generate both 16:9 (1920×1080) AND 4:3 (1200×900) |
+| **Thumbnail** | Must generate both 16:9 (1920×1080) AND 4:3 (1200×900). Design for small-size visibility: title text ≥80px bold, icons/graphics as large as possible, high contrast colors, minimal elements. Thumbnails are viewed at ~300px wide in feed — if text isn't readable at that size, make it bigger. Default layout: title centered, all UI elements and text centered (both horizontally and vertically). |
 | **Font** | PingFang SC / Noto Sans SC for Chinese text |
 
 ---
@@ -473,12 +474,14 @@ Claude 逐章节询问素材来源：
 2. **AI文生图（imagen skill）** - 使用 imagen skill 生成创意封面
 3. **两者都生成** - 同时生成两种风格供选择
 
-⚠️ **必须生成两个比例**: 16:9 (播放页) 和 4:3 (推荐流/动态)，缺一不可
+⚠️ **必须生成两个比例**: 16:9 (播放页) 和 4:3 (推荐流/动态)，缺一不可。9:16 仅在生成竖屏视频时需要。
 
 **Remotion 渲染封面**:
 ```bash
 npx remotion still src/remotion/index.ts Thumbnail16x9 videos/{name}/thumbnail_remotion_16x9.png
 npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_remotion_4x3.png
+# Optional: vertical thumbnail (only if rendering vertical video)
+npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png
 ```
 
 **使用 imagen skill 生成封面**:
@@ -708,6 +711,24 @@ npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4
 ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/output.mp4
 # 期望: 3840,2160
 ```
+
+### Optional: Render Vertical Highlight Clip (9:16)
+
+Generate a 60-90 second vertical video for B站竖屏/短视频, using the same audio and components.
+
+```bash
+# Render vertical version (uses MyVideoVertical composition)
+npx remotion render src/remotion/index.ts MyVideoVertical videos/{name}/output_vertical.mp4 --video-bitrate 16M
+
+# Render 9:16 thumbnail
+npx remotion still src/remotion/index.ts Thumbnail9x16 videos/{name}/thumbnail_remotion_9x16.png
+
+# Verify
+ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/output_vertical.mp4
+# 期望: 2160,3840
+```
+
+The vertical composition reuses the same Video.tsx component with `orientation: "vertical"`. All section layouts, components (ComparisonCard, FeatureGrid, etc.), and Scale4K automatically adapt for 9:16.
 
 ---
 

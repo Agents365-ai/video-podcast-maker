@@ -27,6 +27,7 @@ import {
 } from "./components";
 
 // Section renderer - customize your section visuals here
+// Layouts auto-adapt based on orientation (horizontal/vertical)
 const SectionComponent = ({
   section,
   props,
@@ -36,11 +37,15 @@ const SectionComponent = ({
 }) => {
   const { opacity, translateY, scale } = useEntrance(props.enableAnimations);
   const animStyle = { opacity, transform: `translateY(${translateY}px) scale(${scale})` };
+  const v = props.orientation === "vertical";
+  // Vertical uses more padding top/bottom, less left/right
+  const sectionPadding = v ? "120px 60px" : "80px 100px";
 
   switch (section.name) {
-    // Reference font sizes (1080p design space):
+    // Reference font sizes (1080p design space, horizontal):
     // Hero title: 72-120px/800wt, Section title: 72-80px/700-800wt
     // Subtitle: 30-40px, Card title: 34-38px, Body: 26-34px, Tags: 20-26px
+    // Vertical: scale up body/subtitle by ~20%, titles stay similar
 
     case "hero":
       return (
@@ -54,6 +59,7 @@ const SectionComponent = ({
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
+              padding: v ? "0 60px" : 0,
               ...animStyle,
             }}
           >
@@ -62,6 +68,7 @@ const SectionComponent = ({
                 fontSize: props.titleSize,
                 fontWeight: 800,
                 color: props.primaryColor,
+                lineHeight: v ? 1.3 : 1.1,
               }}
             >
               视频标题
@@ -70,7 +77,7 @@ const SectionComponent = ({
               style={{
                 fontSize: props.subtitleSize,
                 color: props.textColor,
-                marginTop: 20,
+                marginTop: v ? 32 : 20,
                 opacity: 0.5,
                 fontWeight: 500,
               }}
@@ -83,12 +90,12 @@ const SectionComponent = ({
 
     case "overview":
       return (
-        <PaddedLayout bg={props.backgroundColor}>
+        <PaddedLayout bg={props.backgroundColor} orientation={props.orientation}>
           <div
             style={{
               position: "absolute",
               inset: 0,
-              padding: "80px 100px",
+              padding: sectionPadding,
               display: "flex",
               flexDirection: "column",
               ...animStyle,
@@ -96,7 +103,7 @@ const SectionComponent = ({
           >
             <h2
               style={{
-                fontSize: 80,
+                fontSize: v ? 72 : 80,
                 fontWeight: 700,
                 marginBottom: 12,
                 color: props.primaryColor,
@@ -104,32 +111,25 @@ const SectionComponent = ({
             >
               今天的内容
             </h2>
-            <p style={{ fontSize: 30, color: "rgba(0,0,0,0.5)", marginBottom: 40 }}>
+            <p style={{ fontSize: v ? 34 : 30, color: "rgba(0,0,0,0.5)", marginBottom: v ? 48 : 40 }}>
               Section description here
             </p>
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 28, width: "100%", maxWidth: 800 }}>
-                <div style={{
-                  background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
-                  borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", gap: 24,
-                }}>
-                  <div style={{ fontSize: 52 }}>💡</div>
-                  <div style={{ fontSize: 34, fontWeight: 600, color: props.textColor }}>要点一</div>
-                </div>
-                <div style={{
-                  background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
-                  borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", gap: 24,
-                }}>
-                  <div style={{ fontSize: 52 }}>🎯</div>
-                  <div style={{ fontSize: 34, fontWeight: 600, color: props.textColor }}>要点二</div>
-                </div>
-                <div style={{
-                  background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
-                  borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", gap: 24,
-                }}>
-                  <div style={{ fontSize: 52 }}>✅</div>
-                  <div style={{ fontSize: 34, fontWeight: 600, color: props.textColor }}>要点三</div>
-                </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: v ? 36 : 28, width: "100%", maxWidth: v ? undefined : 800 }}>
+                {[
+                  { icon: "💡", text: "要点一" },
+                  { icon: "🎯", text: "要点二" },
+                  { icon: "✅", text: "要点三" },
+                ].map((item, i) => (
+                  <div key={i} style={{
+                    background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
+                    borderRadius: 20, padding: v ? "40px 48px" : "32px 40px",
+                    display: "flex", alignItems: "center", gap: 24,
+                  }}>
+                    <div style={{ fontSize: v ? 60 : 52 }}>{item.icon}</div>
+                    <div style={{ fontSize: v ? 40 : 34, fontWeight: 600, color: props.textColor }}>{item.text}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@ const SectionComponent = ({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "80px 100px",
+              padding: sectionPadding,
               ...animStyle,
             }}
           >
@@ -155,13 +155,14 @@ const SectionComponent = ({
               style={{
                 background: `linear-gradient(135deg, ${props.primaryColor}10, ${props.accentColor}10)`,
                 borderRadius: 28,
-                padding: "56px 72px",
+                padding: v ? "72px 60px" : "56px 72px",
                 textAlign: "center",
+                width: v ? "100%" : "auto",
               }}
             >
               <h2
                 style={{
-                  fontSize: 52,
+                  fontSize: v ? 60 : 52,
                   fontWeight: 700,
                   color: props.primaryColor,
                   marginBottom: 28,
@@ -171,7 +172,7 @@ const SectionComponent = ({
               </h2>
               <p
                 style={{
-                  fontSize: 30,
+                  fontSize: v ? 36 : 30,
                   color: props.textColor,
                   lineHeight: 1.6,
                 }}
@@ -199,33 +200,31 @@ const SectionComponent = ({
           >
             <h2
               style={{
-                fontSize: 80,
+                fontSize: v ? 72 : 80,
                 fontWeight: 700,
                 color: props.textColor,
-                marginBottom: 48,
+                marginBottom: v ? 64 : 48,
               }}
             >
               感谢观看
             </h2>
-            <div style={{ display: "flex", gap: 40 }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 64 }}>👍</div>
-                <div style={{ fontSize: 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>点赞</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 64 }}>⭐</div>
-                <div style={{ fontSize: 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>收藏</div>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 64 }}>🔔</div>
-                <div style={{ fontSize: 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>关注</div>
-              </div>
+            <div style={{ display: "flex", gap: v ? 56 : 40, flexDirection: v ? "column" : "row" }}>
+              {[
+                { icon: "👍", text: "点赞" },
+                { icon: "⭐", text: "收藏" },
+                { icon: "🔔", text: "关注" },
+              ].map((item, i) => (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: v ? 80 : 64 }}>{item.icon}</div>
+                  <div style={{ fontSize: v ? 32 : 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>{item.text}</div>
+                </div>
+              ))}
             </div>
             <p
               style={{
-                fontSize: 36,
+                fontSize: v ? 44 : 36,
                 color: props.primaryColor,
-                marginTop: 48,
+                marginTop: v ? 64 : 48,
               }}
             >
               下期再见！
@@ -236,12 +235,12 @@ const SectionComponent = ({
 
     default:
       return (
-        <PaddedLayout bg={props.backgroundColor}>
+        <PaddedLayout bg={props.backgroundColor} orientation={props.orientation}>
           <div
             style={{
               position: "absolute",
               inset: 0,
-              padding: "80px 100px",
+              padding: sectionPadding,
               display: "flex",
               flexDirection: "column",
               ...animStyle,
@@ -249,14 +248,14 @@ const SectionComponent = ({
           >
             <h2
               style={{
-                fontSize: 80,
+                fontSize: v ? 72 : 80,
                 fontWeight: 700,
                 color: props.primaryColor,
               }}
             >
               {section.name}
             </h2>
-            <p style={{ fontSize: 30, color: "rgba(0,0,0,0.5)", marginTop: 12 }}>
+            <p style={{ fontSize: v ? 34 : 30, color: "rgba(0,0,0,0.5)", marginTop: 12 }}>
               Section description here
             </p>
             <div
@@ -273,6 +272,7 @@ const SectionComponent = ({
                   fontSize: props.bodySize,
                   color: props.textColor,
                   fontWeight: 500,
+                  lineHeight: v ? 1.8 : 1.5,
                 }}
               >
                 Section content goes here...
@@ -301,7 +301,7 @@ export const Video = (props: VideoProps) => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
-      <Scale4K>
+      <Scale4K orientation={props.orientation}>
         <TransitionSeries>
           {compensatedSections.map((section, i) => (
             <React.Fragment key={section.name}>

@@ -43,6 +43,9 @@ export const videoSchema = z.object({
   // 转场设置
   transitionType: z.enum(["fade", "slide", "wipe", "none"]).describe("章节转场效果"),
   transitionDuration: z.number().min(0).max(30).describe("转场时长(帧数, 30帧=1秒)"),
+
+  // 方向设置
+  orientation: z.enum(["horizontal", "vertical"]).describe("视频方向: horizontal(16:9) / vertical(9:16)"),
 });
 
 // 类型导出，供 Video.tsx 使用
@@ -77,6 +80,9 @@ export const defaultVideoProps: VideoProps = {
   // 转场
   transitionType: "fade",
   transitionDuration: 15,
+
+  // 方向
+  orientation: "horizontal",
 };
 
 // 视频 ID
@@ -97,6 +103,25 @@ export const RemotionRoot = () => {
         defaultProps={defaultVideoProps}
       />
 
+      {/* Vertical video - 9:16 for B站竖屏/短视频 */}
+      <Composition
+        id="MyVideoVertical"
+        component={Video}
+        durationInFrames={timing.total_frames}
+        fps={30}
+        width={2160}
+        height={3840}
+        schema={videoSchema}
+        defaultProps={{
+          ...defaultVideoProps,
+          orientation: "vertical",
+          showProgressBar: false,
+          titleSize: 96,
+          subtitleSize: 48,
+          bodySize: 36,
+        }}
+      />
+
       {/* 16:9 缩略图 - B站/YouTube 封面 */}
       <Still
         id="Thumbnail16x9"
@@ -113,6 +138,15 @@ export const RemotionRoot = () => {
         width={1200}
         height={900}
         defaultProps={{ aspectRatio: "4:3" }}
+      />
+
+      {/* 9:16 缩略图 - 竖屏封面 */}
+      <Still
+        id="Thumbnail9x16"
+        component={Thumbnail}
+        width={1080}
+        height={1920}
+        defaultProps={{ aspectRatio: "9:16" }}
       />
     </>
   );
