@@ -202,6 +202,38 @@ Templates (`templates/`) are **starting points, not blueprints**. Claude SHOULD 
 
 **What to vary freely**: colors, gradients, backgrounds, layout composition, card styles, icon choices, spacing, animation timing, section visual identity.
 
+## Quality Checklists (MUST follow)
+
+### Per-Section Checklist
+
+Claude MUST verify each section meets ALL of these before proceeding:
+
+| # | Check | Requirement |
+|---|-------|-------------|
+| 1 | **Visual depth** | At least 2 layers of depth: shadows, gradients, or foreground/background separation |
+| 2 | **Adjacent differentiation** | Differs from previous section in ≥2 of: background color, layout direction, content form |
+| 3 | **Complete animation** | Entrance animation on all elements, list items have stagger delay |
+| 4 | **Information density** | ≤5 key points per section, no large empty areas |
+| 5 | **Topic-matched colors** | Color palette serves the content (tech→cool blue, health→warm green, finance→dark blue/gold) |
+
+### Video-Level Checklist (before render)
+
+| # | Check | Requirement |
+|---|-------|-------------|
+| 1 | **Layout variety** | ≥3 different layout types across the video (centered, grid, split, timeline, etc.) |
+| 2 | **Background alternation** | No 2 consecutive sections share the same background color |
+| 3 | **Unified color scheme** | Primary/secondary/accent colors used consistently throughout |
+| 4 | **Thumbnail readability** | Title text readable at ~300px thumbnail width |
+| 5 | **Hero impact** | Hero section has visual impact: large text + decorative elements or gradient |
+
+### TTS Quality Guidance
+
+| Technique | How |
+|-----------|-----|
+| **Section pauses** | Add an empty line before each `[SECTION:xxx]` marker in podcast.txt for natural breathing room |
+| **Pacing variation** | Slightly slower intro/outro (TTS_RATE="+0%"), normal middle sections (TTS_RATE="+5%") |
+| **Key sentence emphasis** | Use SSML `<emphasis>` tags on important sentences (Azure backend supports this) |
+
 ## Visual Design Reference (recommended)
 
 以下尺寸来自已验证的生产视频，作为推荐参考。Claude 可根据内容需要灵活调整，但不得低于上方 Minimums。
