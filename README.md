@@ -200,7 +200,7 @@ videos/{视频名称}/
 - [x] 断点续传（`--resume` 参数）
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）
 - [ ] 更多 TTS 引擎 (看用户需求)
-- [ ] Windows 适配 (WSL 或原生 PowerShell 支持)
+- [ ] Windows 适配 (WSL 验证 + 文档)
 
 ## 开源协议
 
