@@ -419,6 +419,16 @@ Create `videos/{name}/podcast.txt` with section markers:
 - **outro**: 感谢 + 一键三连引导
 - 空内容的 `[SECTION:xxx]` 为静音章节
 
+### Duration Estimation (Dry Run)
+
+**Claude behavior:** After writing `podcast.txt`, automatically run dry-run to estimate video duration:
+
+```bash
+python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --dry-run
+```
+
+Report estimated duration to user. If too long (>12min) or too short (<3min), suggest adjustments before proceeding to TTS.
+
 ---
 
 ## Step 5: Collect Media Assets
@@ -551,9 +561,13 @@ cp videos/{name}/podcast_audio.wav videos/{name}/timing.json public/
 ```bash
 cp ~/.claude/skills/video-podcast-maker/templates/Video.tsx src/remotion/
 cp ~/.claude/skills/video-podcast-maker/templates/Root.tsx src/remotion/
+cp -r ~/.claude/skills/video-podcast-maker/templates/components src/remotion/components
 ```
 
-模板中的 ChapterProgressBar 是**自包含实现**，无需额外依赖。
+Components are modular — import only what you need:
+```tsx
+import { ComparisonCard, CodeBlock, FeatureGrid } from "./components";
+```
 
 ### 章节转场效果
 

@@ -1,476 +1,32 @@
 /**
- * Remotion 视频组件模板 - 支持 Studio 可视化编辑
+ * Remotion Video Component Template - with Studio visual editing support
  *
- * 使用说明：
- * 1. 将此文件复制到项目的 src/ 目录
- * 2. 根据需要修改 SectionComponent 中的 section 渲染逻辑
- * 3. 确保 timing.json 和 podcast_audio.wav 已生成
- * 4. 在 Remotion Studio 右侧面板可实时调整样式
+ * Usage:
+ * 1. Copy this file and components/ directory to your project src/
+ * 2. Modify SectionComponent cases to match your sections
+ * 3. Ensure timing.json and podcast_audio.wav are generated
+ * 4. Use Remotion Studio right panel to adjust styles in real-time
+ *
+ * Available components (import from "./components"):
+ *   ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar
  */
 
 import React from "react";
-import { useCurrentFrame, Audio, staticFile, AbsoluteFill, interpolate, spring, useVideoConfig } from "remotion";
+import { Audio, staticFile, AbsoluteFill } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { fade } from "@remotion/transitions/fade";
-import { slide } from "@remotion/transitions/slide";
-import { wipe } from "@remotion/transitions/wipe";
-import { none } from "@remotion/transitions/none";
 import timing from "../public/timing.json";
 import type { VideoProps } from "./Root";
 
-// 4K 缩放包装器 - 所有内容使用 1080p 设计，自动放大到 4K
-const Scale4K = ({ children }: { children: React.ReactNode }) => (
-  <AbsoluteFill style={{ transform: "scale(2)", transformOrigin: "top left" }}>
-    <div style={{ width: 1920, height: 1080, position: "relative", overflow: "hidden" }}>
-      {children}
-    </div>
-  </AbsoluteFill>
-);
+import {
+  Scale4K,
+  FullBleedLayout,
+  PaddedLayout,
+  useEntrance,
+  getPresentation,
+  ChapterProgressBar,
+} from "./components";
 
-// 全出血布局 - 无内边距，适合大标题和图表
-const FullBleedLayout = ({
-  children,
-  bg,
-  style,
-}: {
-  children: React.ReactNode;
-  bg?: string;
-  style?: React.CSSProperties;
-}) => (
-  <AbsoluteFill style={{ backgroundColor: bg || "#FFFFFF", padding: 0, ...style }}>
-    {children}
-  </AbsoluteFill>
-);
-
-// 标准布局 - 带内边距，适合正文内容
-const PaddedLayout = ({
-  children,
-  bg,
-  style,
-}: {
-  children: React.ReactNode;
-  bg?: string;
-  style?: React.CSSProperties;
-}) => (
-  <AbsoluteFill style={{ backgroundColor: bg || "#FFFFFF", padding: 40, ...style }}>
-    {children}
-  </AbsoluteFill>
-);
-
-// Transition presentation mapper
-const getPresentation = (type: string) => {
-  switch (type) {
-    case "fade": return fade();
-    case "slide": return slide({ direction: "from-right" });
-    case "wipe": return wipe({ direction: "from-right" });
-    case "none": return none();
-    default: return fade();
-  }
-};
-
-// Spring-based entrance animation with stagger support
-const useEntrance = (enabled: boolean, delay = 0) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  if (!enabled) {
-    return { opacity: 1, translateY: 0, scale: 1 };
-  }
-
-  const progress = spring({ frame, fps, delay, config: { damping: 200 }, durationInFrames: 30 });
-
-  return {
-    opacity: interpolate(progress, [0, 1], [0, 1]),
-    translateY: interpolate(progress, [0, 1], [40, 0]),
-    scale: interpolate(progress, [0, 1], [0.95, 1]),
-  };
-};
-
-// ============================================================
-// Reusable Visual Components (building blocks for custom sections)
-// Use these inside any SectionComponent case block.
-// ============================================================
-
-// ComparisonCard - Two-column VS layout for product/feature comparisons
-const ComparisonCard = ({
-  props,
-  left,
-  right,
-  delay = 0,
-}: {
-  props: VideoProps;
-  left: { title: string; items: string[]; highlight?: boolean };
-  right: { title: string; items: string[]; highlight?: boolean };
-  delay?: number;
-}) => {
-  const anim = useEntrance(props.enableAnimations, delay);
-  const leftAnim = useEntrance(props.enableAnimations, delay + 5);
-  const rightAnim = useEntrance(props.enableAnimations, delay + 10);
-
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 40, width: "100%", opacity: anim.opacity }}>
-      {[{ side: left, a: leftAnim }, { side: right, a: rightAnim }].map(({ side, a }, i) => (
-        <React.Fragment key={i}>
-          {i === 1 && (
-            <div style={{
-              fontSize: 48, fontWeight: 800, color: props.primaryColor, opacity: 0.6,
-              flexShrink: 0,
-            }}>
-              VS
-            </div>
-          )}
-          <div style={{
-            flex: 1, background: side.highlight ? `${props.primaryColor}08` : "rgba(0,0,0,0.02)",
-            border: side.highlight ? `2px solid ${props.primaryColor}30` : "1px solid rgba(0,0,0,0.08)",
-            borderRadius: 24, padding: "40px 44px",
-            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
-          }}>
-            <h3 style={{ fontSize: 38, fontWeight: 700, color: props.primaryColor, marginBottom: 24 }}>
-              {side.title}
-            </h3>
-            {side.items.map((item, j) => (
-              <div key={j} style={{
-                fontSize: 28, color: props.textColor, padding: "10px 0",
-                borderTop: j > 0 ? "1px solid rgba(0,0,0,0.06)" : "none",
-              }}>
-                {item}
-              </div>
-            ))}
-          </div>
-        </React.Fragment>
-      ))}
-    </div>
-  );
-};
-
-// Timeline - Vertical timeline with connected nodes for history/steps
-const Timeline = ({
-  props,
-  items,
-  delay = 0,
-}: {
-  props: VideoProps;
-  items: { label: string; description: string }[];
-  delay?: number;
-}) => {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%" }}>
-      {items.map((item, i) => {
-        const a = useEntrance(props.enableAnimations, delay + i * 6);
-        return (
-          <div key={i} style={{
-            display: "flex", gap: 28, opacity: a.opacity,
-            transform: `translateY(${a.translateY}px)`,
-          }}>
-            {/* Node + connector line */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 28 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 14, flexShrink: 0,
-                background: props.primaryColor,
-              }} />
-              {i < items.length - 1 && (
-                <div style={{ width: 3, flex: 1, background: `${props.primaryColor}30`, minHeight: 32 }} />
-              )}
-            </div>
-            {/* Content */}
-            <div style={{ paddingBottom: i < items.length - 1 ? 32 : 0, flex: 1 }}>
-              <div style={{ fontSize: 34, fontWeight: 700, color: props.primaryColor }}>{item.label}</div>
-              <div style={{ fontSize: 26, color: props.textColor, marginTop: 6, lineHeight: 1.5 }}>
-                {item.description}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-// CodeBlock - Dark-background code display with title bar
-const CodeBlock = ({
-  props,
-  title = "terminal",
-  lines,
-  delay = 0,
-}: {
-  props: VideoProps;
-  title?: string;
-  lines: string[];
-  delay?: number;
-}) => {
-  const anim = useEntrance(props.enableAnimations, delay);
-  return (
-    <div style={{
-      width: "100%", borderRadius: 20, overflow: "hidden",
-      opacity: anim.opacity, transform: `translateY(${anim.translateY}px)`,
-      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-    }}>
-      {/* Title bar */}
-      <div style={{
-        background: "#2d2d2d", padding: "14px 24px",
-        display: "flex", alignItems: "center", gap: 12,
-      }}>
-        <div style={{ display: "flex", gap: 8 }}>
-          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
-            <div key={c} style={{ width: 14, height: 14, borderRadius: 7, background: c }} />
-          ))}
-        </div>
-        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.5)", marginLeft: 8 }}>{title}</span>
-      </div>
-      {/* Code content */}
-      <div style={{ background: "#1e1e1e", padding: "28px 32px" }}>
-        {lines.map((line, i) => {
-          const lineAnim = useEntrance(props.enableAnimations, delay + 5 + i * 4);
-          return (
-            <div key={i} style={{
-              fontFamily: "SF Mono, Menlo, Monaco, monospace", fontSize: 26,
-              color: "#e6e6e6", lineHeight: 1.8,
-              opacity: lineAnim.opacity, transform: `translateY(${lineAnim.translateY}px)`,
-            }}>
-              {line}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-// QuoteBlock - Large quote with attribution
-const QuoteBlock = ({
-  props,
-  quote,
-  attribution,
-  delay = 0,
-}: {
-  props: VideoProps;
-  quote: string;
-  attribution: string;
-  delay?: number;
-}) => {
-  const anim = useEntrance(props.enableAnimations, delay);
-  const attrAnim = useEntrance(props.enableAnimations, delay + 10);
-  return (
-    <div style={{
-      width: "100%", textAlign: "center", padding: "40px 60px",
-      opacity: anim.opacity, transform: `translateY(${anim.translateY}px) scale(${anim.scale})`,
-    }}>
-      <div style={{
-        fontSize: 120, color: props.primaryColor, opacity: 0.2, lineHeight: 0.6, marginBottom: 20,
-      }}>
-        &ldquo;
-      </div>
-      <p style={{
-        fontSize: 40, fontWeight: 600, color: props.textColor,
-        lineHeight: 1.6, fontStyle: "italic",
-      }}>
-        {quote}
-      </p>
-      <div style={{
-        fontSize: 28, color: props.primaryColor, marginTop: 32, fontWeight: 500,
-        opacity: attrAnim.opacity, transform: `translateY(${attrAnim.translateY}px)`,
-      }}>
-        &mdash; {attribution}
-      </div>
-    </div>
-  );
-};
-
-// FeatureGrid - 2-3 column grid of icon + title + description cards
-const FeatureGrid = ({
-  props,
-  items,
-  columns = 3,
-  delay = 0,
-}: {
-  props: VideoProps;
-  items: { icon: string; title: string; description: string }[];
-  columns?: 2 | 3;
-  delay?: number;
-}) => {
-  return (
-    <div style={{
-      display: "flex", flexWrap: "wrap", gap: 28, width: "100%",
-    }}>
-      {items.map((item, i) => {
-        const a = useEntrance(props.enableAnimations, delay + i * 5);
-        return (
-          <div key={i} style={{
-            flex: `0 0 calc(${100 / columns}% - ${28 * (columns - 1) / columns}px)`,
-            background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.08)",
-            borderRadius: 20, padding: "36px 32px", textAlign: "center",
-            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
-          }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>{item.icon}</div>
-            <div style={{ fontSize: 32, fontWeight: 700, color: props.primaryColor, marginBottom: 10 }}>
-              {item.title}
-            </div>
-            <div style={{ fontSize: 24, color: props.textColor, lineHeight: 1.5 }}>
-              {item.description}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-// DataBar - Horizontal bar chart for data comparison
-const DataBar = ({
-  props,
-  items,
-  delay = 0,
-}: {
-  props: VideoProps;
-  items: { label: string; value: number; maxValue?: number }[];
-  delay?: number;
-}) => {
-  const max = Math.max(...items.map((d) => d.maxValue ?? d.value));
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
-      {items.map((item, i) => {
-        const pct = (item.value / max) * 100;
-        const a = useEntrance(props.enableAnimations, delay + i * 5);
-        return (
-          <div key={i} style={{
-            display: "flex", alignItems: "center", gap: 20,
-            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
-          }}>
-            <div style={{
-              fontSize: 28, fontWeight: 600, color: props.textColor,
-              width: 160, textAlign: "right", flexShrink: 0,
-            }}>
-              {item.label}
-            </div>
-            <div style={{
-              flex: 1, height: 40, background: "rgba(0,0,0,0.06)", borderRadius: 20, overflow: "hidden",
-            }}>
-              <div style={{
-                width: `${pct}%`, height: "100%", borderRadius: 20,
-                background: `linear-gradient(90deg, ${props.primaryColor}, ${props.accentColor})`,
-              }} />
-            </div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: props.primaryColor, width: 80 }}>
-              {item.value}%
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-// 章节进度条组件 (matches Superpowers reference style)
-// Renders at native 4K resolution (outside scale(2) wrapper)
-const ChapterProgressBar = ({
-  props,
-  chapters,
-}: {
-  props: VideoProps;
-  chapters: typeof timing.sections;
-}) => {
-  const frame = useCurrentFrame();
-  const totalFrames = timing.total_frames;
-  const progress = frame / totalFrames;
-
-  if (!props.showProgressBar) return null;
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: props.progressBarHeight,
-        background: "#fff",
-        borderTop: "2px solid #e5e7eb",
-        display: "flex",
-        alignItems: "center",
-        padding: "0 60px",
-        gap: 20,
-        fontFamily: "PingFang SC, Microsoft YaHei, sans-serif",
-      }}
-    >
-      {chapters.map((ch) => {
-        const chStart = ch.start_frame / totalFrames;
-        const chEnd = (ch.start_frame + ch.duration_frames) / totalFrames;
-        const isActive = progress >= chStart && progress < chEnd;
-        const isPast = progress >= chEnd;
-        const chProgress = isActive ? (progress - chStart) / (chEnd - chStart) : isPast ? 1 : 0;
-
-        return (
-          <div
-            key={ch.name}
-            style={{
-              flex: ch.duration_frames,
-              height: 76,
-              borderRadius: 38,
-              position: "relative",
-              overflow: "hidden",
-              background: isActive ? props.progressActiveColor : isPast ? "#f3f4f6" : "#f9fafb",
-              border: isActive ? "none" : "2px solid #e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {isActive && (
-              <div
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: `${chProgress * 100}%`,
-                  background: "rgba(255,255,255,0.25)",
-                  borderRadius: 38,
-                }}
-              />
-            )}
-            <span
-              style={{
-                position: "relative",
-                zIndex: 1,
-                color: isActive ? "#fff" : isPast ? "#374151" : "#9ca3af",
-                fontSize: props.progressFontSize,
-                fontWeight: isActive ? 700 : 500,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                padding: "0 20px",
-              }}
-            >
-              {ch.label || ch.name}
-            </span>
-          </div>
-        );
-      })}
-      {/* Bottom progress line */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 5,
-          background: "#e5e7eb",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: `${progress * 100}%`,
-            background: props.progressActiveColor,
-          }}
-        />
-      </div>
-    </div>
-  );
-};
-
-// Section 渲染组件 - 根据 section 名称渲染不同内容
-// 【自定义点】: 在这里添加你的 section 渲染逻辑
+// Section renderer - customize your section visuals here
 const SectionComponent = ({
   section,
   props,
@@ -628,11 +184,6 @@ const SectionComponent = ({
       );
 
     case "outro":
-      // Option A: Use pre-made MP4 animation (recommended)
-      // import { OffthreadVideo, staticFile } from "remotion";
-      // return <OffthreadVideo src={staticFile("media/{video-name}/bilibili-triple-white.mp4")} />;
-
-      // Option B: Remotion-generated outro (matches reference style)
       return (
         <FullBleedLayout bg={props.backgroundColor}>
           <div
@@ -684,7 +235,6 @@ const SectionComponent = ({
       );
 
     default:
-      // Generic content section (matches reference Card layout)
       return (
         <PaddedLayout bg={props.backgroundColor}>
           <div
@@ -734,7 +284,7 @@ const SectionComponent = ({
   }
 };
 
-// 主视频组件 - 接收可视化编辑的 props
+// Main video component - receives editable props from Studio
 export const Video = (props: VideoProps) => {
   const sections = timing.sections;
   const transitionFrames = props.transitionDuration;
@@ -751,9 +301,7 @@ export const Video = (props: VideoProps) => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
-      {/* 4K 缩放包装 */}
       <Scale4K>
-        {/* TransitionSeries with configurable chapter transitions */}
         <TransitionSeries>
           {compensatedSections.map((section, i) => (
             <React.Fragment key={section.name}>
@@ -771,15 +319,15 @@ export const Video = (props: VideoProps) => {
         </TransitionSeries>
       </Scale4K>
 
-      {/* 进度条 - 在 4K 缩放外，保持原始尺寸 */}
+      {/* Progress bar - outside scale(2) wrapper, renders at native 4K */}
       <ChapterProgressBar props={props} chapters={timing.sections} />
 
-      {/* BGM - 使用可配置音量 */}
+      {/* BGM with configurable volume */}
       {props.bgmVolume > 0 && (
         <Audio src={staticFile("bgm.mp3")} volume={props.bgmVolume} />
       )}
 
-      {/* TTS 语音 */}
+      {/* TTS audio */}
       <Audio src={staticFile("podcast_audio.wav")} />
     </AbsoluteFill>
   );

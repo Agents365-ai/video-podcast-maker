@@ -7,6 +7,7 @@ These are template files for creating Remotion video projects. Copy them to your
 ```bash
 # Copy all templates to your Remotion project
 cp ~/.claude/skills/video-podcast-maker/templates/*.tsx src/remotion/
+cp -r ~/.claude/skills/video-podcast-maker/templates/components src/remotion/components
 cp ~/.claude/skills/video-podcast-maker/templates/podcast.txt videos/{name}/
 ```
 
@@ -15,9 +16,33 @@ cp ~/.claude/skills/video-podcast-maker/templates/podcast.txt videos/{name}/
 | File | Purpose |
 |------|---------|
 | `podcast.txt` | Script template with `[SECTION:xxx]` markers |
-| `Video.tsx` | Main video composition component |
+| `Video.tsx` | Main video composition (imports from components/) |
 | `Root.tsx` | Remotion root with Composition and Still registrations |
 | `Thumbnail.tsx` | Thumbnail component (white centered, 16:9 + 4:3) |
+| `components/` | Reusable visual building blocks |
+
+## Component Library
+
+All components are in `components/` and can be imported via barrel export:
+
+```tsx
+import { ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar } from "./components";
+```
+
+| Component | Purpose |
+|-----------|---------|
+| `ComparisonCard` | Two-column VS layout for product/feature comparisons |
+| `Timeline` | Vertical timeline with connected nodes for history/steps |
+| `CodeBlock` | Dark terminal-style code display with title bar |
+| `QuoteBlock` | Large centered quote with attribution |
+| `FeatureGrid` | 2-3 column grid of icon + title + description cards |
+| `DataBar` | Horizontal bar chart for data comparison |
+| `ChapterProgressBar` | Bottom progress bar with chapter indicators |
+| `Scale4K` | 4K scaling wrapper (design at 1080p, renders at 4K) |
+| `FullBleedLayout` | Full-screen layout without padding |
+| `PaddedLayout` | Standard layout with 40px padding |
+| `useEntrance` | Spring-based entrance animation hook |
+| `getPresentation` | Transition type mapper (fade/slide/wipe/none) |
 
 ## Note on TypeScript Errors
 
@@ -31,9 +56,8 @@ The templates will work correctly once copied to a properly configured Remotion 
 
 ## Customization
 
-Each template includes Chinese comments (`// 自定义：...`) indicating where to customize:
-
 1. **podcast.txt** - Replace placeholder content with your script
 2. **Video.tsx** - Add your section components to `SectionComponent`
 3. **Root.tsx** - Update `defaultProps` with your video title
 4. **Thumbnail.tsx** - Update title, subtitle, and data highlights
+5. **components/** - Import and use building blocks in your sections
