@@ -10,6 +10,28 @@ bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
   - remotion-best-practices
+metadata:
+  openclaw:
+    requires:
+      env:
+        - AZURE_SPEECH_KEY
+        - AZURE_SPEECH_REGION
+      bins:
+        - python3
+        - ffmpeg
+        - node
+        - npx
+    primaryEnv: AZURE_SPEECH_KEY
+    emoji: "🎬"
+    homepage: https://github.com/Agents365-ai/video-podcast-maker
+    os: ["macos", "linux"]
+    install:
+      - kind: brew
+        formula: ffmpeg
+        bins: [ffmpeg]
+      - kind: uv
+        package: edge-tts
+        bins: [edge-tts]
 ---
 
 > **REQUIRED: Load Remotion Best Practices First**
@@ -165,6 +187,20 @@ Automated pipeline to create professional **Bilibili (B站) 横屏知识视频**
 | **Card padding** | ≥ 24px |
 
 ---
+
+## Design Philosophy
+
+Templates (`templates/`) are **starting points, not blueprints**. Claude SHOULD customize the visual design for each video based on its topic:
+
+- **Color palette**: match the subject (tech → cool blues/grays, food → warm tones, finance → dark/gold)
+- **Section layouts**: create new component arrangements, don't repeat the same layout for every section
+- **Visual variety**: vary section backgrounds, card styles, and emphasis techniques across sections to maintain viewer engagement
+- **Typography**: adjust sizes and weights to create clear visual hierarchy per section's content density
+- **Animations**: use entrance animations and transitions that fit the video's energy and pacing
+
+**What to keep consistent**: Technical Rules above (4K, safe zones, min sizes), component imports from `./components`, and the `timing.json`-driven timing system.
+
+**What to vary freely**: colors, gradients, backgrounds, layout composition, card styles, icon choices, spacing, animation timing, section visual identity.
 
 ## Visual Design Reference (recommended)
 
