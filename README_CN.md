@@ -135,6 +135,8 @@ export DASHSCOPE_API_KEY="your-dashscope-api-key"
 
 Claude 会自动引导你完成整个流程。
 
+> **提示：** 经过多次测试，初次生成的效果和模型效果有很大的关系，模型越智能越先进，生成的效果会越好。目前初次生成 Codex 和 Claude Code 生成的视频效果都不错，OpenCode 搭配 GLM-5 也还不错。如果第一次生成的不够好，可以在 Remotion Studio 预览，并让 coding agent 继续修改。
+
 ### 预览与可视化编辑
 
 在渲染最终视频前，使用 Remotion Studio 实时预览和可视化编辑样式：
