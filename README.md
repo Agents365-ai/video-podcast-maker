@@ -4,6 +4,8 @@
 
 自动化流程，从主题生成专业视频播客。**针对 B站 (Bilibili) 优化**。集成研究、脚本撰写、微软 Azure TTS、Remotion 视频渲染和 FFmpeg 音频混音。
 
+**支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub)
+
 > **无需编程！** 用自然语言描述你的主题，Claude 会一步步引导你完成。你做创意决策，Claude 处理所有技术细节。制作你的第一个视频播客，比你想象的更简单。
 
 > **提示：** 本项目仍在持续迭代完善中，部分功能可能还不太成熟。欢迎提出宝贵意见和建议 — 可以 [提交 Issue](https://github.com/Agents365-ai/video-podcast-maker/issues) 或直接联系作者！
