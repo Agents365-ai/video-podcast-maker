@@ -69,7 +69,7 @@ brew install ffmpeg node python3
 sudo apt install ffmpeg nodejs python3 python3-pip
 
 # Python dependencies
-pip install azure-cognitiveservices-speech dashscope requests
+pip install azure-cognitiveservices-speech dashscope edge-tts requests
 ```
 
 ### Project Setup (Required)
@@ -115,11 +115,18 @@ npm install remotion @remotion/cli @remotion/player zod
 Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-# TTS Backend: Azure (default) or CosyVoice
-export AZURE_SPEECH_KEY="your-azure-speech-key"     # Required for Azure TTS
+# TTS Backend: azure (default), cosyvoice, or edge (free, no key needed)
+export TTS_BACKEND="azure"                           # Or "cosyvoice" or "edge"
+
+# Azure TTS (default backend)
+export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
-export DASHSCOPE_API_KEY="your-dashscope-api-key"    # Required for CosyVoice TTS + AI thumbnails
-export TTS_BACKEND="azure"                           # Or "cosyvoice" or "edge" (free)
+
+# Aliyun CosyVoice TTS (alternative backend) + AI thumbnails
+export DASHSCOPE_API_KEY="your-dashscope-api-key"
+
+# Optional: Edge TTS voice override
+export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
 
 # Optional: Google Gemini for AI thumbnails
 export GEMINI_API_KEY="your-gemini-api-key"

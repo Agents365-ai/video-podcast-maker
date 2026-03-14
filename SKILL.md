@@ -5,7 +5,7 @@ author: Agents365-ai
 category: Content Creation
 version: 1.0.0
 created: 2025-01-27
-updated: 2026-02-27
+updated: 2026-03-15
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
@@ -511,7 +511,24 @@ TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --out
 
 # Resume from breakpoint (skip already synthesized parts)
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name} --resume
+
+# Control speech rate (default: +5%)
+TTS_RATE="+15%" python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+
+# Override Edge TTS voice
+EDGE_TTS_VOICE="zh-CN-YunxiNeural" TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
+
+### Environment Variables (TTS)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TTS_BACKEND` | `azure` | Backend: `azure`, `cosyvoice`, or `edge` (free) |
+| `TTS_RATE` | `+5%` | Speech rate: `-50%` to `+200%` |
+| `EDGE_TTS_VOICE` | `zh-CN-XiaoxiaoNeural` | Voice for Edge TTS backend |
+| `AZURE_SPEECH_KEY` | - | Required for Azure backend |
+| `AZURE_SPEECH_REGION` | `eastasia` | Azure region |
+| `DASHSCOPE_API_KEY` | - | Required for CosyVoice backend |
 
 ### 多音字/发音校正 (SSML Phoneme)
 
@@ -543,6 +560,8 @@ TTS 脚本支持三种方式校正发音，优先级从高到低：
 **拼音格式**: 使用带声调符号的拼音（如 `zhí xíng qì`），脚本会自动转换为 Azure SAPI 格式。
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
+
+**timing.json `label` field**: Each section gets a human-readable label extracted from the first line of its content (before first punctuation, max 10 chars). This is displayed in the `ChapterProgressBar` component. Example: `[SECTION:hero]` with content "大家好，欢迎来到本期视频" → `label: "大家好"`. Silent sections use the section name as label.
 ---
 
 ## Step 9: Create Remotion Composition + Studio Preview
