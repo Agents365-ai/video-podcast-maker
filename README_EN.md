@@ -204,7 +204,7 @@ Included tracks in `assets/`:
 - [x] Edge TTS free backend (no API key required)
 - [x] Resume from breakpoint (`--resume` flag)
 - [x] Dry-run mode (`--dry-run` for duration estimation)
-- [ ] Additional TTS engines (ElevenLabs)
+- [ ] Additional TTS engines (based on user demand)
 - [ ] Windows compatibility (WSL or native PowerShell support)
 
 ## License
