@@ -68,7 +68,7 @@ brew install ffmpeg node python3
 sudo apt install ffmpeg nodejs python3 python3-pip
 
 # Python 依赖
-pip install azure-cognitiveservices-speech requests
+pip install azure-cognitiveservices-speech dashscope edge-tts requests
 ```
 
 ### 项目初始化（必需）
@@ -114,15 +114,18 @@ npm install remotion @remotion/cli @remotion/player zod
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# Azure TTS（必需）
+# TTS 后端选择：azure（默认）、cosyvoice、edge（免费，无需密钥）
+export TTS_BACKEND="azure"                           # 或 "cosyvoice" 或 "edge"
+
+# Azure TTS（默认后端）
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
 
+# 阿里云 CosyVoice TTS（备选后端）+ AI 封面
+export DASHSCOPE_API_KEY="your-dashscope-api-key"
+
 # 可选：Google Gemini 生成 AI 封面
 export GEMINI_API_KEY="your-gemini-api-key"
-
-# 可选：阿里云百炼生成 AI 封面（中文优化）
-export DASHSCOPE_API_KEY="your-dashscope-api-key"
 ```
 
 然后重新加载：`source ~/.zshrc`

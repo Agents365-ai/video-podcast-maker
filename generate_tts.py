@@ -169,18 +169,28 @@ args = parser.parse_args()
 BACKEND = args.backend or os.environ.get("TTS_BACKEND", "azure")
 print(f"TTS backend: {BACKEND}")
 
+def check_import(module, pkg, install_cmd):
+    try:
+        __import__(module)
+    except ImportError:
+        print(f"Error: '{pkg}' not installed. Run: {install_cmd}", file=sys.stderr)
+        sys.exit(1)
+
 if BACKEND == "azure":
+    check_import("azure.cognitiveservices.speech", "azure-cognitiveservices-speech",
+                  "pip install azure-cognitiveservices-speech")
     key = os.environ.get("AZURE_SPEECH_KEY")
     region = os.environ.get("AZURE_SPEECH_REGION", "eastasia")
     if not key:
         print("Error: AZURE_SPEECH_KEY not set", file=sys.stderr)
         sys.exit(1)
 elif BACKEND == "cosyvoice":
+    check_import("dashscope", "dashscope", "pip install dashscope")
     if not os.environ.get("DASHSCOPE_API_KEY"):
         print("Error: DASHSCOPE_API_KEY not set", file=sys.stderr)
         sys.exit(1)
 elif BACKEND == "edge":
-    pass  # No API key required
+    check_import("edge_tts", "edge-tts", "pip install edge-tts")
 else:
     print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'cosyvoice', or 'edge'", file=sys.stderr)
     sys.exit(1)
@@ -214,8 +224,12 @@ for i, match in enumerate(matches):
     first_text = re.sub(r'\s+', '', section_text[:80])  # 去除空白便于匹配
     # 标记无旁白章节（空内容或仅空白）
     is_silent = len(section_text.strip()) == 0
+    # Extract label: first line of section text (before first punctuation), capped at 10 chars
+    label_text = section_text.split('\n')[0].strip() if section_text.strip() else section_name
+    label = re.split(r'[，。！？、：；]', label_text)[0][:10] if label_text else section_name
     sections.append({
         'name': section_name,
+        'label': label or section_name,
         'first_text': first_text,
         'start_time': None,
         'end_time': None,
@@ -764,6 +778,7 @@ timing_data = {
     'sections': [
         {
             'name': s['name'],
+            'label': s.get('label', s['name']),
             'start_time': round(s['start_time'], 3),
             'end_time': round(s['end_time'], 3),
             'duration': round(s['duration'], 3),
