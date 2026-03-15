@@ -46,6 +46,10 @@ export const videoSchema = z.object({
 
   // 方向设置
   orientation: z.enum(["horizontal", "vertical"]).describe("视频方向: horizontal(16:9) / vertical(9:16)"),
+
+  // 图标设置
+  iconStyle: z.enum(["lucide", "emoji", "mixed"]).describe("图标风格: lucide(SVG) / emoji / mixed"),
+  iconAnimation: z.enum(["entrance", "none"]).describe("图标动画: entrance / none"),
 });
 
 // 类型导出，供 Video.tsx 使用
@@ -83,6 +87,10 @@ export const defaultVideoProps: VideoProps = {
 
   // 方向
   orientation: "horizontal",
+
+  // 图标
+  iconStyle: "lucide",
+  iconAnimation: "entrance",
 };
 
 // 视频 ID
