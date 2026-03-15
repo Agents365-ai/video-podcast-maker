@@ -25,6 +25,7 @@ import {
   getPresentation,
   ChapterProgressBar,
   IconCard,
+  Icon,
 } from "./components";
 
 // Section renderer - customize your section visuals here
@@ -130,9 +131,9 @@ const SectionComponent = ({
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: v ? 24 : 20, width: "100%", maxWidth: v ? undefined : 900 }}>
                 {[
-                  { icon: "💡", title: "要点一", description: "说明文字" },
-                  { icon: "🎯", title: "要点二", description: "说明文字" },
-                  { icon: "✅", title: "要点三", description: "说明文字" },
+                  { icon: "lightbulb", title: "要点一", description: "说明文字" },
+                  { icon: "target", title: "要点二", description: "说明文字" },
+                  { icon: "check-circle", title: "要点三", description: "说明文字" },
                 ].map((item, i) => (
                   <IconCard key={i} props={props} icon={item.icon} title={item.title} description={item.description} delay={i * 6} />
                 ))}
@@ -218,12 +219,12 @@ const SectionComponent = ({
             </h2>
             <div style={{ display: "flex", gap: v ? 56 : 40, flexDirection: v ? "column" : "row" }}>
               {[
-                { icon: "👍", text: "点赞" },
-                { icon: "⭐", text: "收藏" },
-                { icon: "🔔", text: "关注" },
+                { icon: "thumbs-up", text: "点赞" },
+                { icon: "star", text: "收藏" },
+                { icon: "bell", text: "关注" },
               ].map((item, i) => (
                 <div key={i} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: v ? 80 : 64 }}>{item.icon}</div>
+                  <Icon name={item.icon} size={v ? 80 : 64} color={props.accentColor} animate="bounce" delay={i * 10} />
                   <div style={{ fontSize: v ? 32 : 26, color: "rgba(0,0,0,0.5)", marginTop: 10 }}>{item.text}</div>
                 </div>
               ))}
