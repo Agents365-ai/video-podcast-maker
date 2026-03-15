@@ -29,6 +29,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 - **Pronunciation Correction** - Built-in polyphone dictionary + custom phoneme support
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 - **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard) for composing rich section layouts
+- **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
 
 ### Bilibili Optimizations
 
@@ -209,6 +210,7 @@ Included tracks in `assets/`:
 - [x] Edge TTS free backend (no API key required)
 - [x] Resume from breakpoint (`--resume` flag)
 - [x] Dry-run mode (`--dry-run` for duration estimation)
+- [x] User preference self-evolution (auto-learns visual/TTS/content style preferences)
 - [ ] Additional TTS engines (based on user demand)
 - [ ] Windows compatibility (WSL verification + docs)
 
