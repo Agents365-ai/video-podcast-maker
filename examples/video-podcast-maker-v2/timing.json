@@ -1,0 +1,71 @@
+{
+  "total_duration": 237.5,
+  "fps": 30,
+  "total_frames": 7125,
+  "speech_rate": "+5%",
+  "sections": [
+    {
+      "name": "hero",
+      "start_time": 0,
+      "end_time": 12.288,
+      "duration": 12.288,
+      "start_frame": 0,
+      "duration_frames": 368,
+      "is_silent": false
+    },
+    {
+      "name": "workflow",
+      "start_time": 12.288,
+      "end_time": 92.219,
+      "duration": 79.931,
+      "start_frame": 368,
+      "duration_frames": 2397,
+      "is_silent": false
+    },
+    {
+      "name": "studio",
+      "start_time": 92.219,
+      "end_time": 132.886,
+      "duration": 40.667,
+      "start_frame": 2766,
+      "duration_frames": 1220,
+      "is_silent": false
+    },
+    {
+      "name": "features",
+      "start_time": 132.886,
+      "end_time": 181.54,
+      "duration": 48.654,
+      "start_frame": 3986,
+      "duration_frames": 1459,
+      "is_silent": false
+    },
+    {
+      "name": "quickstart",
+      "start_time": 181.54,
+      "end_time": 205.73,
+      "duration": 24.191,
+      "start_frame": 5446,
+      "duration_frames": 725,
+      "is_silent": false
+    },
+    {
+      "name": "summary",
+      "start_time": 205.73,
+      "end_time": 225,
+      "duration": 19.27,
+      "start_frame": 6171,
+      "duration_frames": 579,
+      "is_silent": false
+    },
+    {
+      "name": "outro",
+      "start_time": 225,
+      "end_time": 237.5,
+      "duration": 12.5,
+      "start_frame": 6750,
+      "duration_frames": 375,
+      "is_silent": false
+    }
+  ]
+}

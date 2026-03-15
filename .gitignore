@@ -33,3 +33,4 @@ concat_list.txt
 
 # Worktrees
 .worktrees/
+logs/
