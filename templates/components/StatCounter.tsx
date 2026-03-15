@@ -1,6 +1,7 @@
 import React from "react";
 import type { VideoProps } from "../Root";
 import { useEntrance, useCounter } from "./animations";
+import { Icon } from "./Icon";
 
 export const StatCounter = ({
   props,
@@ -12,6 +13,7 @@ export const StatCounter = ({
   delay?: number;
 }) => {
   const v = props.orientation === "vertical";
+  const iconAnim = props.iconAnimation === "none" ? "none" : "entrance";
   return (
     <div style={{
       display: "flex", gap: v ? 32 : 48, width: "100%",
@@ -30,7 +32,11 @@ export const StatCounter = ({
             border: `1px solid ${props.primaryColor}12`,
             opacity: a.opacity, transform: `translateY(${a.translateY}px) scale(${a.scale})`,
           }}>
-            {item.icon && <div style={{ fontSize: v ? 48 : 52, marginBottom: 12 }}>{item.icon}</div>}
+            {item.icon && (
+              <div style={{ marginBottom: 12 }}>
+                <Icon name={item.icon} size={v ? 48 : 52} color={props.primaryColor} animate={iconAnim} delay={delay + i * 6} />
+              </div>
+            )}
             <div style={{
               fontSize: v ? 56 : 64, fontWeight: 800, color: props.primaryColor,
               letterSpacing: -2,
