@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://video-podcast-maker/prefs_schema.json",
+  "title": "User Preferences Schema",
+  "description": "Schema for learnable user preferences in video-podcast-maker",
+  "type": "object",
+  "required": ["version", "updated_at"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "global": {
+      "type": "object",
+      "properties": {
+        "visual": {
+          "type": "object",
+          "properties": {
+            "theme": {
+              "type": "string",
+              "enum": ["light", "dark", "auto"],
+              "default": "light"
+            },
+            "primaryColor": {
+              "type": "string",
+              "description": "Primary brand color (hex or CSS color)"
+            },
+            "backgroundColor": {
+              "type": "string",
+              "description": "Background color (hex or CSS color)"
+            },
+            "accentColor": {
+              "type": "string",
+              "description": "Accent color for highlights (hex or CSS color)"
+            },
+            "preferredComponents": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List of preferred visual components"
+            },
+            "titlePosition": {
+              "type": "string",
+              "enum": ["top-center", "top-left", "center"],
+              "default": "top-center"
+            },
+            "progressBar": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show chapter progress bar"
+            },
+            "typography": {
+              "type": "object",
+              "properties": {
+                "heroTitle": {
+                  "type": "number",
+                  "minimum": 72,
+                  "default": 96
+                },
+                "sectionTitle": {
+                  "type": "number",
+                  "minimum": 60,
+                  "default": 72
+                },
+                "cardTitle": {
+                  "type": "number",
+                  "minimum": 24,
+                  "default": 36
+                },
+                "bodyText": {
+                  "type": "number",
+                  "minimum": 24,
+                  "default": 28
+                },
+                "caption": {
+                  "type": "number",
+                  "minimum": 18,
+                  "default": 22
+                },
+                "scalePreference": {
+                  "type": "number",
+                  "minimum": 0.5,
+                  "maximum": 2.0,
+                  "default": 1.0
+                }
+              }
+            },
+            "layout": {
+              "type": "object",
+              "properties": {
+                "textAlign": {
+                  "type": "string",
+                  "enum": ["center", "left"],
+                  "default": "center"
+                },
+                "contentWidth": {
+                  "type": "number",
+                  "minimum": 0.5,
+                  "maximum": 1.0,
+                  "default": 0.85,
+                  "description": "Content width as fraction of screen"
+                },
+                "cardPadding": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 40
+                }
+              }
+            },
+            "spacing": {
+              "type": "object",
+              "properties": {
+                "sectionPadding": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 60
+                },
+                "itemGap": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 24
+                },
+                "marginBottom": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 100,
+                  "description": "Bottom margin reserved for subtitles"
+                }
+              }
+            }
+          }
+        },
+        "tts": {
+          "type": "object",
+          "properties": {
+            "backend": {
+              "type": "string",
+              "enum": ["azure", "cosyvoice", "edge"],
+              "default": "azure"
+            },
+            "rate": {
+              "type": "string",
+              "pattern": "^[+-]?\\d+%$",
+              "default": "+0%",
+              "description": "Speech rate adjustment (e.g. +5%, -10%)"
+            },
+            "voice": {
+              "type": "string",
+              "description": "TTS voice identifier"
+            }
+          }
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "tone": {
+              "type": "string",
+              "enum": ["professional", "casual", "energetic"],
+              "default": "professional"
+            },
+            "verbosity": {
+              "type": "string",
+              "enum": ["concise", "balanced", "detailed"],
+              "default": "balanced"
+            },
+            "sectionCount": {
+              "type": "number",
+              "minimum": 3,
+              "maximum": 15,
+              "default": 6
+            },
+            "outroStyle": {
+              "type": "string",
+              "enum": ["standard", "minimal"],
+              "default": "standard"
+            }
+          }
+        }
+      }
+    },
+    "topic_patterns": {
+      "type": "object",
+      "description": "Topic-specific preference overrides",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "visual": {
+            "$ref": "#/properties/global/properties/visual"
+          },
+          "tts": {
+            "$ref": "#/properties/global/properties/tts"
+          },
+          "content": {
+            "$ref": "#/properties/global/properties/content"
+          }
+        }
+      }
+    },
+    "learning_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "source", "change"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string",
+            "enum": ["explicit", "implicit", "feedback"],
+            "description": "How the preference was learned"
+          },
+          "change": {
+            "type": "object",
+            "required": ["path", "to"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "JSON path to the changed preference"
+              },
+              "from": {
+                "description": "Previous value (null if new)"
+              },
+              "to": {
+                "description": "New value"
+              }
+            }
+          },
+          "context": {
+            "type": "string",
+            "description": "Optional context about why change was made"
+          }
+        }
+      }
+    }
+  }
+}
