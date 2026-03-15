@@ -103,6 +103,22 @@ podcast.txt → generate_tts.py → podcast_audio.wav + podcast_audio.srt + timi
 - `TransitionSeries` compensates for overlap by adding lost frames to the first section
 - All components are orientation-aware via `props.orientation` — vertical mode adapts layouts, font sizes, and spacing
 
+### Icon System
+
+- **Semantic names**: Use `"rocket"`, `"check"`, `"lightbulb"` — auto-resolved to Lucide SVG
+- **Emoji fallback**: `"🚀"` still works — detected and rendered directly
+- **Available icons**: See `templates/components/iconMap.ts` for full list (~80 icons)
+- **Props**: `iconStyle` ("lucide"/"emoji"/"mixed"), `iconAnimation` ("entrance"/"none")
+
+Common semantic names:
+| Category | Names |
+|----------|-------|
+| Actions | rocket, check, x, plus, play, pause |
+| Objects | lightbulb, target, star, heart, trophy, zap |
+| Tech | code, terminal, database, server, cloud, cpu |
+| Media | video, music, mic, camera |
+| Social | thumbs-up, star, bell, share, bookmark |
+
 ## Critical Rules
 
 - **Always 4K output** — horizontal 3840×2160, vertical 2160×3840 — use `transform: scale(2)` wrapper in Remotion
