@@ -1,5 +1,6 @@
 import type { VideoProps } from "../Root";
 import { useEntrance } from "./animations";
+import { Icon } from "./Icon";
 
 export const FeatureGrid = ({
   props,
@@ -14,6 +15,7 @@ export const FeatureGrid = ({
 }) => {
   const v = props.orientation === "vertical";
   const cols = v ? 1 : columns;
+  const iconAnim = props.iconAnimation === "none" ? "none" : "entrance";
 
   return (
     <div style={{
@@ -21,6 +23,7 @@ export const FeatureGrid = ({
     }}>
       {items.map((item, i) => {
         const a = useEntrance(props.enableAnimations, delay + i * 5, "snappy");
+        const itemDelay = delay + i * 5;
         return (
           <div key={i} style={{
             flex: `0 0 calc(${100 / cols}% - ${(v ? 24 : 28) * (cols - 1) / cols}px)`,
@@ -34,10 +37,10 @@ export const FeatureGrid = ({
             opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
           }}>
             <div style={{
-              fontSize: v ? 48 : 56, marginBottom: v ? 0 : 16, flexShrink: 0,
+              marginBottom: v ? 0 : 16, flexShrink: 0,
               filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
             }}>
-              {item.icon}
+              <Icon name={item.icon} size={v ? 48 : 56} color={props.primaryColor} animate={iconAnim} delay={itemDelay} />
             </div>
             <div>
               <div style={{ fontSize: v ? 34 : 32, fontWeight: 700, color: props.primaryColor, marginBottom: 8 }}>
