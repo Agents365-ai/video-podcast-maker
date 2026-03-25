@@ -104,6 +104,11 @@ cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
 ```
 
+安装 video-podcast-maker skill
+```bash
+npx add-skill Agents365-ai/video-podcast-maker
+```
+
 ### 所需 API 密钥
 
 | 服务 | 用途 | 获取方式 |
