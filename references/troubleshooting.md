@@ -131,7 +131,12 @@ mv videos/{name}/podcast_audio_utf8.srt videos/{name}/podcast_audio.srt
 ```bash
 # Install Noto Sans SC
 sudo apt install fonts-noto-cjk
-# Or download PingFang SC manually
+# Recommended: put fonts in skills assets directory for deterministic rendering
+mkdir -p skills/video-podcast-maker/assets/fonts
+# Add:
+#   skills/video-podcast-maker/assets/fonts/SourceHanSansSC-Regular.otf
+#   skills/video-podcast-maker/assets/fonts/SourceHanSansSC-Medium.otf
+#   skills/video-podcast-maker/assets/fonts/SourceHanSansSC-Bold.otf
 ```
 
 ---

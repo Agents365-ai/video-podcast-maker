@@ -523,10 +523,15 @@ ffmpeg -y \
 
 If subtitles requested:
 ```bash
+# 1) Prefer system fonts first
 ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
   -vf "subtitles=videos/{name}/podcast_audio.srt:force_style='FontName=PingFang SC,FontSize=14,PrimaryColour=&H00333333,OutlineColour=&H00FFFFFF,Bold=1,Outline=2,Shadow=0,MarginV=20'" \
-  -c:v libx264 -crf 18 -preset slow -s 3840x2160 \
-  -c:a copy videos/{name}/final_video.mp4
+  -c:v libx264 -crf 18 -preset slow -s 3840x2160 -c:a copy videos/{name}/final_video.mp4 \
+|| \
+# 2) Fallback to bundled external fonts
+ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
+  -vf "subtitles=videos/{name}/podcast_audio.srt:fontsdir=skills/video-podcast-maker/assets/fonts:force_style='FontName=Source Han Sans SC,FontSize=14,PrimaryColour=&H00333333,OutlineColour=&H00FFFFFF,Bold=1,Outline=2,Shadow=0,MarginV=20'" \
+  -c:v libx264 -crf 18 -preset slow -s 3840x2160 -c:a copy videos/{name}/final_video.mp4
 ```
 
 If skipping:

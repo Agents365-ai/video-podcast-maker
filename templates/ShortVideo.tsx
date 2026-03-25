@@ -10,6 +10,7 @@ import { Audio, staticFile, AbsoluteFill, Sequence } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import type { VideoProps } from "./Root";
+import { CJK_FONT_FAMILY, LocalFonts } from "./LocalFonts";
 
 // Inline vertical props to avoid circular dependency (Root imports this file)
 // These match defaultVideoProps with orientation: "vertical" overrides
@@ -97,7 +98,8 @@ export const ShortVideo = () => {
   const compensatedIntroFrames = introFrames + transitionCount * transitionFrames;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor: props.backgroundColor, fontFamily: CJK_FONT_FAMILY }}>
+      <LocalFonts />
       <Scale4K orientation="vertical">
         <TransitionSeries>
           {/* 1. Intro card (3s) */}

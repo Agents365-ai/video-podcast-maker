@@ -9,6 +9,13 @@ These are template files for creating Remotion video projects. Copy them to your
 cp ~/.claude/skills/video-podcast-maker/templates/*.tsx src/remotion/
 cp -r ~/.claude/skills/video-podcast-maker/templates/components src/remotion/components
 cp ~/.claude/skills/video-podcast-maker/templates/podcast.txt videos/{name}/
+
+# Put Chinese fonts into skill assets directory
+mkdir -p skills/video-podcast-maker/assets/fonts
+# Expected filenames (used by LocalFonts.tsx):
+#   skills/video-podcast-maker/assets/fonts/SourceHanSansSC-Regular.otf
+#   skills/video-podcast-maker/assets/fonts/SourceHanSansSC-Medium.otf
+#   skills/video-podcast-maker/assets/fonts/SourceHanSansSC-Bold.otf
 ```
 
 ## Files
@@ -19,6 +26,7 @@ cp ~/.claude/skills/video-podcast-maker/templates/podcast.txt videos/{name}/
 | `Video.tsx` | Main video composition (imports from components/) |
 | `Root.tsx` | Remotion root with Composition and Still registrations |
 | `Thumbnail.tsx` | Thumbnail component (white centered, 16:9 + 4:3) |
+| `LocalFonts.tsx` | CJK font loader (`skills/video-podcast-maker/assets/fonts/*.otf`) |
 | `components/` | Reusable visual building blocks |
 
 ## Component Library
@@ -61,3 +69,16 @@ The templates will work correctly once copied to a properly configured Remotion 
 3. **Root.tsx** - Update `defaultProps` with your video title
 4. **Thumbnail.tsx** - Update title, subtitle, and data highlights
 5. **components/** - Import and use building blocks in your sections
+
+## Where to get Source Han Sans SC
+
+Download from one of these sources and copy the files to `skills/video-podcast-maker/assets/fonts/`:
+
+- Source Han Sans (思源黑体, Adobe): https://github.com/adobe-fonts/source-han-sans/releases
+- Noto CJK (Google): https://github.com/notofonts/noto-cjk/releases
+
+Use these filenames so templates work out of the box:
+
+- `SourceHanSansSC-Regular.otf`
+- `SourceHanSansSC-Medium.otf`
+- `SourceHanSansSC-Bold.otf`

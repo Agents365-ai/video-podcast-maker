@@ -27,6 +27,7 @@ import {
   IconCard,
   Icon,
 } from "./components";
+import { CJK_FONT_FAMILY, LocalFonts } from "./LocalFonts";
 
 // Section renderer - customize your section visuals here
 // Layouts auto-adapt based on orientation (horizontal/vertical)
@@ -317,7 +318,8 @@ export const Video = (props: VideoProps) => {
   }));
 
   return (
-    <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
+    <AbsoluteFill style={{ backgroundColor: props.backgroundColor, fontFamily: CJK_FONT_FAMILY }}>
+      <LocalFonts />
       <Scale4K orientation={props.orientation}>
         <TransitionSeries>
           {compensatedSections.map((section, i) => (

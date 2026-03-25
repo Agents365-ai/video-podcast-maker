@@ -30,7 +30,7 @@ export const ChapterProgressBar = ({
         alignItems: "center",
         padding: "0 60px",
         gap: 20,
-        fontFamily: "PingFang SC, Microsoft YaHei, sans-serif",
+        fontFamily: "'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans SC Local', 'Source Han Sans SC', sans-serif",
       }}
     >
       {chapters.map((ch) => {

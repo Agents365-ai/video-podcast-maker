@@ -8,6 +8,7 @@
  */
 
 import { AbsoluteFill } from "remotion";
+import { CJK_FONT_FAMILY, LocalFonts } from "./LocalFonts";
 
 interface ThumbnailProps {
   aspectRatio?: "16:9" | "4:3" | "9:16";
@@ -16,8 +17,6 @@ interface ThumbnailProps {
   tags?: string[];
   icons?: string[];
 }
-
-const font = "'PingFang SC', 'Noto Sans SC', sans-serif";
 
 export const Thumbnail = ({
   aspectRatio = "16:9",
@@ -32,7 +31,8 @@ export const Thumbnail = ({
   const subtitleSize = vertical ? 48 : compact ? 56 : 60;
 
   return (
-    <AbsoluteFill style={{ background: "#ffffff", fontFamily: font }}>
+    <AbsoluteFill style={{ background: "#ffffff", fontFamily: CJK_FONT_FAMILY }}>
+      <LocalFonts />
       <div
         style={{
           position: "absolute",
