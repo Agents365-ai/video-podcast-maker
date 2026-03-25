@@ -11,6 +11,7 @@ import subprocess
 import re
 import time
 import uuid
+import base64
 from xml.sax.saxutils import escape
 
 
@@ -152,13 +153,13 @@ BUILTIN_POLYPHONES = {
 
 parser = argparse.ArgumentParser(
     description='Generate TTS audio from podcast script',
-    epilog='Backends: azure (default), cosyvoice, edge (free). Env: TTS_BACKEND, AZURE_SPEECH_KEY, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, TTS_RATE'
+    epilog='Backends: azure (default), cosyvoice, edge (free), doubao. Env: TTS_BACKEND, AZURE_SPEECH_KEY, DASHSCOPE_API_KEY, EDGE_TTS_VOICE, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, VOLCENGINE_CLUSTER, VOLCENGINE_VOICE_TYPE, TTS_RATE'
 )
 parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
 parser.add_argument('--output-dir', '-o', default='.', help='Output directory for podcast_audio.wav, podcast_audio.srt, timing.json (default: current dir)')
 parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file (default: phonemes.json in input dir)')
 parser.add_argument('--backend', '-b', default=None,
-    help='TTS backend: azure, cosyvoice, or edge (default: env TTS_BACKEND or azure)')
+    help='TTS backend: azure, cosyvoice, edge, or doubao (default: env TTS_BACKEND or azure)')
 parser.add_argument('--resume', action='store_true',
     help='Resume from last breakpoint, skip already synthesized parts')
 parser.add_argument('--dry-run', action='store_true',
@@ -168,6 +169,30 @@ args = parser.parse_args()
 
 BACKEND = args.backend or os.environ.get("TTS_BACKEND", "azure")
 print(f"TTS backend: {BACKEND}")
+
+
+def load_env_file(path):
+    """Load KEY=VALUE pairs into environment if key is not already set."""
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            for raw in f:
+                line = raw.strip()
+                if not line or line.startswith('#') or '=' not in line:
+                    continue
+                k, v = line.split('=', 1)
+                key = k.strip()
+                value = v.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+        print(f"✓ Loaded env file: {path}")
+    except Exception as e:
+        print(f"⚠ Failed to load env file {path}: {e}")
+
+
+# Optional local secrets file for Doubao backend
+load_env_file(os.path.expanduser("~/.private_key/volcengine_doubao_tts.env"))
 
 def check_import(module, pkg, install_cmd):
     try:
@@ -191,10 +216,24 @@ elif BACKEND == "cosyvoice":
         sys.exit(1)
 elif BACKEND == "edge":
     check_import("edge_tts", "edge-tts", "pip install edge-tts")
+elif BACKEND == "doubao":
+    check_import("requests", "requests", "pip install requests")
+    appid = os.environ.get("VOLCENGINE_APPID")
+    access_token = os.environ.get("VOLCENGINE_ACCESS_TOKEN")
+    cluster = os.environ.get("VOLCENGINE_CLUSTER", "volcano_tts")
+    voice_type = os.environ.get("VOLCENGINE_VOICE_TYPE", "BV001_streaming")
+    doubao_endpoint = os.environ.get("VOLCENGINE_TTS_ENDPOINT", "https://openspeech.bytedance.com/api/v1/tts")
+    if not appid:
+        print("Error: VOLCENGINE_APPID not set", file=sys.stderr)
+        sys.exit(1)
+    if not access_token:
+        print("Error: VOLCENGINE_ACCESS_TOKEN not set", file=sys.stderr)
+        sys.exit(1)
 else:
-    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'cosyvoice', or 'edge'", file=sys.stderr)
+    print(f"Error: Unknown backend '{BACKEND}'. Use 'azure', 'cosyvoice', 'edge', or 'doubao'", file=sys.stderr)
     sys.exit(1)
-MAX_CHARS = 400
+# Doubao HTTP /api/v1/tts has a 1024-byte text limit (UTF-8), use smaller chunks.
+MAX_CHARS = 280 if BACKEND == "doubao" else 400
 
 # Speech rate: -50% ~ +200%, or x-slow/slow/medium/fast/x-fast
 SPEECH_RATE = os.environ.get("TTS_RATE", "+5%")
@@ -617,6 +656,150 @@ def synth_edge(chunks, phoneme_dict, speech_rate, output_dir, resume=False):
     return part_files, word_boundaries, accumulated_duration
 
 
+def synth_doubao(chunks, speech_rate, output_dir, resume=False):
+    import requests
+
+    uid = os.environ.get("VOLCENGINE_UID", "video-podcast-maker")
+    timeout_sec = int(os.environ.get("VOLCENGINE_TIMEOUT_SEC", "60"))
+    sample_rate = int(os.environ.get("VOLCENGINE_SAMPLE_RATE", "48000"))
+    part_files = []
+    word_boundaries = []
+    accumulated_duration = 0
+
+    # Convert "+5%" to 1.05, clamp to API range [0.2, 3.0]
+    rate_match = re.match(r'([+-]?\d+)%', speech_rate)
+    speed_ratio = 1.0 + int(rate_match.group(1)) / 100.0 if rate_match else 1.0
+    speed_ratio = max(0.2, min(3.0, speed_ratio))
+
+    headers = {
+        "Authorization": f"Bearer; {access_token}",
+        "Content-Type": "application/json",
+    }
+
+    for i, chunk in enumerate(chunks):
+        part_file = os.path.join(output_dir, f"part_{i}.wav")
+        part_files.append(part_file)
+
+        if resume and os.path.exists(part_file):
+            probe = subprocess.run(
+                ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                capture_output=True, text=True)
+            chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+            print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {chunk_duration:.1f}s)")
+            accumulated_duration += chunk_duration
+            continue
+
+        success = False
+        for attempt in range(1, 4):
+            try:
+                req_id = str(uuid.uuid4())
+                payload = {
+                    "app": {
+                        "appid": appid,
+                        "token": access_token,
+                        "cluster": cluster,
+                    },
+                    "user": {
+                        "uid": uid,
+                    },
+                    "audio": {
+                        "voice_type": voice_type,
+                        "encoding": "wav",
+                        "rate": sample_rate,
+                        "speed_ratio": speed_ratio,
+                        "volume_ratio": 1.0,
+                        "pitch_ratio": 1.0,
+                    },
+                    "request": {
+                        "reqid": req_id,
+                        "text": chunk,
+                        "text_type": "plain",
+                        "operation": "query",
+                        "with_timestamp": 1,
+                    },
+                }
+
+                resp = requests.post(doubao_endpoint, headers=headers, json=payload, timeout=timeout_sec)
+                resp.raise_for_status()
+                data = resp.json()
+
+                code = data.get("code")
+                if code != 3000:
+                    raise RuntimeError(f"Doubao API error code={code}, message={data.get('message')}")
+
+                audio_b64 = data.get("data")
+                if not audio_b64:
+                    raise RuntimeError("Doubao API returned empty audio data")
+                audio_bytes = base64.b64decode(audio_b64)
+                with open(part_file, "wb") as f:
+                    f.write(audio_bytes)
+
+                # Ensure mono 48k wav
+                normalized_file = part_file + ".norm.wav"
+                subprocess.run(
+                    ["ffmpeg", "-y", "-i", part_file, "-ar", "48000", "-ac", "1", normalized_file],
+                    capture_output=True)
+                os.replace(normalized_file, part_file)
+
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", part_file],
+                    capture_output=True, text=True)
+                chunk_duration = float(probe.stdout.strip()) if probe.stdout.strip() else 0
+
+                # Parse frontend timestamps from addition.frontend (stringified JSON in docs)
+                added = data.get("addition", {}) or {}
+                frontend = added.get("frontend")
+                words = []
+                if isinstance(frontend, str) and frontend.strip():
+                    try:
+                        frontend_obj = json.loads(frontend)
+                        words = frontend_obj.get("words", []) or []
+                    except json.JSONDecodeError:
+                        words = []
+                elif isinstance(frontend, dict):
+                    words = frontend.get("words", []) or []
+
+                chunk_words = []
+                for w in words:
+                    text = str(w.get("word", "")).strip()
+                    st = float(w.get("start_time", 0))
+                    et = float(w.get("end_time", st))
+                    if not text:
+                        continue
+                    chunk_words.append({
+                        "text": text,
+                        "offset": accumulated_duration + st,
+                        "duration": max(0.01, et - st),
+                    })
+
+                # Fallback if backend does not provide timestamps
+                if not chunk_words and chunk_duration > 0:
+                    chars = [c for c in chunk if c.strip()]
+                    if chars:
+                        per = chunk_duration / len(chars)
+                        for idx, ch in enumerate(chars):
+                            chunk_words.append({
+                                "text": ch,
+                                "offset": accumulated_duration + idx * per,
+                                "duration": max(0.01, per),
+                            })
+
+                word_boundaries.extend(chunk_words)
+                print(f"  ✓ Part {i + 1}/{len(chunks)} done ({len(chunk)} chars, {chunk_duration:.1f}s)")
+                accumulated_duration += chunk_duration
+                success = True
+                break
+            except Exception as e:
+                print(f"  ✗ Part {i + 1} failed (attempt {attempt}/3): {e}")
+                if attempt < 3:
+                    time.sleep(attempt * 2)
+
+        if not success:
+            raise RuntimeError(f"Part {i + 1} synthesis failed")
+
+    return part_files, word_boundaries, accumulated_duration
+
+
 # TTS synthesis
 if BACKEND == "azure":
     part_files, word_boundaries, total_duration = synth_azure(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
@@ -624,6 +807,8 @@ elif BACKEND == "cosyvoice":
     part_files, word_boundaries, total_duration = synth_cosyvoice(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
 elif BACKEND == "edge":
     part_files, word_boundaries, total_duration = synth_edge(chunks, phoneme_dict, SPEECH_RATE, args.output_dir, resume=args.resume)
+elif BACKEND == "doubao":
+    part_files, word_boundaries, total_duration = synth_doubao(chunks, SPEECH_RATE, args.output_dir, resume=args.resume)
 print(f"\n✓ 收集到 {len(word_boundaries)} 个词边界")
 print(f"✓ 总时长: {total_duration:.1f} 秒")
 

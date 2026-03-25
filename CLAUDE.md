@@ -26,8 +26,9 @@ A Claude Code skill for automated video podcast creation targeting **B站横屏�
 ## Key Commands
 
 ```bash
-# TTS audio generation (3 backends)
+# TTS audio generation (4 backends)
 python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}                    # Azure (default)
+TTS_BACKEND=doubao python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}     # Volcengine Doubao
 TTS_BACKEND=cosyvoice python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}  # CosyVoice
 TTS_BACKEND=edge python3 generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}       # Edge TTS (free)
 
@@ -64,7 +65,7 @@ python3 generate_shorts.py --input-dir videos/{name}/ --title "视频标题" --r
 ## Architecture
 
 ```
-generate_tts.py                  # TTS (Azure/CosyVoice/Edge) + SRT + timing.json
+generate_tts.py                  # TTS (Azure/Doubao/CosyVoice/Edge) + SRT + timing.json
 generate_shorts.py               # Vertical shorts: section filtering, audio extraction, composition generation
 SKILL.md                         # Core workflow overview (<500 lines)
 references/
@@ -164,8 +165,12 @@ Common semantic names:
 ```bash
 export AZURE_SPEECH_KEY="..."      # Required for Azure TTS (default backend)
 export AZURE_SPEECH_REGION="eastasia"
+export VOLCENGINE_APPID="..."      # Required for Doubao TTS
+export VOLCENGINE_ACCESS_TOKEN="..."  # Required for Doubao TTS
+export VOLCENGINE_CLUSTER="volcano_tts"
+export VOLCENGINE_VOICE_TYPE="BV001_streaming"
 export DASHSCOPE_API_KEY="..."     # Required for CosyVoice TTS + AI thumbnails (imagenty)
-export TTS_BACKEND="azure"         # Or "cosyvoice" or "edge" (free, no key needed)
+export TTS_BACKEND="azure"         # Or "doubao" or "cosyvoice" or "edge" (free, no key needed)
 export GEMINI_API_KEY="..."        # Optional: AI thumbnails (imagen)
 export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"  # Optional: Edge TTS voice override
 ```

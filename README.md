@@ -2,7 +2,7 @@
 
 [English](README_EN.md)
 
-自动化流程，从主题生成专业视频播客。**针对 B站 (Bilibili) 优化**。集成研究、脚本撰写、微软 Azure TTS、Remotion 视频渲染和 FFmpeg 音频混音。
+自动化流程，从主题生成专业视频播客。**针对 B站 (Bilibili) 优化**。集成研究、脚本撰写、微软 Azure TTS、火山引擎豆包 TTS、Remotion 视频渲染和 FFmpeg 音频混音。
 
 **支持平台：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/)
 
@@ -16,7 +16,7 @@
 
 - **主题研究** - 网络搜索与内容收集
 - **脚本撰写** - 带章节标记的结构化旁白
-- **多 TTS 引擎** - Azure Speech、CosyVoice（阿里云）、Edge TTS（免费，无需 API 密钥）
+- **多 TTS 引擎** - Azure Speech、火山引擎豆包、CosyVoice（阿里云）、Edge TTS（免费，无需 API 密钥）
 - **Remotion 视频** - 基于 React 的视频合成与动画
 - **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
 - **实时预览** - Remotion Studio 即时调试，渲染前预览效果
@@ -109,6 +109,7 @@ npm install remotion @remotion/cli @remotion/player zod
 | 服务 | 用途 | 获取方式 |
 |------|------|---------|
 | **Azure Speech** | TTS 语音合成（默认后端） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
+| **火山引擎豆包语音** | TTS 语音合成（备选后端） | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
 | **阿里云 CosyVoice** | TTS 语音合成（备选后端） | [百炼控制台](https://bailian.console.aliyun.com/) |
 | **Edge TTS** | TTS 语音合成（免费，无需密钥） | `pip install edge-tts` |
 | **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
@@ -119,12 +120,18 @@ npm install remotion @remotion/cli @remotion/player zod
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# TTS 后端选择：azure（默认）、cosyvoice、edge（免费，无需密钥）
-export TTS_BACKEND="azure"                           # 或 "cosyvoice" 或 "edge"
+# TTS 后端选择：azure（默认）、doubao、cosyvoice、edge（免费，无需密钥）
+export TTS_BACKEND="azure"                           # 或 "doubao" / "cosyvoice" / "edge"
 
 # Azure TTS（默认后端）
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
+
+# 火山引擎豆包 TTS（备选后端）
+export VOLCENGINE_APPID="your-volcengine-appid"
+export VOLCENGINE_ACCESS_TOKEN="your-volcengine-access-token"
+export VOLCENGINE_CLUSTER="volcano_tts"              # 默认值，可按控制台配置修改
+export VOLCENGINE_VOICE_TYPE="BV001_streaming"       # 可按控制台音色修改
 
 # 阿里云 CosyVoice TTS（备选后端）+ AI 封面
 export DASHSCOPE_API_KEY="your-dashscope-api-key"
@@ -202,7 +209,7 @@ videos/{视频名称}/
 - [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
 - [x] 组件模板库 (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
 - [x] 广播级画质升级（渐变背景、多层阴影、动画计数器、质量检查清单）
-- [x] 多 TTS 引擎支持 (Azure Speech + CosyVoice + Edge TTS)
+- [x] 多 TTS 引擎支持 (Azure Speech + Doubao + CosyVoice + Edge TTS)
 - [x] Edge TTS 免费后端（无需 API 密钥）
 - [x] 断点续传（`--resume` 参数）
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）

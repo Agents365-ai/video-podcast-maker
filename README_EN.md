@@ -2,7 +2,7 @@
 
 [中文文档](README.md)
 
-Automated pipeline to create professional video podcasts from a topic. **Optimized for Bilibili (B站)**. Combines research, script generation, Microsoft Azure TTS, Remotion video rendering, and FFmpeg audio mixing.
+Automated pipeline to create professional video podcasts from a topic. **Optimized for Bilibili (B站)**. Combines research, script generation, Microsoft Azure TTS, Volcengine Doubao TTS, Remotion video rendering, and FFmpeg audio mixing.
 
 **Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub)
 
@@ -16,7 +16,7 @@ Automated pipeline to create professional video podcasts from a topic. **Optimiz
 
 - **Topic Research** - Web search and content gathering
 - **Script Writing** - Structured narration with section markers
-- **Multi-TTS** - Azure Speech, CosyVoice (Alibaba Cloud), or Edge TTS (free, no API key)
+- **Multi-TTS** - Azure Speech, Volcengine Doubao, CosyVoice (Alibaba Cloud), or Edge TTS (free, no API key)
 - **Remotion Video** - React-based video composition with animations
 - **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
@@ -110,6 +110,7 @@ npm install remotion @remotion/cli @remotion/player zod
 | Service | Purpose | Get Key |
 |---------|---------|---------|
 | **Azure Speech** | TTS audio generation (default backend) | [Azure Portal](https://portal.azure.com/) → Speech Services |
+| **Volcengine Doubao Speech** | TTS audio generation (alternative backend) | [Volcengine Console](https://console.volcengine.com/speech/service/8) |
 | **Aliyun CosyVoice** | TTS audio generation (alternative backend) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
 | **Edge TTS** | TTS audio generation (free, no key needed) | `pip install edge-tts` |
 | **Google Gemini** | AI thumbnail generation (optional) | [AI Studio](https://aistudio.google.com/) |
@@ -121,11 +122,17 @@ Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
 # TTS Backend: azure (default), cosyvoice, or edge (free, no key needed)
-export TTS_BACKEND="azure"                           # Or "cosyvoice" or "edge"
+export TTS_BACKEND="azure"                           # Or "doubao" / "cosyvoice" / "edge"
 
 # Azure TTS (default backend)
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
+
+# Volcengine Doubao TTS (alternative backend)
+export VOLCENGINE_APPID="your-volcengine-appid"
+export VOLCENGINE_ACCESS_TOKEN="your-volcengine-access-token"
+export VOLCENGINE_CLUSTER="volcano_tts"              # default cluster
+export VOLCENGINE_VOICE_TYPE="BV001_streaming"       # choose from console voice list
 
 # Aliyun CosyVoice TTS (alternative backend) + AI thumbnails
 export DASHSCOPE_API_KEY="your-dashscope-api-key"
@@ -206,7 +213,7 @@ Included tracks in `assets/`:
 - [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
 - [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
 - [x] Broadcast quality upgrade (gradient backgrounds, layered shadows, animated counters, quality checklists)
-- [x] Multi TTS engine support (Azure Speech + CosyVoice + Edge TTS via `TTS_BACKEND` env var)
+- [x] Multi TTS engine support (Azure Speech + Doubao + CosyVoice + Edge TTS via `TTS_BACKEND` env var)
 - [x] Edge TTS free backend (no API key required)
 - [x] Resume from breakpoint (`--resume` flag)
 - [x] Dry-run mode (`--dry-run` for duration estimation)
