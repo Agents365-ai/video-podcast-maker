@@ -140,12 +140,15 @@ Create `videos/{name}/podcast.txt` with section markers:
 
 **Number formatting for TTS**
 
-Modern TTS backends (Azure, Edge, Doubao, CosyVoice) handle **most everyday numbers** correctly when written in ASCII digits. Spell out only the forms TTS engines read ambiguously.
+Write numbers the way you'd naturally type them in a chat message — `2025年`, `18个月`, `90%`, `128GB`. Modern TTS (Azure, Edge, Doubao, CosyVoice) reads digit+unit combinations correctly on its own; pre-converting to Chinese characters like `二零二五年` or `十八个月` just makes the script awkward to read and edit. Only spell out in Chinese for the few forms TTS engines genuinely get wrong (see the second table).
 
-**✅ Safe to write as digits** (TTS reads them correctly):
+**✅ Keep as digits** (TTS reads naturally — do NOT convert to Chinese):
 
 | Type | Example | Read as |
 |------|---------|---------|
+| Year | `2025年`, `1998年` | 二零二五年 / 一九九八年 |
+| Date | `2025年1月15日`, `1月15日` | 二零二五年一月十五日 / 一月十五日 |
+| Duration with unit | `18个月`, `3年`, `45天`, `2小时` | 十八个月 / 三年 / 四十五天 / 两小时 |
 | Integer with Chinese unit | `2900万`, `5亿`, `300块` | 二千九百万 / 五亿 / 三百块 |
 | Simple percentage | `15%`, `90%`, `-10%` | 百分之十五 / 百分之九十 / 负百分之十 |
 | Simple decimal | `1.2`, `3.5` | 一点二 / 三点五 |
@@ -156,13 +159,12 @@ Modern TTS backends (Azure, Edge, Doubao, CosyVoice) handle **most everyday numb
 
 | Type | Wrong | Correct |
 |------|-------|---------|
-| Date | `2025-01-15` | 二零二五年一月十五日 |
-| Year (when stressing "零" reading) | `2025年` | 二零二五年 |
-| Version number | `v1.2.3`, `4.6` | 一点二点三 / 四点六 |
+| ISO date with dashes | `2025-01-15` | 2025年1月15日 (or 二零二五年一月十五日) |
+| Multi-dot version | `v1.2.3` | v一点二点三 |
 | Phone / ID string | `400-123-4567` | 四零零 一二三 四五六七 |
-| Long bare integer (no unit) | `3999999` | 三百九十九万九千九百九十九 (or add 万) |
+| Long bare integer (no unit) | `3999999` | 三百九十九万九千九百九十九 (or rewrite with `万`) |
 
-**Rule of thumb:** if a number has a Chinese unit after it (`万`/`亿`/`%`/`GB`/`块`/`点`…) or is naturally pronounced in one way, leave it as digits. If it's a date, code, or unitless large integer, write it in Chinese.
+**Rule of thumb:** prefer digits. Years, dates with `年/月/日`, and any number followed by a Chinese unit (`年`/`月`/`日`/`个月`/`天`/`小时`/`万`/`亿`/`%`/`GB`/`块`…) should stay as digits — Azure/Edge/Doubao all read them correctly. Only spell out in Chinese when the form is genuinely ambiguous (dash-separated dates, dotted version numbers, phone/ID digit-by-digit, or unitless 7+ digit integers).
 
 **Section notes**:
 - **hero**: MUST start with `content.heroOpening` if set in user_prefs, followed by the topic hook

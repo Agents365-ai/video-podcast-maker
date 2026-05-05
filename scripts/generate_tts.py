@@ -38,6 +38,10 @@ def build_parser():
 
 _END_PUNCT = ("。", ".", "!", "?")
 _SOFT_PUNCT = "，,;：:、 "
+# Any punctuation that already gives the TTS engine a prosodic break — used to
+# decide when NOT to append a synthetic "。" (which would force a falling-tone
+# full-stop pause where a comma was intended).
+_PROSODIC_END = _END_PUNCT + tuple(_SOFT_PUNCT.replace(" ", ""))
 
 
 def _hard_split(sentence, max_chars):
@@ -45,10 +49,12 @@ def _hard_split(sentence, max_chars):
 
     Walks char by char; once the buffer reaches `budget = max_chars - 1`,
     flushes at the most recent soft-punctuation point inside a small lookback
-    window, falling back to a fixed-width cut if none exists. The headroom of
-    1 char ensures that appending "。" to terminate a piece keeps it under
-    max_chars. Pieces that don't already end in `_END_PUNCT` get "。" added
-    so the caller's chunk packer won't append one and overflow.
+    window. The 1-char headroom is reserved for the "，" appended in the
+    fixed-width fallback when no natural break is reachable.
+
+    Pieces preserve their natural cut point (a soft-punct char like "，"),
+    so when chunks are concatenated for TTS the seam reads as a comma pause
+    instead of a synthesized full-stop pause.
     """
     if len(sentence) <= max_chars:
         return [sentence]
@@ -59,7 +65,6 @@ def _hard_split(sentence, max_chars):
     for ch in sentence:
         buf += ch
         if len(buf) >= budget:
-            # Prefer most recent soft-punct break inside the lookback window
             cut = -1
             for i in range(len(buf) - 1, max(-1, len(buf) - lookback - 1), -1):
                 if buf[i] in _SOFT_PUNCT:
@@ -69,11 +74,13 @@ def _hard_split(sentence, max_chars):
                 pieces.append(buf[:cut + 1])
                 buf = buf[cut + 1:]
             else:
-                pieces.append(buf)
+                # Fixed-width fallback: a "，" gives the engine a soft pause
+                # at the seam without the falling-tone of a "。".
+                pieces.append(buf + "，")
                 buf = ""
     if buf:
         pieces.append(buf)
-    return [p if p.endswith(_END_PUNCT) else p + "。" for p in pieces]
+    return pieces
 
 
 def chunk_text(clean_text, max_chars):
@@ -82,12 +89,14 @@ def chunk_text(clean_text, max_chars):
     Handles both Chinese (。；) and English (. ; ? !) sentence boundaries.
     Sentences longer than `max_chars` are hard-split on soft punctuation,
     then by fixed width — guarantees no chunk exceeds the backend's limit.
+
+    A synthetic "。" is only appended to pieces with NO terminal punctuation
+    (defensive — most scripts are punctuated). Pieces from `_hard_split`
+    end with their natural soft-punct cut and are passed through unchanged
+    so the TTS engine doesn't render a comma boundary as a full stop.
     """
-    # Normalize semicolons to periods for splitting
     normalized = clean_text.replace("；", "。")
-    # Split on Chinese period, English sentence-ending punctuation, or newlines
     raw_sentences = re.split(r'(?<=[。.!?])\s*', normalized)
-    # Expand oversize sentences before chunk packing
     sentences = []
     for s in raw_sentences:
         s = s.strip()
@@ -98,13 +107,14 @@ def chunk_text(clean_text, max_chars):
     chunks = []
     current_chunk = ""
     for s in sentences:
-        # +1 for the trailing "。" we may add
-        if len(current_chunk) + len(s) + 1 < max_chars:
-            current_chunk += s if s.endswith(_END_PUNCT) else s + "。"
+        suffix = "" if s.endswith(_PROSODIC_END) else "。"
+        addition = s + suffix
+        if len(current_chunk) + len(addition) <= max_chars:
+            current_chunk += addition
         else:
             if current_chunk:
                 chunks.append(current_chunk)
-            current_chunk = s if s.endswith(_END_PUNCT) else s + "。"
+            current_chunk = addition
     if current_chunk:
         chunks.append(current_chunk)
     return chunks
@@ -140,8 +150,11 @@ def _run(args, started_at):
         config = init_backend(BACKEND)
         MAX_CHARS = get_max_chars(BACKEND)
     else:
+        # --validate path: skip backend init, but use the registry's edge limit
+        # so chunk-count estimates stay in sync with real synthesis.
+        from tts.backends import get_max_chars
         BACKEND = "edge"
-        MAX_CHARS = 400
+        MAX_CHARS = get_max_chars(BACKEND)
 
     from tts.backends import resolve_speech_rate
     SPEECH_RATE, rate_source = resolve_speech_rate()

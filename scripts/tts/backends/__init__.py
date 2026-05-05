@@ -94,7 +94,10 @@ BACKENDS = {
         'env': ['AZURE_SPEECH_KEY'],
         'import': ('azure.cognitiveservices.speech', 'azure-cognitiveservices-speech',
                     'pip install azure-cognitiveservices-speech'),
-        'max_chars': 400,
+        # Bumped from 400 to 2000 so a typical 5–10 min podcast fits in 1 chunk
+        # (zero concat seams). Azure SSML accepts up to ~10 min audio per call;
+        # 2000 chars stays well under that envelope.
+        'max_chars': 2000,
         'supports_ssml': True,
     },
     'cosyvoice': {
@@ -108,7 +111,9 @@ BACKENDS = {
         'module': '.edge',
         'env': [],
         'import': ('edge_tts', 'edge-tts', 'pip install edge-tts'),
-        'max_chars': 400,
+        # Bumped from 400 to 2000 — Edge's WebSocket reliably handles long
+        # payloads (same Microsoft TTS as Azure under the hood).
+        'max_chars': 2000,
         'supports_ssml': False,
     },
     'doubao': {
