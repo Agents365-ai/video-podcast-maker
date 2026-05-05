@@ -2,6 +2,17 @@
 
 > **When to load:** Load this file when working on Step 9 (Remotion composition) or when the user asks about visual design.
 
+## Contents
+
+- [Visual Design Minimums (MUST follow)](#visual-design-minimums-must-follow) — text sizes, spacing, space utilization, visual richness
+- [Design Philosophy](#design-philosophy)
+- [Animation Safety (MUST follow)](#animation-safety-must-follow)
+- [Quality Checklists (MUST follow)](#quality-checklists-must-follow)
+- [Visual Design Reference (recommended)](#visual-design-reference-recommended)
+- [Animated Backgrounds (SHOULD use)](#animated-backgrounds-should-use)
+- [Section Layout Presets (SHOULD use)](#section-layout-presets-should-use)
+- [Animation Best Practices (SHOULD follow)](#animation-best-practices-should-follow)
+
 ---
 
 ## Visual Design Minimums (MUST follow)

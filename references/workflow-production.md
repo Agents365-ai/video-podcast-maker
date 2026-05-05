@@ -7,6 +7,16 @@
 > **Previous phase:** See `workflow-script.md` for Pre-workflow + Startup + Steps 1-4.
 > **Next phase:** See `workflow-publish.md` for Steps 12-15 (subtitles, publish info, cleanup, shorts).
 
+## Contents
+
+- [Step 5: Collect Media Assets](#step-5-collect-media-assets)
+- [Step 6: Generate Publish Info (Part 1)](#step-6-generate-publish-info-part-1)
+- [Step 7: Generate Video Thumbnail](#step-7-generate-video-thumbnail)
+- [Step 8: Generate TTS Audio](#step-8-generate-tts-audio) — voice selection, SSML, chunk seams
+- [Step 9: Create Remotion Composition + Studio Preview](#step-9-create-remotion-composition--studio-preview)
+- [Step 10: Render 4K Video](#step-10-render-4k-video)
+- [Step 11: Mix with Background Music](#step-11-mix-with-background-music)
+
 ---
 
 ## Step 5: Collect Media Assets

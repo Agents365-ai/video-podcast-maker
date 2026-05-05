@@ -2,6 +2,15 @@
 
 > **When to load:** Load this file when encountering errors, when the user asks about preferences, or when the user asks about BGM options.
 
+## Contents
+
+- [Discovery (when you're not sure which script to run)](#discovery-when-youre-not-sure-which-script-to-run) — `cli.py` entry point + envelope error codes
+- [Troubleshooting](#troubleshooting) — TTS, FFmpeg, Remotion, encoding, audio-sync fixes
+- [Background Music Options](#background-music-options)
+- [Preference Commands](#preference-commands)
+- [Preference Learning](#preference-learning)
+- [Design Learning Troubleshooting](#design-learning-troubleshooting)
+
 ## Discovery (when you're not sure which script to run)
 
 The suite is reachable through one hierarchical entry point at `scripts/cli.py`:

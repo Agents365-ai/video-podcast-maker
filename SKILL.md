@@ -1,6 +1,6 @@
 ---
 name: video-podcast-maker
-description: Use when the user gives a topic and wants an automated video podcast created, or asks to learn visual design patterns from a reference video/image. Produces 4K video via research → script → TTS → Remotion → MP4 + BGM.
+description: Use when the user gives a topic and wants an automated video podcast created, or asks to learn visual design patterns from a reference video/image. Make sure to use this skill whenever the user mentions creating a video, podcast, knowledge video, Bilibili content, or talking-head explainer from a topic — even if they don't say "video podcast" explicitly. Produces 4K video via research → script → TTS → Remotion → MP4 + BGM.
 argument-hint: "[topic]"
 effort: high
 # `allowed-tools` intentionally omitted — the workflow uses Bash, Read, Write, Edit,
@@ -69,7 +69,7 @@ Extract visual design patterns from reference videos or images and apply them to
 
 ## Auto Update Check
 
-**Agent behavior:** Check for updates at most once per day (throttled by timestamp file).
+**Agent behavior:** Check for updates at most once per day (throttled by timestamp file). Compare the frontmatter `version` against the latest `v*` tag on the upstream remote — release tags are the explicit "this is intended for users" signal; comparing against every commit on `main` would fire on docs-only edits and unreleased work-in-progress.
 Before any shell command that reads files from this skill, resolve `SKILL_DIR` to the directory containing `SKILL.md`.
 If your agent exposes a built-in skill directory variable such as `${CLAUDE_SKILL_DIR}`, you may map it to `SKILL_DIR`.
 
@@ -80,22 +80,24 @@ NOW=$(date +%s)
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 if [ ! -d "${SKILL_DIR}/.git" ]; then
   echo "MANUAL_INSTALL"
-elif [ $((NOW - LAST)) -gt 86400 ]; then
-  timeout 5 git -C "${SKILL_DIR}" fetch --quiet 2>/dev/null || true
-  LOCAL=$(git -C "${SKILL_DIR}" rev-parse HEAD 2>/dev/null)
-  REMOTE=$(git -C "${SKILL_DIR}" rev-parse origin/main 2>/dev/null)
+elif [ $((NOW - LAST)) -le 86400 ]; then
+  echo "SKIPPED_RECENT_CHECK"
+else
   echo "$NOW" > "$STAMP"
-  if [ -n "$LOCAL" ] && [ -n "$REMOTE" ] && [ "$LOCAL" != "$REMOTE" ]; then
-    echo "UPDATE_AVAILABLE"
+  CURRENT=$(awk '/^version:/ {print $2; exit}' "${SKILL_DIR}/SKILL.md" | tr -d '"')
+  LATEST=$(timeout 5 git -C "${SKILL_DIR}" ls-remote --tags origin 'v*' 2>/dev/null \
+    | awk '{print $2}' | sed 's|refs/tags/||' | sort -V | tail -1 | sed 's/^v//')
+  if [ -z "$CURRENT" ] || [ -z "$LATEST" ] || [ "$CURRENT" = "$LATEST" ]; then
+    echo "UP_TO_DATE"
+  elif [ "$(printf '%s\n%s\n' "$CURRENT" "$LATEST" | sort -V | tail -1)" = "$LATEST" ]; then
+    echo "UPDATE_AVAILABLE v${CURRENT} -> v${LATEST}"
   else
     echo "UP_TO_DATE"
   fi
-else
-  echo "SKIPPED_RECENT_CHECK"
 fi
 ```
 
-- **Update available**: Ask the user whether to pull updates. Yes → `git -C "${SKILL_DIR}" pull`. No → continue.
+- **Update available**: Tell the user the version delta (e.g. `v2.0.0 → v2.1.0`) and ask whether to pull. Yes → `git -C "${SKILL_DIR}" pull --ff-only`. No → continue. Notify-only by design — never `git pull` without consent (the skill directory belongs to the user, not the agent).
 - **Up to date / Skipped**: Continue silently.
 - **Manual install** (no `.git` directory — skill was installed via tarball/zip/cp): Continue silently. Auto-update is disabled; the user must reinstall manually to update.
 

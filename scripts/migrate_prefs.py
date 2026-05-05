@@ -13,9 +13,15 @@ Strategy:
 
 Idempotent: re-running on already-current prefs is a no-op (version match).
 
+Safety: a real migration of an existing v1.x file rewrites user_prefs.json in
+place. That's gated behind --yes so an agent can't apply it without explicit
+human consent. Creating a fresh prefs file from the template (no existing
+file) and noop runs (already current) are not gated.
+
 Usage:
-    python3 scripts/migrate_prefs.py            # migrate ${SKILL_DIR}/user_prefs.json in place
     python3 scripts/migrate_prefs.py --dry-run  # report what would change without writing
+    python3 scripts/migrate_prefs.py --yes      # apply a v1.x -> current rewrite
+    python3 scripts/migrate_prefs.py            # safe forms only (create from template, or noop)
 """
 import argparse
 import json
@@ -111,6 +117,7 @@ def build_parser():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--prefs", default=None, help="Path to user_prefs.json (default: ${SKILL_DIR}/user_prefs.json)")
     parser.add_argument("--dry-run", action="store_true", help="Report changes without writing")
+    parser.add_argument("--yes", action="store_true", help="Confirm a destructive v1.x -> current rewrite. Required when migrating an existing prefs file (creating from template and noop runs don't need this).")
     cli_envelope.add_format_arg(parser)
     return parser
 
@@ -127,8 +134,11 @@ def main():
             "user_prefs.json",
         )
 
+        # Always plan first. The dry-run pass tells us whether the real run
+        # would mutate; if yes, we gate it behind --yes so an agent can't
+        # silently rewrite user_prefs.json without consent.
         try:
-            result = migrate(prefs_path, dry_run=args.dry_run)
+            preview = migrate(prefs_path, dry_run=True)
         except json.JSONDecodeError as e:
             sys.stdout = sys.__stdout__
             sys.exit(cli_envelope.emit_error(
@@ -142,6 +152,37 @@ def main():
             sys.exit(cli_envelope.emit_error(
                 args, "input_not_found",
                 f"Cannot read prefs file: {e}",
+                field="prefs", extra={"prefs_path": prefs_path},
+                started_at=started_at,
+            ))
+
+        if (preview["action"] == "would_migrate"
+                and not args.dry_run
+                and not args.yes):
+            sys.stdout = sys.__stdout__
+            sys.exit(cli_envelope.emit_error(
+                args, "confirmation_required",
+                f"Migrating user_prefs.json from v{preview['from']} to v{preview['to']} "
+                "would rewrite the file in place. Re-run with --yes to apply, "
+                "or --dry-run to preview the change list.",
+                extra={
+                    "prefs_path": prefs_path,
+                    "from_version": preview["from"],
+                    "to_version": preview["to"],
+                    "planned_changes": preview["changes"],
+                },
+                started_at=started_at,
+            ))
+
+        # Preview already validated the read path; this call may still fail
+        # on write (disk full, permission denied, etc.).
+        try:
+            result = migrate(prefs_path, dry_run=args.dry_run)
+        except OSError as e:
+            sys.stdout = sys.__stdout__
+            sys.exit(cli_envelope.emit_error(
+                args, "internal_error",
+                f"Failed to write prefs file: {e}",
                 field="prefs", extra={"prefs_path": prefs_path},
                 started_at=started_at,
             ))
