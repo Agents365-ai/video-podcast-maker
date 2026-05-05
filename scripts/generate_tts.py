@@ -30,8 +30,14 @@ def build_parser():
     parser.add_argument('--backend', '-b', default=None,
         help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, openai, or google')
     parser.add_argument('--resume', action='store_true', help='Resume from last breakpoint')
-    parser.add_argument('--dry-run', action='store_true', help='Estimate duration without calling TTS API')
-    parser.add_argument('--validate', action='store_true', help='Validate podcast.txt format without calling TTS API')
+    parser.add_argument('--dry-run', action='store_true',
+        help='Plan synthesis without calling the TTS API. Emits backend, voice, '
+             'chunk count, total chars, and estimated duration so an agent can '
+             'preview cost. Requires backend env vars (uses init_backend).')
+    parser.add_argument('--validate', action='store_true',
+        help='Validate podcast.txt structure (section markers, content) without '
+             'TTS API calls or backend env vars. Lighter than --dry-run; useful '
+             'as a first gate before committing to a backend.')
     cli_envelope.add_format_arg(parser)
     return parser
 
@@ -181,6 +187,10 @@ def _run(args, started_at):
         errors, warnings = validate_sections(text, sections, matches)
         if cli_envelope.use_json(args):
             section_names = [s['name'] for s in sections]
+            # Run the real chunker so the agent sees the actual chunk count
+            # an agent gets from `tts run` — not a stale `len(text) // 200`
+            # estimate that predates the 400 → 2000 max_chars bump.
+            chunks = chunk_text(clean_text, MAX_CHARS)
             if errors:
                 sys.exit(cli_envelope.emit_error(
                     args, "validation_failed",
@@ -192,8 +202,9 @@ def _run(args, started_at):
                 "input": args.input,
                 "sections": section_names,
                 "warnings": warnings,
-                "text_length": len(clean_text),
-                "estimated_chunks": max(1, len(clean_text) // 200),
+                "total_chars": len(clean_text),
+                "chunks_count": len(chunks),
+                "max_chars": MAX_CHARS,
             }, started_at=started_at))
         print_validation_report(args.input, sections, clean_text, errors, warnings)
         return  # print_validation_report calls sys.exit, but guard against refactoring
@@ -251,21 +262,27 @@ def _run(args, started_at):
             est_duration /= 1.0 + int(rate_match.group(1)) / 100.0
         est_frames = int(est_duration * 30)
         non_silent = [s for s in sections if not s.get('is_silent')]
+        chunks = chunk_text(clean_text, MAX_CHARS)
         print(f"\n--- Dry Run ---")
         print(f"Chinese chars: {cn_chars}, English words: {en_words}")
+        print(f"Total chars: {len(clean_text)} -> {len(chunks)} chunk(s) (max {MAX_CHARS}/chunk)")
         print(f"Estimated duration: {est_duration:.0f}s ({est_duration/60:.1f}min)")
         print(f"Estimated frames: {est_frames} @ 30fps")
         print(f"Speech rate: {SPEECH_RATE}")
-        print(f"Backend: {BACKEND} (not called)")
+        print(f"Backend: {BACKEND}, voice: {config.get('voice')} (not called)")
         if len(non_silent) > 1:
             avg = est_duration / len(non_silent)
             print(f"Average section: ~{avg:.0f}s ({len(non_silent)} sections with content)")
         sys.exit(cli_envelope.emit_success(args, {
             "dry_run": True,
             "backend": BACKEND,
+            "voice": config.get("voice"),
             "speech_rate": SPEECH_RATE,
+            "max_chars": MAX_CHARS,
+            "total_chars": len(clean_text),
             "cn_chars": cn_chars,
             "en_words": en_words,
+            "chunks_count": len(chunks),
             "estimated_duration_seconds": round(est_duration, 2),
             "estimated_frames_at_30fps": est_frames,
             "sections": [s['name'] for s in sections],
