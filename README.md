@@ -275,26 +275,6 @@ Included tracks in `assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 
-## Roadmap
-
-- [x] Vertical video support (9:16) for Bilibili mobile-first content
-- [x] Remotion transitions (@remotion/transitions) for professional chapter transitions
-- [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
-- [x] Broadcast quality upgrade (gradient backgrounds, layered shadows, animated counters, quality checklists)
-- [x] Multi TTS engine support (7 engines: Edge, Azure, Doubao, CosyVoice, ElevenLabs, OpenAI, Google Cloud)
-- [x] Edge TTS free backend (no API key required)
-- [x] Multi-platform support (Bilibili + YouTube) with independent language configuration (zh-CN, en-US)
-- [x] Resume from breakpoint (`--resume` flag)
-- [x] Dry-run mode (`--dry-run` for duration estimation)
-- [x] User preference self-evolution (auto-learns visual/TTS/content style preferences)
-- [x] Refactor skill docs for portable `SKILL.md` usage across Claude Code, Codex, OpenCode, and OpenClaw
-- [x] Design learning system — Learn design styles from reference videos/images, build a design reference library and reusable style profiles
-- [ ] Playwright auto-capture — Analyze Bilibili/YouTube video design styles directly via URL (Phase 4)
-- [ ] Step 9 smart suggestions — Auto-match and recommend existing style profiles when creating videos (Phase 5)
-- [ ] Cover design learning — Apply learned cover styles to Thumbnail.tsx template (Phase 5)
-- [ ] YouTube automated publishing — Upload via YouTube Data API with metadata, chapters, thumbnails
-- [ ] Windows compatibility (WSL verification + docs)
-
 ## License
 
 MIT
