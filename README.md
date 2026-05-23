@@ -275,11 +275,16 @@ Included tracks in `assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 
-## License
+## 💬 Community
 
-MIT
+- **Discord:** https://discord.gg/79JF5Atuk
+- **WeChat:** scan the QR code below
 
-## Support
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/agents365ai_wechat_1.png" width="200" alt="WeChat Community Group">
+</p>
+
+## ❤️ Support
 
 If this project helps you, consider supporting the author:
 
@@ -308,9 +313,13 @@ If this project helps you, consider supporting the author:
   </tr>
 </table>
 
-## Author
+## 👤 Author
 
 **Agents365-ai**
 
 - Bilibili: https://space.bilibili.com/441831884
 - GitHub: https://github.com/Agents365-ai
+
+## 📄 License
+
+[MIT](LICENSE)

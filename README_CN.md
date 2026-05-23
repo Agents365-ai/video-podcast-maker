@@ -295,11 +295,16 @@ videos/{视频名称}/
 - [ ] YouTube 自动化发布 — 通过 YouTube Data API 上传视频、元数据、章节、封面
 - [ ] Windows 适配 (WSL 验证 + 文档)
 
-## 开源协议
+## 💬 社区
 
-MIT
+- **Discord:** https://discord.gg/79JF5Atuk
+- **微信:** 扫描下方二维码
 
-## 支持作者
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/agents365ai_wechat_1.png" width="200" alt="微信交流群">
+</p>
+
+## ❤️ 支持作者
 
 如果这个项目对你有帮助，欢迎支持作者：
 
@@ -328,9 +333,13 @@ MIT
   </tr>
 </table>
 
-## 作者
+## 👤 作者
 
 **Agents365-ai**
 
 - B站: https://space.bilibili.com/441831884
 - GitHub: https://github.com/Agents365-ai
+
+## 📄 开源协议
+
+[MIT](LICENSE)
