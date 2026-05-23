@@ -1,0 +1,96 @@
+name: Sync to 365-skills
+
+# Pushes changes under skills/video-podcast-maker/ into
+# Agents365-ai/365-skills:plugins/video-podcast-maker/skills/video-podcast-maker/
+# and bumps the version field in marketplace.json.
+#
+# Required repo secret: SYNC_365_SKILLS_TOKEN — fine-grained PAT or GitHub App
+# token with "Contents: write" on Agents365-ai/365-skills.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/video-podcast-maker/**'
+  workflow_dispatch: {}
+
+concurrency:
+  group: sync-365-skills
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout 365-skills
+        uses: actions/checkout@v4
+        with:
+          repository: Agents365-ai/365-skills
+          token: ${{ secrets.SYNC_365_SKILLS_TOKEN }}
+          path: target
+
+      - name: Sync skill files
+        run: |
+          set -euo pipefail
+          dest=target/plugins/video-podcast-maker/skills/video-podcast-maker
+          mkdir -p "$dest"
+          # rsync with --delete keeps the target an exact mirror of the source
+          rsync -a --delete source/skills/video-podcast-maker/ "$dest/"
+
+      - name: Bump version in marketplace.json
+        run: |
+          set -euo pipefail
+          # SKILL.md uses a top-level YAML `version:` field (not nested in the
+          # metadata JSON block, unlike semanticscholar / scholar-deep-research).
+          # Extract it without taking a PyYAML dep — the line format is stable.
+          version=$(python3 -c '
+          import re
+          # Read only the YAML frontmatter block so we never match a body line.
+          text = open("source/skills/video-podcast-maker/SKILL.md").read()
+          m = re.match(r"---\n(.*?)\n---", text, re.S)
+          if not m:
+              print("")
+              raise SystemExit
+          frontmatter = m.group(1)
+          v = re.search(r"^version:\s*([0-9][^\s#]*)\s*$", frontmatter, re.M)
+          print(v.group(1) if v else "")
+          ')
+          if [ -z "$version" ]; then
+            echo "::warning::could not parse version from SKILL.md frontmatter"
+            exit 0
+          fi
+          echo "Source version: $version"
+          # Targeted regex replace preserves marketplace.json's existing formatting.
+          python3 - "$version" <<'PY'
+          import re, sys
+          version = sys.argv[1]
+          path = "target/.claude-plugin/marketplace.json"
+          content = open(path).read()
+          pattern = r'("name":\s*"video-podcast-maker"(?:[^{}]|\{[^{}]*\})*?"version":\s*)"[^"]*"'
+          new_content, n = re.subn(pattern, lambda m: m.group(1) + f'"{version}"', content, count=1, flags=re.S)
+          if n == 0:
+              print("::warning::video-podcast-maker plugin entry not found in marketplace.json")
+          else:
+              open(path, "w").write(new_content)
+              print(f"marketplace.json updated to {version}")
+          PY
+
+      - name: Commit and push to 365-skills
+        working-directory: target
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugins/video-podcast-maker .claude-plugin/marketplace.json
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+            exit 0
+          fi
+          git commit -m "chore: sync video-podcast-maker from source" \
+                     -m "Triggered by ${{ github.repository }}@${{ github.sha }}"
+          git push

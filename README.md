@@ -119,9 +119,16 @@ brew install ffmpeg node python3
 # Ubuntu/Debian
 sudo apt install ffmpeg nodejs python3 python3-pip
 
-# Python dependencies (installs only what the skill's scripts/ need)
-pip install -r requirements.txt
+# Python dependencies — requirements.txt lives inside the skill bundle
+# under skills/video-podcast-maker/. Run from the repo root:
+pip install -r skills/video-podcast-maker/requirements.txt
 ```
+
+> **Marketplace install (recommended):** users typically install this skill
+> via the [365-skills marketplace](https://github.com/Agents365-ai/365-skills)
+> rather than cloning. Then SKILL.md, scripts, and templates live under the
+> plugin install path that the agent exposes as `${SKILL_DIR}` — paths in
+> this README are written from the repo-root perspective for contributors.
 
 ### Project Setup (Required)
 
@@ -243,9 +250,11 @@ This opens a browser-based editor where you can:
 
 ## Configuration Files
 
+All paths below are relative to the skill root (`skills/video-podcast-maker/` in this repo, or `${SKILL_DIR}` when installed via the marketplace):
+
 | File | Scope | Purpose |
 |------|-------|---------|
-| `phonemes.json` | Global | Chinese polyphone dictionary shared across all projects. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
+| `phonemes.json` | Global | Chinese polyphone dictionary shared across all projects. Auto-created from `phonemes.template.json` on first run. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
 | `user_prefs.template.json` | Global | Default preferences template. Copied to `user_prefs.json` on first run, which auto-evolves as the skill learns your style |
 | `prefs_schema.json` | Global | JSON Schema for preference validation. Do not edit manually |
 | `tsconfig.json` | Global | TypeScript config for Remotion templates |
@@ -271,7 +280,7 @@ videos/{video-name}/
 
 ## Background Music
 
-Included tracks in `assets/`:
+Included tracks in `skills/video-podcast-maker/assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 

@@ -40,18 +40,24 @@ videos/
 !assets/*.mp4
 !assets/*.mp3
 
-# User preferences (learned, auto-created from template)
+# User preferences (learned, auto-created from template by scripts at runtime).
+# Lives under the active skill root (skills/video-podcast-maker/ after the
+# 365-skills restructure; keep the bare-name pattern for legacy installs).
 user_prefs.json
+skills/video-podcast-maker/user_prefs.json
 
 # Global phoneme dictionary (user-customized, auto-created from template)
 phonemes.json
+skills/video-podcast-maker/phonemes.json
 
 # Design reference binary assets (frames, covers)
 design_references/*/frames/
 design_references/*/cover.*
+skills/video-podcast-maker/design_references/
 
-# Update check throttle
+# Update check throttle (kept at skill root by check_update.sh)
 .last_update_check
+skills/video-podcast-maker/.last_update_check
 
 # Python
 __pycache__/

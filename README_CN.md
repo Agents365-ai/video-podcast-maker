@@ -69,7 +69,7 @@
 
 ## 工作流程
 
-![工作流程](assets/workflow.png)
+![工作流程](skills/video-podcast-maker/assets/workflow.png)
 
 ## ⚠️ 给读到这里的你（不是给 AI 看的）：`podcast.txt` 必须人工反复打磨
 
@@ -118,9 +118,11 @@ brew install ffmpeg node python3
 # Ubuntu/Debian
 sudo apt install ffmpeg nodejs python3 python3-pip
 
-# Python 依赖
-pip install azure-cognitiveservices-speech dashscope edge-tts requests
+# Python 依赖（requirements.txt 位于技能包内）
+pip install -r skills/video-podcast-maker/requirements.txt
 ```
+
+> **推荐通过 marketplace 安装：** 一般用户应通过 [365-skills marketplace](https://github.com/Agents365-ai/365-skills) 安装本技能，而非克隆本仓库。届时 SKILL.md / scripts / templates 会位于 agent 暴露的 `${SKILL_DIR}` 路径下；README 中的路径写法是面向贡献者（仓库根目录视角）。
 
 ### 项目初始化（必需）
 
@@ -242,9 +244,11 @@ npx remotion studio src/remotion/index.ts
 
 ## 配置文件
 
+下表所有路径都相对于技能根目录（本仓库为 `skills/video-podcast-maker/`，通过 marketplace 安装后为 `${SKILL_DIR}`）：
+
 | 文件 | 作用域 | 说明 |
 |------|--------|------|
-| `phonemes.json` | 全局 | 多音字词典，所有视频项目共享。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
+| `phonemes.json` | 全局 | 多音字词典，所有视频项目共享。首次运行时由脚本从 `phonemes.template.json` 自动复制。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
 | `user_prefs.template.json` | 全局 | 偏好默认模板。首次运行时自动复制为 `user_prefs.json`，后续随使用自动学习你的风格 |
 | `prefs_schema.json` | 全局 | 偏好验证的 JSON Schema，无需手动编辑 |
 | `tsconfig.json` | 全局 | Remotion 模板的 TypeScript 配置 |
@@ -270,7 +274,7 @@ videos/{视频名称}/
 
 ## 背景音乐
 
-`assets/` 目录下包含：
+`skills/video-podcast-maker/assets/` 目录下包含：
 - `perfect-beauty-191271.mp3` - 轻快积极
 - `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
 
