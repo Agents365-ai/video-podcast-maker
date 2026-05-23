@@ -146,14 +146,23 @@ def main():
 def _run(args, started_at):
     # --- Backend init (skip for validate-only) ---
     if not args.validate:
-        from tts.backends import init_backend, get_synthesize_func, get_max_chars, resolve_backend
+        from tts.backends import (
+            BackendError, init_backend, get_synthesize_func, get_max_chars, resolve_backend,
+        )
         if args.backend:
             BACKEND, source = args.backend, 'cli'
         else:
             BACKEND, source = resolve_backend()
         print(f"TTS backend: {BACKEND} [from {source}]")
 
-        config = init_backend(BACKEND)
+        try:
+            config = init_backend(BACKEND)
+        except BackendError as exc:
+            sys.exit(cli_envelope.emit_error(
+                args, exc.code, str(exc),
+                extra={"backend": BACKEND, "backend_source": source},
+                started_at=started_at,
+            ))
         MAX_CHARS = get_max_chars(BACKEND)
     else:
         # --validate path: skip backend init, but use the registry's edge limit

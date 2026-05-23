@@ -419,8 +419,11 @@ def _run(args, started_at):
 
     print(f"\nNext steps:")
     print(f"  1. Create Remotion composition files for each short")
-    print(f"  2. Render with --public-dir pointing to the short's directory")
-    print(f"  3. npx remotion render src/remotion/index.ts <CompId> <output.mp4> --video-bitrate 16M --public-dir <short-dir>/")
+    print(f"  2. Render with --public-dir pointing to the short's own directory")
+    print(f"     (NOT the long-form videos/{{name}}/ — shorts have their own audio + timing)")
+    print(f"  3. npx remotion render src/remotion/index.ts <CompId> \\")
+    print(f"       videos/<name>/shorts/<section>/<CompId>.mp4 \\")
+    print(f"       --video-bitrate 16M --public-dir videos/<name>/shorts/<section>/")
 
     sys.exit(cli_envelope.emit_success(args, result, started_at=started_at))
 

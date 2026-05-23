@@ -4,21 +4,37 @@ These are template files for creating Remotion video projects. Copy them to your
 
 ## Usage
 
+These files split into two groups with different copy semantics — read both rules before running the commands below:
+
+1. **Shared scaffolding** (`Root.tsx`, `Thumbnail.tsx`, `components/`) — copied **once per Remotion project**. Edit them in place to extend the project; never overwrite when adding a new video.
+2. **Per-video composition** (`Video.tsx`) — copied as **`{PascalCaseName}Video.tsx`** for *each* video. Each video keeps its own composition file so multiple videos coexist in the same project without colliding.
+
 ```bash
 # Resolve the skill directory first.
 # Example: export SKILL_DIR=/path/to/video-podcast-maker
-
-# Copy all templates to your Remotion project
-cp "${SKILL_DIR}"/templates/*.tsx src/remotion/
-cp -r "${SKILL_DIR}"/templates/components src/remotion/components
-cp "${SKILL_DIR}"/templates/podcast.txt videos/{name}/
-```
-
-If your agent provides a built-in skill path variable such as `${CLAUDE_SKILL_DIR}`, map it first:
-
-```bash
+# If your agent provides a built-in skill path variable such as ${CLAUDE_SKILL_DIR}:
 export SKILL_DIR="${SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
+
+# --- First time only (per project) ---
+# Copy the shared scaffolding. Do NOT include Video.tsx in this pass.
+cp "${SKILL_DIR}"/templates/Root.tsx       src/remotion/Root.tsx
+cp "${SKILL_DIR}"/templates/Thumbnail.tsx  src/remotion/Thumbnail.tsx
+cp "${SKILL_DIR}"/templates/ShortVideo.tsx src/remotion/ShortVideo.tsx    # only if you'll generate shorts
+cp -r "${SKILL_DIR}"/templates/components  src/remotion/components
+
+# --- Each time you start a new video ---
+# Copy podcast.txt as the per-video script
+cp "${SKILL_DIR}"/templates/podcast.txt    videos/{name}/podcast.txt
+
+# Copy Video.tsx under the per-video name (PascalCase of {name})
+# e.g. {name}=reference-manager-comparison → ReferenceManagerComparisonVideo.tsx
+cp "${SKILL_DIR}"/templates/Video.tsx      src/remotion/{PascalCase}Video.tsx
+
+# Then register the new composition in Root.tsx with a UNIQUE id —
+# see the header comment in templates/Root.tsx for the registration pattern.
 ```
+
+**Never overwrite shared files** (`Root.tsx`, `Thumbnail.tsx`, `components/`) when adding a second/third video to an existing project — you'd lose the registrations and edits made for earlier videos.
 
 ## Files
 

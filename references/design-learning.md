@@ -15,10 +15,13 @@ python3 scripts/learn_design.py ./screenshot1.png ./screenshot2.png
 # Learn from a local video (ffmpeg extracts frames automatically)
 python3 scripts/learn_design.py ./reference.mp4
 
-# Learn from a URL (Playwright captures screenshots — experimental)
+# Learn from a URL (NOT implemented — creates a placeholder ref_id only;
+# add screenshots manually to <output-dir>/<ref_id>/frames/ afterwards)
 python3 scripts/learn_design.py https://www.bilibili.com/video/BV1xx411c7mD
 
-# Save with a named profile and tags
+# Save with a named profile and tags (--tags is persisted in design_references
+# index, --profile attaches the new ref_ids to the named style profile,
+# auto-creating the profile if it doesn't exist yet)
 python3 scripts/learn_design.py ./reference.mp4 --profile "tech-minimal" --tags "tech,minimal,dark"
 ```
 
@@ -27,9 +30,13 @@ python3 scripts/learn_design.py ./reference.mp4 --profile "tech-minimal" --tags 
 All reference-library management goes through `learn_design.py`:
 
 ```bash
-python3 scripts/learn_design.py --list                # List all stored references (auto-cleans orphaned entries)
-python3 scripts/learn_design.py --show <REF_ID>       # Show report.json for a specific reference
-python3 scripts/learn_design.py --delete <REF_ID>     # Delete a reference and its files
+python3 scripts/learn_design.py --list                  # List all stored references (auto-cleans orphaned entries)
+python3 scripts/learn_design.py --show <REF_ID>         # Show report.json for a specific reference
+
+# --delete is gated: without --yes it prints a preview and exits 3 (confirmation_required).
+# Re-run with --yes after reviewing the preview to actually remove the entry and its files.
+python3 scripts/learn_design.py --delete <REF_ID>           # Preview only (no deletion)
+python3 scripts/learn_design.py --delete <REF_ID> --yes     # Confirm and delete
 ```
 
 `<REF_ID>` is the id printed by `--list` (e.g. `bilibili-BV1xx411c7mD`, or an md5-derived id for image sets).

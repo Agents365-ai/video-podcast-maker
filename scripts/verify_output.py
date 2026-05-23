@@ -38,9 +38,15 @@ REQUIRED = [
     'output.mp4',
     'final_video.mp4',
     'publish_info.md',
-    'thumbnail_remotion_16x9.png',
-    'thumbnail_remotion_4x3.png',
 ]
+
+# Per aspect ratio, accept either the Remotion-generated or AI-generated
+# thumbnail name. Verified separately from REQUIRED so a project that used
+# the imagen backend doesn't get flagged for missing Remotion outputs.
+THUMBNAIL_ALTERNATIVES = {
+    '16x9': ('thumbnail_remotion_16x9.png', 'thumbnail_ai_16x9.png'),
+    '4x3':  ('thumbnail_remotion_4x3.png',  'thumbnail_ai_4x3.png'),
+}
 
 OPTIONAL = [
     'video_with_bgm.mp4',
@@ -54,9 +60,44 @@ EXPECTED_RES = (3840, 2160)
 THUMB_16x9 = (1920, 1080)
 THUMB_4x3 = (1200, 900)
 
+# Per-platform required publish_info.md section headings. Keep keys in sync
+# with prefs_schema.json::global.platform and the format tables in
+# references/workflow-publish.md → "Publish Info Format by Platform".
+PLATFORM_SECTIONS = {
+    'bilibili':        ('## 标题', '## 标签', '## 简介', '## 章节'),
+    'youtube':         ('## Title', '## Tags', '## Description', '## Chapters'),
+    'xiaohongshu':     ('## 标题', '## 正文', '## 话题标签'),
+    'douyin':          ('## 文案', '## 话题标签'),
+    'weixin-channels': ('## 文案', '## 话题标签'),
+}
+DEFAULT_PLATFORM = 'bilibili'
+
+
+def _resolve_platform():
+    """Read `global.platform` from user_prefs.json (skill root). Falls back to bilibili.
+
+    Kept module-local so a missing/malformed prefs file degrades to the default
+    instead of crashing the verifier.
+    """
+    skill_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    prefs_path = os.path.join(skill_root, 'user_prefs.json')
+    try:
+        with open(prefs_path, encoding='utf-8') as f:
+            prefs = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return DEFAULT_PLATFORM
+    platform = (prefs.get('global', {}) or {}).get('platform')
+    if platform in PLATFORM_SECTIONS:
+        return platform
+    return DEFAULT_PLATFORM
+
 
 def ffprobe_video(path):
-    """Return (width, height, duration, audio_codec) or None on failure."""
+    """Return (width, height, duration, audio_codec) or None on failure.
+
+    For audio-only inputs (e.g. .wav), use ffprobe_audio() instead — this
+    function returns None when no video stream is present.
+    """
     try:
         out = subprocess.check_output([
             'ffprobe', '-v', 'quiet', '-print_format', 'json',
@@ -72,6 +113,27 @@ def ffprobe_video(path):
             'height': int(v['height']),
             'duration': float(data['format']['duration']),
             'video_codec': v['codec_name'],
+            'audio_codec': a['codec_name'] if a else None,
+        }
+    except (subprocess.CalledProcessError, KeyError, ValueError):
+        return None
+
+
+def ffprobe_audio(path):
+    """Return {'duration': float, 'audio_codec': str|None} or None on failure.
+
+    Use for WAV/MP3 files. Probes format duration directly so it works for
+    container-only audio that has no video stream.
+    """
+    try:
+        out = subprocess.check_output([
+            'ffprobe', '-v', 'quiet', '-print_format', 'json',
+            '-show_streams', '-show_format', str(path)
+        ]).decode()
+        data = json.loads(out)
+        a = next((s for s in data['streams'] if s['codec_type'] == 'audio'), None)
+        return {
+            'duration': float(data['format']['duration']),
             'audio_codec': a['codec_name'] if a else None,
         }
     except (subprocess.CalledProcessError, KeyError, ValueError):
@@ -94,7 +156,15 @@ def png_size(path):
 
 
 def auto_fix(video_dir):
-    """Attempt to recover from known omissions. Returns list of fix descriptions."""
+    """Attempt to recover from known omissions. Returns list of fix descriptions.
+
+    Non-destructive by design: only writes a new file (final_video.mp4) when
+    it does not already exist, by copying an upstream artifact that was
+    produced earlier in the pipeline. No existing file is overwritten, no
+    user data is mutated. This is why no --yes gate is required despite the
+    general CLI convention that destructive ops gate behind explicit consent
+    (CLAUDE.md "Destructive ops"). To preview without writing, pass --no-fix.
+    """
     fixes = []
     final_mp4 = video_dir / 'final_video.mp4'
     bgm_mp4 = video_dir / 'video_with_bgm.mp4'
@@ -103,12 +173,12 @@ def auto_fix(video_dir):
     # 1) final_video.mp4 missing but video_with_bgm.mp4 exists → alias (subtitles skipped path)
     if not final_mp4.exists() and bgm_mp4.exists():
         shutil.copy2(bgm_mp4, final_mp4)
-        fixes.append(f'Created final_video.mp4 from video_with_bgm.mp4 (subtitles skipped)')
+        fixes.append('Created final_video.mp4 from video_with_bgm.mp4 (subtitles skipped)')
 
     # 2) final_video.mp4 missing AND no BGM mix → fall back to output.mp4 (no BGM path)
     elif not final_mp4.exists() and output_mp4.exists():
         shutil.copy2(output_mp4, final_mp4)
-        fixes.append(f'Created final_video.mp4 from output.mp4 (no BGM mix; consider running Step 11)')
+        fixes.append('Created final_video.mp4 from output.mp4 (no BGM mix; consider running Step 11)')
 
     return fixes
 
@@ -179,6 +249,21 @@ def verify(video_dir, strict=False, do_auto_fix=True):
             print(f"  ✗ {fname:<35} MISSING")
             result['required_files']['missing'].append(fname)
 
+    # Thumbnails: per aspect ratio, accept Remotion OR AI naming. Each ratio
+    # only counts as missing if both alternatives are absent.
+    for aspect, names in THUMBNAIL_ALTERNATIVES.items():
+        present = [n for n in names if (video_dir / n).exists()]
+        if present:
+            for n in present:
+                size = (video_dir / n).stat().st_size
+                size_str = f"{size/1024/1024:.1f} MB" if size > 1024*1024 else f"{size/1024:.1f} KB"
+                print(f"  ✓ {n:<35} {size_str}")
+                result['required_files']['present'].append(n)
+        else:
+            missing_label = ' OR '.join(names)
+            print(f"  ✗ thumbnail {aspect:<23} MISSING ({missing_label})")
+            result['required_files']['missing'].append(missing_label)
+
     print("\n--- Optional files ---")
     for fname in OPTIONAL:
         p = video_dir / fname
@@ -217,34 +302,44 @@ def verify(video_dir, strict=False, do_auto_fix=True):
             errors.append("ffprobe failed on final_video.mp4")
             print("  ✗ ffprobe failed")
 
-    # Thumbnail specs
+    # Thumbnail specs — check every alternative that's actually on disk.
+    # Both Remotion and AI variants for the same aspect ratio are valid; we
+    # report a missing aspect ratio only if NEITHER variant is present.
     print("\n--- Thumbnails ---")
-    for fname, expected in [('thumbnail_remotion_16x9.png', THUMB_16x9),
-                              ('thumbnail_remotion_4x3.png', THUMB_4x3)]:
-        p = video_dir / fname
-        thumb_record = {'present': False, 'size': None, 'expected': list(expected), 'ok': False}
-        if p.exists():
-            thumb_record['present'] = True
-            sz = png_size(p)
-            if sz == expected:
-                print(f"  ✓ {fname}: {sz[0]}x{sz[1]}")
-                thumb_record['size'] = list(sz)
-                thumb_record['ok'] = True
-            elif sz:
-                print(f"  ⚠ {fname}: {sz[0]}x{sz[1]} (expected {expected[0]}x{expected[1]})")
-                warnings.append(f"{fname} size {sz[0]}x{sz[1]} != {expected}")
-                thumb_record['size'] = list(sz)
-            else:
-                print(f"  ✗ {fname}: cannot read PNG header")
-                errors.append(f"{fname} unreadable")
-        result['thumbnails'][fname] = thumb_record
+    aspect_specs = {'16x9': THUMB_16x9, '4x3': THUMB_4x3}
+    for aspect, names in THUMBNAIL_ALTERNATIVES.items():
+        expected = aspect_specs[aspect]
+        any_present = False
+        for fname in names:
+            p = video_dir / fname
+            thumb_record = {'present': False, 'size': None, 'expected': list(expected), 'ok': False}
+            if p.exists():
+                any_present = True
+                thumb_record['present'] = True
+                sz = png_size(p)
+                if sz == expected:
+                    print(f"  ✓ {fname}: {sz[0]}x{sz[1]}")
+                    thumb_record['size'] = list(sz)
+                    thumb_record['ok'] = True
+                elif sz:
+                    print(f"  ⚠ {fname}: {sz[0]}x{sz[1]} (expected {expected[0]}x{expected[1]})")
+                    warnings.append(f"{fname} size {sz[0]}x{sz[1]} != {expected}")
+                    thumb_record['size'] = list(sz)
+                else:
+                    print(f"  ✗ {fname}: cannot read PNG header")
+                    errors.append(f"{fname} unreadable")
+            result['thumbnails'][fname] = thumb_record
+        if not any_present:
+            errors.append(f"thumbnail {aspect} missing (need one of {list(names)})")
 
-    # Audio/timing alignment
+    # Audio/timing alignment — WAV has no video stream so we use the
+    # audio-only probe (ffprobe_video would return None and the drift
+    # check below would never fire).
     print("\n--- Audio / timing alignment ---")
     wav = video_dir / 'podcast_audio.wav'
     timing_path = video_dir / 'timing.json'
     if wav.exists() and timing_path.exists():
-        wav_info = ffprobe_video(wav)
+        wav_info = ffprobe_audio(wav)
         try:
             with open(timing_path) as f:
                 timing = json.load(f)
@@ -252,7 +347,10 @@ def verify(video_dir, strict=False, do_auto_fix=True):
             print(f"  ✗ timing.json unreadable: {e}")
             errors.append(f"timing.json unreadable: {e}")
             timing = None
-        if wav_info and timing is not None:
+        if wav_info is None:
+            print(f"  ✗ ffprobe failed on podcast_audio.wav")
+            errors.append("ffprobe failed on podcast_audio.wav")
+        elif timing is not None:
             wav_dur = wav_info['duration']
             timing_dur = timing.get('total_duration', 0)
             drift = wav_dur - timing_dur
@@ -272,8 +370,11 @@ def verify(video_dir, strict=False, do_auto_fix=True):
                 'ok': drift_ok,
             }
 
-    # Publish info sanity
-    print("\n--- publish_info.md ---")
+    # Publish info sanity — required sections depend on which platform the
+    # user is targeting. Falls back to bilibili if user_prefs.json is missing
+    # or the platform key is unrecognized.
+    platform = _resolve_platform()
+    print(f"\n--- publish_info.md (platform: {platform}) ---")
     pub = video_dir / 'publish_info.md'
     if pub.exists():
         text = pub.read_text(encoding='utf-8')
@@ -284,7 +385,7 @@ def verify(video_dir, strict=False, do_auto_fix=True):
         else:
             print(f"  ⚠ Promo line missing — first description line should reference {promo}")
             warnings.append("publish_info.md missing required promo line")
-        sections_required = ('## 标题', '## 标签', '## 简介', '## 章节')
+        sections_required = PLATFORM_SECTIONS[platform]
         sections_present = []
         sections_missing = []
         for required_section in sections_required:
@@ -296,6 +397,7 @@ def verify(video_dir, strict=False, do_auto_fix=True):
                 warnings.append(f"publish_info.md missing {required_section}")
                 sections_missing.append(required_section)
         result['publish_info'] = {
+            'platform': platform,
             'promo_present': promo_present,
             'sections_present': sections_present,
             'sections_missing': sections_missing,

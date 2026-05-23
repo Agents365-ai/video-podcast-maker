@@ -22,14 +22,14 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Real-time Preview** - Remotion Studio for instant debugging before render
 - **Auto Timing** - Audio-video sync via `timing.json`
 - **BGM Mixing** - Background music overlay with FFmpeg
-- **Subtitle Burning** - Optional SRT subtitle embedding
+- **Remotion-native Subtitles** - SRT rendered inside Remotion at 4K with React/CSS; legacy FFmpeg burn-in remains available for special cases
 - **4K Output** - 3840x2160 resolution for crisp uploads
 - **Chapter Progress Bar** - Visual timeline showing current section during playback
 - **Bilingual TTS** - Chinese/English mixed narration with Azure Speech or CosyVoice
 - **Pronunciation Correction** - Global + per-project phoneme dictionaries for Chinese polyphone fixes
 - **Bilibili Templates** - Ready-to-use Remotion templates (`Video.tsx`, `Root.tsx`, `Thumbnail.tsx`, `podcast.txt`) for quick project scaffolding
 - **Component Library** - Reusable visual building blocks (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard, DiagramReveal, AudioWaveform, LottieAnimation, MediaSection, SectionLayouts, AnimatedBackground) for composing rich section layouts
-- **Preference Learning** - Auto-learns user style preferences (colors, fonts, speech rate) and applies them to future videos
+- **Manual Style Profiles** - User-managed `style_profiles` in `user_prefs.json` carry palette / typography / animation settings across videos (automatic preference learning is on the roadmap, not yet implemented)
 - **Multi-Platform** - Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels with independent platform and language settings
 - **Multi-Language** - Chinese (zh-CN) and English (en-US) script templates, TTS voices, subtitle fonts
 - **Subtitle Preferences** - Custom font, size, color, outline; toggle subtitle burning on/off
@@ -119,8 +119,8 @@ brew install ffmpeg node python3
 # Ubuntu/Debian
 sudo apt install ffmpeg nodejs python3 python3-pip
 
-# Python dependencies
-pip install azure-cognitiveservices-speech dashscope edge-tts requests
+# Python dependencies (installs only what the skill's scripts/ need)
+pip install -r requirements.txt
 ```
 
 ### Project Setup (Required)

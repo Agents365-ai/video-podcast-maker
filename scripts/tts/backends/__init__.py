@@ -1,7 +1,36 @@
 """TTS backend registry."""
 import json
 import os
-import sys
+
+
+class BackendError(Exception):
+    """Base class for backend init failures.
+
+    Carries a `code` matching cli_envelope.ERROR_CODES so the CLI layer can
+    route the failure through emit_error() without inventing new codes inline.
+    """
+    code = "internal_error"
+
+
+class UnknownBackendError(BackendError):
+    code = "validation_failed"
+
+
+class MissingPackageError(BackendError):
+    code = "tool_missing"
+
+    def __init__(self, message, package=None, install_cmd=None):
+        super().__init__(message)
+        self.package = package
+        self.install_cmd = install_cmd
+
+
+class MissingEnvVarError(BackendError):
+    code = "auth_missing_env"
+
+    def __init__(self, message, var=None):
+        super().__init__(message)
+        self.var = var
 
 
 def user_prefs_get(*keys):
@@ -148,26 +177,35 @@ BACKENDS = {
 
 
 def init_backend(name):
-    """Validate dependencies and env vars for a backend. Returns config dict."""
+    """Validate dependencies and env vars for a backend. Returns config dict.
+
+    Raises:
+        UnknownBackendError: name not in BACKENDS registry.
+        MissingPackageError: required Python module is not installed.
+        MissingEnvVarError: required env var is unset.
+
+    The caller (generate_tts.py main) routes these through cli_envelope so
+    agents see a structured error envelope instead of a bare exit code.
+    """
     if name not in BACKENDS:
-        print(f"Error: Unknown backend '{name}'. Use: {', '.join(BACKENDS.keys())}", file=sys.stderr)
-        sys.exit(1)
+        raise UnknownBackendError(
+            f"Unknown backend '{name}'. Use: {', '.join(BACKENDS.keys())}"
+        )
 
     info = BACKENDS[name]
 
-    # Check Python module
     mod_name, pkg_name, install_cmd = info['import']
     try:
         __import__(mod_name)
-    except ImportError:
-        print(f"Error: '{pkg_name}' not installed. Run: {install_cmd}", file=sys.stderr)
-        sys.exit(1)
+    except ImportError as e:
+        raise MissingPackageError(
+            f"'{pkg_name}' not installed. Run: {install_cmd}",
+            package=pkg_name, install_cmd=install_cmd,
+        ) from e
 
-    # Check env vars
     for var in info['env']:
         if not os.environ.get(var):
-            print(f"Error: {var} not set", file=sys.stderr)
-            sys.exit(1)
+            raise MissingEnvVarError(f"{var} not set", var=var)
 
     return _build_config(name)
 

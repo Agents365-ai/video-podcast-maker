@@ -14,7 +14,15 @@ suggestions.md
 
 # Node
 node_modules/
+# Lockfiles are intentionally NOT committed. This repo's package.json is a
+# template manifest — end users install these deps in their own Remotion
+# project (created via `npx create-video`) where they generate their own
+# yarn.lock / package-lock.json. Committing a lockfile here would pin
+# contributors to one package manager without benefiting end users.
+# Contributors running the skill's own scripts can `yarn install` locally
+# (project uses Yarn per package.json `packageManager` field).
 package-lock.json
+yarn.lock
 dist/
 out/
 bundle/

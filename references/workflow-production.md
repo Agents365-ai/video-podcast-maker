@@ -276,13 +276,27 @@ import { OffthreadVideo, staticFile } from "remotion";
 
 Remotion Studio is **always launched** — both auto and interactive modes. This is the primary review step.
 
-**Kill any existing Remotion Studio instance first** to avoid serving stale assets from a previous project. Filter by process name so unrelated dev servers on port 3000 (Vite, Next.js, etc.) are NOT killed:
+**Free port 3000 first** so a stale Studio from a previous run doesn't serve the wrong `--public-dir`. Prefer the port-scoped approach below — a naive `pkill -f "remotion studio"` matches *any* Remotion Studio across the system, including unrelated projects the user may have open in another terminal:
 
 ```bash
-# Only kill processes whose command line contains "remotion studio"
-pkill -f "remotion studio" 2>/dev/null || true
+# Find the PID holding TCP port 3000 (Remotion Studio's default), if any.
+STUDIO_PID=$(lsof -nP -iTCP:3000 -sTCP:LISTEN -t 2>/dev/null | head -1)
+
+if [ -n "$STUDIO_PID" ]; then
+  # Confirm it's actually Remotion before killing — refuses to kill a
+  # non-Remotion process that happens to bind 3000 (Next.js dev server, etc.)
+  if ps -p "$STUDIO_PID" -o command= | grep -q "remotion"; then
+    kill "$STUDIO_PID"
+  else
+    echo "Port 3000 is held by a non-Remotion process (PID $STUDIO_PID). Free it manually or run Studio on a different port." >&2
+    exit 1
+  fi
+fi
+
 npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 ```
+
+If you intentionally run multiple Remotion projects in parallel, launch Studio on a non-default port (`npx remotion studio ... --port 3001`) and adjust the `lsof -iTCP:<port>` line above accordingly.
 
 1. Launch `remotion studio` (real-time preview, hot reload)
 2. Ask user: "Studio is running at http://localhost:3000. Please review the video preview."
@@ -334,6 +348,18 @@ The vertical composition reuses Video.tsx with `orientation: "vertical"`. All co
 ---
 
 ## Step 11: Mix with Background Music
+
+> **BGM source single-write rule (READ THIS FIRST).** Two paths can layer BGM
+> on the final video: the Remotion `<Audio src="bgm.mp3">` block inside
+> `Video.tsx`, and the FFmpeg `amix` below. **Pick exactly one.** Default
+> behavior is FFmpeg-only — `Root.tsx::defaultVideoProps.bgmVolume` is `0`,
+> so the Remotion BGM block is disabled and `output.mp4` from Step 10
+> contains *only* narration. Step 11 then layers BGM via FFmpeg.
+>
+> If you intend to bake BGM inside Remotion instead (e.g. for a beat-synced
+> video where the BGM drives animation): set `bgmVolume > 0` in Studio,
+> ensure `bgm.mp3` is present in `--public-dir`, and **skip Step 11**. Running
+> both layers it twice.
 
 ### BGM Selection
 

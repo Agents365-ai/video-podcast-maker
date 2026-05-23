@@ -36,22 +36,25 @@ REQUIRED_BINS = ["node", "python3", "ffmpeg"]
 
 def check_prereqs(env=None):
     """Compute prereq state. Returns dict with backend, backend_source,
-    required_bins, required_env_vars, missing_bins, missing_env_vars.
+    backend_known, required_bins, required_env_vars, missing_bins, missing_env_vars.
 
     `env` overrides os.environ for testing (default: os.environ).
     Tool presence is checked via shutil.which and is not mockable through
     `env` — tests should monkeypatch shutil.which directly if needed.
+
+    `backend_known` is False when the resolved name is not in the BACKENDS
+    registry (typo in TTS_BACKEND or stale user_prefs.json). In that case
+    required_env_vars is [] because we don't know what to ask for; the caller
+    reports validation_failed instead of silently passing.
     """
     env = env if env is not None else os.environ
     try:
         backend, backend_source = resolve_backend()
     except Exception:
-        # user_prefs.json malformed or unreadable — fall back to env/default.
-        # Mirrors generate_tts.py's defensive fallback so the prereq check
-        # never crashes and always reports something actionable.
         backend = env.get("TTS_BACKEND", "edge")
         backend_source = "env" if env.get("TTS_BACKEND") else "default"
 
+    backend_known = backend in BACKENDS
     required_env_vars = BACKENDS.get(backend, {}).get("env", [])
     missing_bins = [b for b in REQUIRED_BINS if not shutil.which(b)]
     missing_env_vars = [v for v in required_env_vars if not env.get(v)]
@@ -59,6 +62,7 @@ def check_prereqs(env=None):
     return {
         "backend": backend,
         "backend_source": backend_source,
+        "backend_known": backend_known,
         "required_bins": REQUIRED_BINS,
         "required_env_vars": required_env_vars,
         "missing_bins": missing_bins,
@@ -83,6 +87,27 @@ def main():
     backend = state["backend"]
     missing_bins = state["missing_bins"]
     missing_env_vars = state["missing_env_vars"]
+
+    # Unknown backend wins over bin/env checks: we can't report missing env
+    # vars for a backend we don't know, so flag the typo before anything else.
+    if not state["backend_known"]:
+        known = sorted(BACKENDS.keys())
+        message = (
+            f"Unknown TTS backend '{backend}' (resolved from {state['backend_source']}). "
+            f"Known backends: {', '.join(known)}."
+        )
+        if cli_envelope.use_json(args):
+            sys.exit(cli_envelope.emit_error(
+                args, "validation_failed", message,
+                extra={
+                    "backend": backend,
+                    "backend_source": state["backend_source"],
+                    "known_backends": known,
+                },
+                started_at=started_at,
+            ))
+        print(f"UNKNOWN_BACKEND:{backend} (known: {','.join(known)})", file=sys.stderr)
+        sys.exit(2)
 
     if not missing_bins and not missing_env_vars:
         if cli_envelope.use_json(args):

@@ -6,9 +6,14 @@ import sys
 def parse_sections(text):
     """Parse [SECTION:xxx] markers from script text.
 
+    Section names accept ASCII letters, digits, underscores, and hyphens
+    (must start with a word char). The shorts pipeline (generate_shorts.py)
+    and the bundled podcast templates both use names like `content-1`, so
+    the hyphen is intentionally permitted here.
+
     Returns: (sections_list, matches_list, clean_text)
     """
-    section_pattern = r'\[SECTION:(\w+)\]'
+    section_pattern = r'\[SECTION:(\w[\w-]*)\]'
     sections = []
     matches = list(re.finditer(section_pattern, text))
 
@@ -39,7 +44,11 @@ def validate_sections(text, sections, matches):
     errors = []
     warnings = []
 
-    bad_markers = re.findall(r'\[SECTION\s+:\w+\]|\[SECTION:\s+\w+\]|\[SECTION:\w+\s+\]', text)
+    # Track the same name char class used by parse_sections (\w + hyphens).
+    bad_markers = re.findall(
+        r'\[SECTION\s+:[\w-]+\]|\[SECTION:\s+[\w-]+\]|\[SECTION:[\w-]+\s+\]',
+        text,
+    )
     for m in bad_markers:
         errors.append(f"Malformed section marker (extra spaces): {m}")
 

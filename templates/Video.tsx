@@ -346,7 +346,9 @@ export const Video = (props: VideoProps) => {
       {/* Subtitles - outside scale(2), renders at native 4K, no FFmpeg needed */}
       <Subtitles src={staticFile("podcast_audio.srt")} />
 
-      {/* BGM with configurable volume */}
+      {/* BGM with configurable volume.
+          Default `bgmVolume = 0` (off) — Step 11 mixes BGM via FFmpeg.
+          Set this > 0 in Studio only if you intend to skip Step 11. */}
       {props.bgmVolume > 0 && (
         <Audio src={staticFile("bgm.mp3")} volume={props.bgmVolume} />
       )}

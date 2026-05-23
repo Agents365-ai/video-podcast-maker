@@ -8,19 +8,22 @@
 
 ---
 
-## Step 12: Add Subtitles
+## Step 12: Finalize (optional legacy subtitle burn)
 
-> **Preferred approach: Remotion-native subtitles (no FFmpeg re-encode needed)**
+> **Decision point: pick subtitle approach BEFORE Step 10, not here.**
 >
-> The `Video.tsx` template already includes `<Subtitles src={staticFile("podcast_audio.srt")} />`.
-> This renders SRT subtitles inside Remotion using React/CSS — positioned at the bottom of the 4K frame,
-> with text outline, font, and style matching the project theme. No FFmpeg subtitle pass is needed.
+> Subtitles are normally baked into `output.mp4` during Step 10's Remotion
+> render via `<Subtitles src={staticFile("podcast_audio.srt")} />` in
+> `Video.tsx`. Once Step 10 runs with that component in place, subtitles are
+> already inside the pixel stream — re-burning at Step 12 would double up.
 >
-> **When to skip this step:** If the video was rendered with the standard `Video.tsx` template
-> (which includes `<Subtitles>`), Step 12 is a no-op — just copy `video_with_bgm.mp4` as `final_video.mp4`.
+> **Default (Remotion-native subtitles in Step 10):** Step 12 is a finalize/alias
+> step. Copy `video_with_bgm.mp4` to `final_video.mp4` and move on.
 >
-> **When FFmpeg subtitles may still be needed:** Legacy videos rendered without the `Subtitles` component,
-> or special subtitle styling not achievable in CSS (e.g., karaoke effects).
+> **Legacy FFmpeg burn (rare):** Only choose this if Step 10 was rendered
+> *without* the `<Subtitles>` component (e.g. you removed it for a karaoke
+> effect, or you're re-burning into an older render). In that case render
+> Step 10 with subtitles disabled, then run the FFmpeg pass below.
 
 **Auto mode:** Skip subtitles — copy `video_with_bgm.mp4` as `final_video.mp4`.
 **Interactive mode:** Ask user: "Add burned-in subtitles? (Usually not needed — Remotion renders subtitles natively)"
@@ -130,9 +133,9 @@ python3 ${SKILL_DIR}/scripts/verify_output.py videos/{name}/ --format json
 What it checks:
 - Required files: podcast.txt, podcast_audio.{wav,srt}, timing.json, output.mp4, **final_video.mp4**, publish_info.md, both thumbnails
 - Final video specs: 3840×2160, h264 + aac, has audio track, duration plausible
-- Thumbnail dimensions: 1920×1080 (16:9) and 1200×900 (4:3)
-- Audio/timing drift: WAV duration matches timing.json within 0.5s
-- publish_info.md: contains promo line, 标题/标签/简介/章节 sections
+- Thumbnail dimensions: 1920×1080 (16:9) and 1200×900 (4:3) — each aspect ratio accepts either `thumbnail_remotion_*.png` or `thumbnail_ai_*.png`, only flagged missing when both alternatives are absent
+- Audio/timing drift: WAV duration matches timing.json within 0.5s (uses an audio-only ffprobe pass so .wav containers don't false-fail)
+- publish_info.md: contains promo line + per-platform required section headers (bilibili: 标题/标签/简介/章节; youtube: Title/Tags/Description/Chapters; xiaohongshu/douyin/weixin-channels: shorter set without chapters) — resolved from `user_prefs.json` → `global.platform`, defaults to bilibili
 
 What it auto-fixes:
 - Creates `final_video.mp4` from `video_with_bgm.mp4` if missing (subtitles-skipped path)
@@ -197,9 +200,20 @@ For each generated short:
 
 ### Render shorts
 
+Each short renders from its own per-short directory because it has its own
+`short_audio.wav` and `short_timing.json`. Match the convention used by
+`generate_shorts.py --render`:
+
 ```bash
-npx remotion render src/remotion/index.ts {CompId} videos/{name}/shorts/{section}/short.mp4 --video-bitrate 16M --public-dir videos/{name}/
+npx remotion render src/remotion/index.ts {CompId} \
+  videos/{name}/shorts/{section}/{CompId}.mp4 \
+  --video-bitrate 16M \
+  --public-dir videos/{name}/shorts/{section}/
 ```
+
+(Do **not** use `--public-dir videos/{name}/` for shorts — Remotion would
+load the long-form `podcast_audio.wav`/`timing.json` instead of the short's
+sliced assets and the render would drift.)
 
 Each short is a standalone 9:16 4K video (2160×3840) with:
 - 3-second intro title card

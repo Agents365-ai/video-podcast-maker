@@ -680,6 +680,13 @@ def _run(parser, args, started_at):
         return
 
     existing_ids = set(prefs.get("design_references", {}).keys())
+    # Parse --tags once for the whole add run; every new reference gets the
+    # same list. Empty / whitespace-only tokens are filtered out.
+    tags_list = [t.strip() for t in (args.tags or "").split(",") if t.strip()]
+    profile_name = (args.profile or "").strip() or None
+    # Track every ref_id added in this run so we can attach them to the
+    # named profile in one go at the end.
+    newly_added_ids = []
     images, videos, urls = [], [], []
     skipped = []
     for input_path in args.inputs:
@@ -710,6 +717,8 @@ def _run(parser, args, started_at):
         "mode": "add",
         "output_dir": output_dir,
         "name_arg": args.name,
+        "profile": profile_name,
+        "tags": tags_list,
         "images": [],
         "videos": [],
         "urls": [],
@@ -739,7 +748,8 @@ def _run(parser, args, started_at):
             "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
         save_report(report, ref_dir)
-        add_reference_index(prefs, ref_id=ref_id, title=args.name or "Image set", source_url=None, tags=[])
+        add_reference_index(prefs, ref_id=ref_id, title=args.name or "Image set", source_url=None, tags=tags_list)
+        newly_added_ids.append(ref_id)
         print(f"  Extracted {len(frames)} frames")
         result['images'].append({
             "ref_id": ref_id, "source": images, "frame_count": len(frames),
@@ -774,7 +784,8 @@ def _run(parser, args, started_at):
             "height": h,
         }
         save_report(report, ref_dir)
-        add_reference_index(prefs, ref_id=ref_id, title=os.path.basename(video_path), source_url=None, tags=[])
+        add_reference_index(prefs, ref_id=ref_id, title=os.path.basename(video_path), source_url=None, tags=tags_list)
+        newly_added_ids.append(ref_id)
         print(f"  Extracted {len(frames)} frames")
         result['videos'].append({
             "ref_id": ref_id, "source": video_path, "frame_count": len(frames),
@@ -782,7 +793,11 @@ def _run(parser, args, started_at):
             "width": w, "height": h, "ref_dir": ref_dir,
         })
 
-    # URLs → placeholder (Playwright not yet implemented)
+    # URLs → placeholder. URL screenshot extraction is NOT implemented (no
+    # Playwright integration ships with this skill). The placeholder reserves
+    # the ref_id and creates an empty frames/ directory so the user can drop
+    # in screenshots manually; the report.json carries `needs_manual_frames`
+    # so downstream readers know it's not ready for analysis yet.
     for url in urls:
         ref_id = generate_reference_id(url, name=args.name, existing_ids=existing_ids)
         existing_ids.add(ref_id)
@@ -791,7 +806,8 @@ def _run(parser, args, started_at):
         print(f"\nURL: {url}")
         print(f"  Reference ID: {ref_id}")
         print(f"  Output: {ref_dir}")
-        print(f"  URL extraction requires Playwright. Add frames manually to {ref_dir}/frames/")
+        print(f"  ⚠ URL capture is not implemented in this skill. Empty placeholder created.")
+        print(f"    Drop screenshots into {ref_dir}/frames/ manually, then re-run --show {ref_id}.")
 
         report = {
             "ref_id": ref_id,
@@ -800,13 +816,38 @@ def _run(parser, args, started_at):
             "orientation": "unknown",
             "frame_count": 0,
             "frames": [],
+            "needs_manual_frames": True,
             "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
         save_report(report, ref_dir)
-        add_reference_index(prefs, ref_id=ref_id, title=url, source_url=url, tags=[])
+        add_reference_index(prefs, ref_id=ref_id, title=url, source_url=url, tags=tags_list)
+        newly_added_ids.append(ref_id)
         result['urls'].append({
             "ref_id": ref_id, "source": url, "needs_manual_frames": True, "ref_dir": ref_dir,
         })
+
+    # Attach to style profile if --profile was passed. We use the existing
+    # add_style_profile() helper with empty visual fields so the call is
+    # idempotent for already-existing profiles (it unions references in).
+    if profile_name and newly_added_ids:
+        existing_profile = prefs.get("style_profiles", {}).get(profile_name, {})
+        merged_refs = list(dict.fromkeys(
+            (existing_profile.get("references") or []) + newly_added_ids,
+        ))
+        add_style_profile(
+            prefs,
+            name=profile_name,
+            description=existing_profile.get("description", f"Profile '{profile_name}' (auto-created from learn_design)"),
+            props_override=existing_profile.get("props_override") or {},
+            preferred_layouts=existing_profile.get("preferred_layouts") or [],
+            preferred_backgrounds=existing_profile.get("preferred_backgrounds"),
+            animation_feel=existing_profile.get("animation_feel"),
+            density=existing_profile.get("density"),
+            references=merged_refs,
+        )
+        print(f"\nAttached {len(newly_added_ids)} reference(s) to style profile '{profile_name}'")
+        result['profile_attached'] = profile_name
+        result['profile_references'] = merged_refs
 
     save_prefs(prefs, prefs_path)
     print("\nDone. Pass the frames/ directory to your coding agent for design analysis.")

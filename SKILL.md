@@ -1,6 +1,6 @@
 ---
 name: video-podcast-maker
-description: Use when the user gives a topic and wants an automated video podcast created, or asks to learn visual design patterns from a reference video/image. Make sure to use this skill whenever the user mentions creating a video, podcast, knowledge video, Bilibili content, or talking-head explainer from a topic — even if they don't say "video podcast" explicitly. Produces 4K video via research → script → TTS → Remotion → MP4 + BGM.
+description: Use when the user gives a topic and wants an automated topic-driven narrated explainer, podcast, or knowledge-summary video (Bilibili / YouTube / Xiaohongshu / Douyin / WeChat Channels), or asks to learn visual design patterns from a reference video/image. Trigger when the user mentions creating a knowledge video, narrated explainer, video podcast, or talking-head topic video from a topic — even if they don't say "video podcast" explicitly. Do NOT trigger for generic video editing, trimming, format conversion, color grading, or non-narrative video tasks. Produces 4K video via research → script → TTS → Remotion → MP4 + BGM.
 argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
@@ -94,7 +94,7 @@ Full pipeline with sensible defaults. **Mandatory stop at Step 9** (Studio revie
 | 5 | Media assets | Skip (text-only animations) |
 | 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
 | 9 | Outro animation | Pre-made MP4 (white/black by theme) |
-| 12 | Subtitles | Skip |
+| 12 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
 | 14 | Cleanup | Auto-clean temp files |
 
 Override any default in the initial request:
@@ -126,7 +126,7 @@ At Step 1 start, create one task per step in your agent's tracker (Claude Code `
 | **9** | **Remotion composition + Studio preview** | — | [workflow-production.md](references/workflow-production.md) |
 | 10 | Render 4K video (only on user request) | `output.mp4` | [workflow-production.md](references/workflow-production.md) |
 | 11 | Mix background music | `video_with_bgm.mp4` | [workflow-production.md](references/workflow-production.md) |
-| 12 | Add subtitles (Auto: skip) | `final_video.mp4` | [workflow-publish.md](references/workflow-publish.md) |
+| 12 | Finalize (optional legacy subtitle burn) | `final_video.mp4` | [workflow-publish.md](references/workflow-publish.md) |
 | 13 | Complete publish info (Part 2) | chapter timestamps | [workflow-publish.md](references/workflow-publish.md) |
 | **14** | **Verify output** (`scripts/verify_output.py`) | — | [workflow-publish.md](references/workflow-publish.md) |
 | 15 | Generate vertical shorts (optional) | `shorts/` | [workflow-publish.md](references/workflow-publish.md) |

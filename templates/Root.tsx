@@ -1,11 +1,22 @@
 /**
- * Remotion Root 组件模板 - 支持 Studio 可视化编辑
+ * Remotion Root component template — multi-video registration pattern.
  *
- * 使用说明：
- * 1. 将此文件复制到项目的 src/ 目录
- * 2. 确保 Video.tsx 和 Thumbnail.tsx 已创建
- * 3. 确保 timing.json 已放在 --public-dir 指定的目录中
- * 4. 运行 npx remotion studio --public-dir videos/{name}/ 即可在右侧面板编辑样式
+ * Per-video setup (workflow Step 9 copies this template into your project):
+ *
+ * 1. Copy this file as `Root.tsx` (one per project, edit each time you add a video).
+ * 2. For each video named `{video-name}`, copy `Video.tsx` as `{PascalCase}Video.tsx`
+ *    (e.g. `reference-manager-comparison` → `ReferenceManagerComparisonVideo.tsx`).
+ * 3. Import the per-video component: `import { Video as MyTopicVideo } from "./MyTopicVideo";`
+ * 4. Register it with a UNIQUE composition id matching the PascalCase name:
+ *      <Composition id="MyTopic" component={MyTopicVideo} ... />
+ *    DO NOT reuse `id="MyVideo"` across videos — Remotion requires unique ids and
+ *    multiple `videos/{name}/` directories must each map to a distinct id so
+ *    `--public-dir videos/{name}/` selects the right composition.
+ * 5. Each video brings its own timing.json/podcast_audio.wav under videos/{name}/.
+ *
+ * The example below is a SINGLE-VIDEO scaffold. Replace `MyVideo` /
+ * `./Video` with your first video's PascalCase id + filename, and add more
+ * `<Composition>` entries (each with its own id + import) as you add videos.
  */
 
 import { Composition, Still } from "remotion";
@@ -76,8 +87,11 @@ export const defaultVideoProps: VideoProps = {
   progressFontSize: 38,
   progressActiveColor: "#4f6ef7",
 
-  // 音频
-  bgmVolume: 0.05,
+  // 音频 — default OFF so Step 11 (FFmpeg) is the single BGM source.
+  // Enabling this in Studio (e.g. 0.05) layers BGM inside the render; in that
+  // case skip Step 11 to avoid double-BGM. See references/workflow-production.md
+  // → "BGM source single-write rule" for details.
+  bgmVolume: 0,
 
   // 动画
   enableAnimations: true,
@@ -94,7 +108,11 @@ export const defaultVideoProps: VideoProps = {
   iconAnimation: "entrance",
 };
 
-// 视频 ID
+// Composition id for THIS video.
+// IMPORTANT: change this to your video's PascalCase name (e.g. "ReferenceManagerComparison")
+// when you copy this file into a real project. Each video registered below
+// MUST have a unique id — `--public-dir videos/{name}/` selects assets, the
+// `id` selects the composition that consumes them.
 const VIDEO_ID = "MyVideo";
 
 // Dynamic duration from timing.json (loaded at render time via --public-dir)

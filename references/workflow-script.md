@@ -23,16 +23,31 @@ When the user provides a reference video/image with their video creation request
 
 ## Startup: Load User Preferences
 
-**Agent behavior:** Auto-execute before Step 1, no user interaction needed.
-
-Run the migrator — it creates `user_prefs.json` from the template if absent, deep-merges any new template fields into existing prefs, and applies structural rewrites for old versions. Idempotent (no-op when already current).
+**Agent behavior:** Run the migrator before Step 1. It creates `user_prefs.json` from the template if absent, deep-merges any new template fields into existing prefs, and applies structural rewrites for old versions. Idempotent (no-op when already current).
 
 ```bash
 SKILL_DIR="${SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 python3 "${SKILL_DIR}/scripts/migrate_prefs.py"
 ```
 
-Then read `${SKILL_DIR}/user_prefs.json` and apply settings in subsequent steps. Use `--dry-run` first if you want to preview changes without writing.
+**Three paths the migrator can take** — only the third needs user consent:
+
+1. **No prefs file** → creates `user_prefs.json` from the template (safe, no existing data to rewrite). Runs without `--yes`.
+2. **Already current version** → no-op. Runs without `--yes`.
+3. **Existing prefs at older version** → exits with `confirmation_required` (exit 3) because a v1.x → current rewrite would mutate the file in place.
+
+**For path 3, do NOT silently retry with `--yes`.** Instead:
+
+```bash
+# Preview the planned changes (always safe, no writes)
+python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --dry-run
+
+# Show the user the per-change list, then ask "Apply migration? [y/N]"
+# Only after explicit user confirmation:
+python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --yes
+```
+
+Then read `${SKILL_DIR}/user_prefs.json` and apply settings in subsequent steps.
 
 The script prints one of: `already at v1.6 — no migration needed`, `Created user_prefs.json at v1.6 from template`, or `Migrated from v{old} to v1.6` with a per-change list. To inspect what each version added, see the inline `_structural_migrate` table in `scripts/migrate_prefs.py`.
 
@@ -209,8 +224,8 @@ Report estimated duration. If >12min or <3min, suggest adjustments.
 
 ### Inputs
 1. `videos/{name}/podcast.txt` — the script just written
-2. `${SKILL_DIR}/phonemes.json` — global dict (already-covered words; do NOT duplicate)
-3. `videos/{name}/phonemes.json` — project dict (create if missing)
+2. `${SKILL_DIR}/phonemes.json` — global dict (already-covered words; do NOT duplicate). Auto-created from `${SKILL_DIR}/phonemes.template.json` on the first run of `scripts/generate_tts.py`, so it always exists by the time TTS executes. To pre-create before the first TTS call: `cp "${SKILL_DIR}/phonemes.template.json" "${SKILL_DIR}/phonemes.json"`.
+3. `videos/{name}/phonemes.json` — project dict (create if missing; takes precedence over global)
 
 ### Pass 1 — Polyphone scan
 

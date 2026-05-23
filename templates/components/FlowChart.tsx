@@ -93,13 +93,13 @@ const FlowStep = ({
           </div>
         )}
         <div style={{
-          fontSize: vertical ? 30 : 28, fontWeight: 700, color: props.primaryColor,
+          fontSize: vertical ? 42 : 40, fontWeight: 700, color: props.primaryColor,
         }}>
           {step.label}
         </div>
         {step.description && (
           <div style={{
-            fontSize: vertical ? 22 : 20, color: props.textColor, marginTop: 8,
+            fontSize: vertical ? 34 : 32, color: props.textColor, marginTop: 8,
             opacity: 0.65, lineHeight: 1.4,
           }}>
             {step.description}

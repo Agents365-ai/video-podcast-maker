@@ -14,7 +14,7 @@
  */
 
 import React from "react";
-import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useCurrentFrame, useVideoConfig, delayRender, continueRender } from "remotion";
 
 interface SrtEntry {
   index: number;
@@ -49,24 +49,53 @@ const parseSrt = (raw: string): SrtEntry[] => {
   return entries;
 };
 
-// Hook: fetch and cache SRT content
+// Hook: fetch and cache SRT content, gating Remotion render on completion.
+//
+// Without delayRender, the renderer starts emitting frames before the SRT
+// fetch resolves, so the first ~half-second of every render has no subtitle
+// overlay. delayRender returns a handle that blocks frame emission until
+// continueRender(handle) is called. Cache hits resolve synchronously and
+// release the handle immediately on the next tick.
 const srtCache: Record<string, SrtEntry[]> = {};
 const useSrt = (src: string): SrtEntry[] => {
-  const [entries, setEntries] = React.useState<SrtEntry[]>([]);
+  const [entries, setEntries] = React.useState<SrtEntry[]>(
+    () => srtCache[src] ?? [],
+  );
+  const [handle] = React.useState(() =>
+    delayRender(`Subtitles: loading ${src}`),
+  );
+
   React.useEffect(() => {
+    let cancelled = false;
     if (srtCache[src]) {
       setEntries(srtCache[src]);
-      return;
+      continueRender(handle);
+      return () => {
+        cancelled = true;
+      };
     }
     fetch(src)
       .then((r) => r.text())
       .then((raw) => {
+        if (cancelled) return;
         const parsed = parseSrt(raw);
         srtCache[src] = parsed;
         setEntries(parsed);
+        continueRender(handle);
       })
-      .catch(() => {});
-  }, [src]);
+      .catch((err) => {
+        // Release the handle even on failure so Remotion doesn't hang.
+        // The composition still renders without subtitles in that case.
+        if (!cancelled) {
+          console.warn(`Subtitles: failed to load ${src}`, err);
+          continueRender(handle);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [src, handle]);
+
   return entries;
 };
 
