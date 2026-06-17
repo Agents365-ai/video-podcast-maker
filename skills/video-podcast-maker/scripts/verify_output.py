@@ -56,7 +56,7 @@ OPTIONAL = [
     'phonemes.json',
 ]
 
-EXPECTED_RES = (3840, 2160)
+EXPECTED_RES = [(3840, 2160), (2160, 3840)]  # horizontal or vertical 4K
 THUMB_16x9 = (1920, 1080)
 THUMB_4x3 = (1200, 900)
 
@@ -280,9 +280,10 @@ def verify(video_dir, strict=False, do_auto_fix=True):
     if final_mp4.exists():
         info = ffprobe_video(final_mp4)
         if info:
-            res_ok = (info['width'], info['height']) == EXPECTED_RES
+            res_ok = (info['width'], info['height']) in EXPECTED_RES
             res_marker = '✓' if res_ok else '✗'
-            print(f"  {res_marker} Resolution: {info['width']}x{info['height']} (expected 3840x2160)")
+            expected_str = ' or '.join(f"{w}x{h}" for w, h in EXPECTED_RES)
+            print(f"  {res_marker} Resolution: {info['width']}x{info['height']} (expected {expected_str})")
             if not res_ok:
                 errors.append(f"Resolution {info['width']}x{info['height']} != 4K")
             print(f"  ✓ Duration: {info['duration']:.1f}s ({info['duration']/60:.1f} min)")
@@ -368,6 +369,35 @@ def verify(video_dir, strict=False, do_auto_fix=True):
                 'drift_seconds': round(drift, 2),
                 'sections_count': sec_count,
                 'ok': drift_ok,
+            }
+
+    # Final video vs audio — the rendered/mixed output must match the master clock.
+    print("\n--- Final video / audio sync ---")
+    final_mp4 = video_dir / 'final_video.mp4'
+    if final_mp4.exists() and wav.exists():
+        wav_info_final = ffprobe_audio(wav)
+        final_info = ffprobe_video(final_mp4)
+        if final_info is None:
+            print("  ✗ ffprobe failed on final_video.mp4")
+            errors.append("ffprobe failed on final_video.mp4")
+        elif wav_info_final is None:
+            print("  ✗ ffprobe failed on podcast_audio.wav")
+            errors.append("ffprobe failed on podcast_audio.wav")
+        else:
+            final_dur = final_info['duration']
+            wav_dur = wav_info_final['duration']
+            sync_drift = final_dur - wav_dur
+            sync_ok = abs(sync_drift) < 0.5
+            if sync_ok:
+                print(f"  ✓ final_video {final_dur:.2f}s ≈ WAV {wav_dur:.2f}s (drift {sync_drift:+.2f}s)")
+            else:
+                print(f"  ✗ final_video {final_dur:.2f}s vs WAV {wav_dur:.2f}s (drift {sync_drift:+.2f}s)")
+                errors.append(f"Final video/audio sync drift {sync_drift:+.2f}s")
+            result['final_video_sync'] = {
+                'final_duration': round(final_dur, 2),
+                'wav_duration': round(wav_dur, 2),
+                'drift_seconds': round(sync_drift, 2),
+                'ok': sync_ok,
             }
 
     # Publish info sanity — required sections depend on which platform the

@@ -40,16 +40,16 @@ def synthesize(chunks, config, output_dir, resume=False):
                 chunk_words = []
 
                 communicate = edge_tts.Communicate(
-                    chunk, voice=voice, rate=speech_rate, boundary='WordBoundary')
+                    chunk, voice=voice, rate=speech_rate)
 
                 async for event in communicate.stream():
                     if event["type"] == "audio":
                         audio_data.extend(event["data"])
                     elif event["type"] == "WordBoundary":
                         chunk_words.append({
-                            "text": event["text"],
-                            "offset": accumulated_duration + event["offset"] / 10_000_000,
-                            "duration": event["duration"] / 10_000_000,
+                            "text": event.get("text", ""),
+                            "offset": accumulated_duration + event.get("offset", 0) / 10_000_000,
+                            "duration": event.get("duration", 0) / 10_000_000,
                         })
 
                 if not audio_data:

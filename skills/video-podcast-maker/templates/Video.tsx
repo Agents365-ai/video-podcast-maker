@@ -311,14 +311,24 @@ export const Video = (props: VideoProps) => {
   const transitionFrames = props.transitionDuration;
   const transitionCount = Math.max(0, sections.length - 1);
 
-  // Compensate for transition overlap: add lost frames to first section
-  // so TransitionSeries total matches timing.total_frames for audio sync
-  const compensatedSections = sections.map((s, i) => ({
+  // Audio-master-clock: TransitionSeries renders sum(sections) + (N-1)*transitionFrames.
+  // Scale every section proportionally so the rendered total equals timing.total_frames.
+  const originalTotal = sections.reduce((sum, s) => sum + s.duration_frames, 0);
+  const targetTotal = timing.total_frames + transitionCount * transitionFrames;
+  const scaleFactor = originalTotal > 0 ? targetTotal / originalTotal : 1;
+
+  const compensatedSections = sections.map((s) => ({
     ...s,
-    duration_frames: i === 0
-      ? s.duration_frames + transitionCount * transitionFrames
-      : s.duration_frames,
+    duration_frames: Math.max(15, Math.round(s.duration_frames * scaleFactor)),
   }));
+
+  // Absorb rounding error into the last section so the total matches exactly.
+  const scaledTotal = compensatedSections.reduce((sum, s) => sum + s.duration_frames, 0);
+  const diff = targetTotal - scaledTotal;
+  if (compensatedSections.length > 0) {
+    const last = compensatedSections[compensatedSections.length - 1];
+    last.duration_frames = Math.max(15, last.duration_frames + diff);
+  }
 
   return (
     <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
