@@ -1,0 +1,32 @@
+# Generated media assets
+videos/*/podcast_audio.wav
+videos/*/podcast_audio.srt
+videos/*/bgm.mp3
+videos/*/*.mp4
+videos/*/*.png
+videos/*/timing.json.bak
+videos/*/media/
+videos/*/animations/
+videos/*/output/
+output/
+preview-frames/
+fresh*.png
+fresh2*.png
+
+# Cancel top-level src/ ignore so this Remotion project source is tracked
+!src/
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+build/
+dist/
+out/
+bundle/
+
+# System files
+.DS_Store
+.env
