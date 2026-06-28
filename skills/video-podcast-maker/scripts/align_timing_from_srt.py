@@ -544,6 +544,9 @@ def main():
         return cli_envelope.emit_error(args, "ffmpeg_failed",
                                        f"ffprobe failed on podcast_audio.wav: {exc}",
                                        started_at=started_at)
+    except Exception as exc:
+        return cli_envelope.emit_error(args, "internal_error", str(exc),
+                                       started_at=started_at)
     finally:
         sys.stdout = sys.__stdout__
 
