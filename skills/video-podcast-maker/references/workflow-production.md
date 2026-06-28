@@ -127,6 +127,17 @@ Three tiers (highest to lowest priority):
 
 **timing.json `label` field**: Each section gets a human-readable label from the first line of content (before first punctuation, max 10 chars). Example: `[SECTION:hero]` with "大家好，欢迎来到本期视频" → `label: "大家好"`. Silent sections use section name as label.
 
+**Audio-master-clock rule:** `timing.json` is generated from the actual synthesized audio, not from word-count estimates. After this step, `timing.json.total_duration` MUST be within ±0.5s of `podcast_audio.wav`'s real duration. Verify immediately:
+
+```bash
+ffprobe -v error -show_entries format=duration -of csv=p=0 videos/{name}/podcast_audio.wav
+# compare to `total_duration` in videos/{name}/timing.json
+```
+
+If the drift is ≥ 0.5s, re-run TTS or run `python3 ${SKILL_DIR}/scripts/align_timing_from_srt.py videos/{name}/`.
+
+**Curated slides:** If you have a hand-designed set of slides (more granular than `[SECTION:xxx]` blocks), add a `"section"` field to each slide matching the section name, then run `align_timing_from_srt.py`. Without the `"section"` field the script falls back to heuristics and requires manual review.
+
 ---
 
 ## Step 9: Create Remotion Composition + Studio Preview
@@ -298,6 +309,12 @@ npx remotion studio src/remotion/index.ts --public-dir videos/{name}/
 
 If you intentionally run multiple Remotion projects in parallel, launch Studio on a non-default port (`npx remotion studio ... --port 3001`) and adjust the `lsof -iTCP:<port>` line above accordingly.
 
+**Before launching Studio, confirm sync:**
+
+1. `timing.json.total_duration` matches `podcast_audio.wav` (±0.5s).
+2. `Video.tsx` compensates `TransitionSeries` overlap by **scaling every section** proportionally. The template already does this; if you customized the compensation, verify it does not stuff all overlap frames into the first section.
+3. The `<Subtitles>` component reads `podcast_audio.srt` from the same TTS run.
+
 1. Launch `remotion studio` (real-time preview, hot reload)
 2. Ask user: "Studio is running at http://localhost:3000. Please review the video preview."
 3. **Review loop** — user reviews, requests changes, the agent applies them, Studio hot reloads:
@@ -325,10 +342,24 @@ If you intentionally run multiple Remotion projects in parallel, launch Studio o
 npx remotion render src/remotion/index.ts CompositionId videos/{name}/output.mp4 --video-bitrate 16M --public-dir videos/{name}/
 ```
 
+**Verify audio-sync immediately after render:**
+
+```bash
+VID=$(ffprobe -v error -show_entries format=duration -of csv=p=0 videos/{name}/output.mp4)
+WAV=$(ffprobe -v error -show_entries format=duration -of csv=p=0 videos/{name}/podcast_audio.wav)
+python3 - <<PY
+v, w = float("$VID"), float("$WAV")
+print(f"video={v:.2f}s audio={w:.2f}s diff={abs(v-w):.2f}s")
+raise SystemExit("DIFF TOO LARGE") if abs(v - w) > 0.5 else None
+PY
+```
+
+If the diff exceeds 0.5s, fix `timing.json` or the transition overlap compensation before mixing BGM or burning subtitles.
+
 **Verify 4K:**
 ```bash
 ffprobe -v quiet -show_entries stream=width,height -of csv=p=0 videos/{name}/output.mp4
-# Expected: 3840,2160
+# Expected: 3840,2160 (or 2160,3840 vertical)
 ```
 
 ### Optional: Vertical Highlight Clip (9:16)

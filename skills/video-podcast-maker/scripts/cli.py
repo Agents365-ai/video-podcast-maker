@@ -16,6 +16,7 @@ Usage:
 Resources / actions:
     tts       run | validate
     verify
+    align
     audit     beats
     shorts    gen
     design    list | show | delete | add
@@ -57,6 +58,12 @@ ACTIONS = {
         'prepend': [],
         'parser_attr': 'build_parser',
         'description': 'End-of-pipeline acceptance gate (file presence, specs, drift)',
+    },
+    'align': {
+        'script': 'align_timing_from_srt.py',
+        'prepend': [],
+        'parser_attr': 'build_parser',
+        'description': 'Anchor timing.json slides to real audio/SRT timestamps',
     },
     'audit.beats': {
         'script': 'audit_beat_sync.py',
@@ -151,6 +158,7 @@ def build_parser():
 
     # Leaf resources (the resource is itself the action)
     _build_leaf(sub, 'verify', ACTIONS['verify']['description'])
+    _build_leaf(sub, 'align', ACTIONS['align']['description'])
     _build_leaf(sub, 'prereqs', ACTIONS['prereqs']['description'])
 
     # schema subcommand — uses cli_envelope envelope on stdout
@@ -280,7 +288,7 @@ def _type_name(t):
 # the action — there's no second positional. Both lists are derived from
 # ACTIONS keys but kept explicit so the routing is readable.
 _RESOURCES_WITH_ACTIONS = {'tts', 'audit', 'shorts', 'design', 'prefs'}
-_LEAF_RESOURCES = {'verify', 'prereqs'}
+_LEAF_RESOURCES = {'verify', 'align', 'prereqs'}
 
 
 def main():

@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 2.3.0
+version: 2.4.0
 created: 2025-01-27
-updated: 2026-05-06
+updated: 2026-06-28
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
@@ -157,12 +157,39 @@ Flags beats that drift > 1.5s from narration. Especially important for kinetic-t
 |------|-------------|
 | **Single Project** | All videos under `videos/{name}/` in user's Remotion project. NEVER create a new project per video. |
 | **4K Output** | 3840×2160 (or 2160×3840 vertical), use `scale(2)` wrapper over 1920×1080 design space |
-| **Audio Sync** | All animations driven by `timing.json` timestamps |
+| **Audio Sync** | Audio (`podcast_audio.wav` + `podcast_audio.srt`) is the master clock. `timing.json` MUST be generated from the real TTS output, never hand-estimated. Before rendering, final video duration must match audio within ±0.5s. See [Audio-Master Clock](#audio-master-clock--sync). |
 | **Thumbnail** | MUST generate both 16:9 (1920×1080) AND 4:3 (1200×900) — see [design-guide.md](references/design-guide.md) |
 | **Studio Before Render** | MUST launch `remotion studio` for review. NEVER render 4K until user explicitly confirms. |
 | **`--public-dir`** | Every Remotion command uses `--public-dir videos/{name}/` |
 
 Visual minimums (text sizes, content width, safe zones, animation safety) live in [references/design-guide.md](references/design-guide.md). **MUST load before Step 9.**
+
+## Audio-Master Clock & Sync
+
+### Golden rules
+
+1. **Audio is the master clock.** Every slide start, subtitle, progress-bar chapter, and animation beat is derived from `podcast_audio.wav` and `podcast_audio.srt`.
+2. **Generate timing from TTS, not from text estimates.** The canonical pipeline is:
+   ```
+   podcast.txt (final)
+     → generate_tts.py
+     → podcast_audio.wav + podcast_audio.srt + timing.json
+     → Remotion composition
+     → render
+   ```
+3. **Never hand-write `timing.json` before audio exists.** If you already have curated slides, run `align_timing_from_srt.py` to anchor them to the real SRT, or add a `"section"` field to each slide and then run it.
+4. **Compensate TransitionSeries overlap.** `TransitionSeries` renders `sum(section.duration_frames) + (N-1) * transitionFrames` frames. To keep the rendered length equal to `timing.total_frames`, scale every section proportionally; do **not** stuff all overlap frames into the first section. The corrected pattern is in `templates/Video.tsx`.
+
+### Mandatory sync checkpoints
+
+| When | Check | Command / Action |
+|------|-------|------------------|
+| After Step 8 | `timing.json.total_duration` matches `podcast_audio.wav` within ±0.5s | `ffprobe -show_entries format=duration podcast_audio.wav` |
+| Before Step 10 | `Video.tsx` scales all sections for transition overlap | Inspect the `compensatedSections` calculation |
+| After Step 10/12 | `final_video.mp4` duration matches `podcast_audio.wav` within ±0.5s | `ffprobe -show_entries format=duration final_video.mp4` |
+| Step 14 | `verify_output.py` exits 0 and reports green on audio/timing | `python3 ${SKILL_DIR}/scripts/verify_output.py videos/<name>/` |
+
+If any checkpoint fails, stop. Do not publish.
 
 ### Output Specs
 
