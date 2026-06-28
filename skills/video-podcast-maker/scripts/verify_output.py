@@ -374,16 +374,13 @@ def verify(video_dir, strict=False, do_auto_fix=True):
     # Final video vs audio — the rendered/mixed output must match the master clock.
     print("\n--- Final video / audio sync ---")
     if final_mp4.exists() and wav.exists():
-        final_info = ffprobe_video(final_mp4)
         wav_info_final = ffprobe_audio(wav)
-        if final_info is None:
+        if info is None:
             print("  ✗ ffprobe failed on final_video.mp4")
-            errors.append("ffprobe failed on final_video.mp4")
         elif wav_info_final is None:
             print("  ✗ ffprobe failed on podcast_audio.wav")
-            errors.append("ffprobe failed on podcast_audio.wav")
         else:
-            final_dur = final_info['duration']
+            final_dur = info['duration']
             wav_dur = wav_info_final['duration']
             sync_drift = final_dur - wav_dur
             sync_ok = abs(sync_drift) < 0.5

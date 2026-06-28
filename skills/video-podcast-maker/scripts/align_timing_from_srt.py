@@ -421,7 +421,8 @@ def align_timing(video_dir: Path, dry_run: bool = False):
 
             for pos, slide_idx in enumerate(slide_indices):
                 final_starts[slide_idx] = starts[pos]
-                if chosen[pos] is not None:
+                real_match = first_match if pos == 0 else chosen[pos]
+                if real_match is not None:
                     matched_flags[slide_idx] = True
 
         # Enforce section monotonicity after refinement.
