@@ -1,11 +1,11 @@
 ---
 name: video-podcast-maker
-description: Use when the user gives a topic and wants an automated topic-driven narrated explainer, podcast, or knowledge-summary video (Bilibili / YouTube / Xiaohongshu / Douyin / WeChat Channels), or asks to learn visual design patterns from a reference video/image. Trigger when the user mentions creating a knowledge video, narrated explainer, video podcast, or talking-head topic video from a topic — even if they don't say "video podcast" explicitly. Do NOT trigger for generic video editing, trimming, format conversion, color grading, or non-narrative video tasks. Produces 4K video via research → script → TTS → Remotion → MP4 + BGM.
+description: Use when the user gives a topic and wants an automated topic-driven narrated explainer, podcast, or knowledge-summary video (Bilibili / YouTube / Xiaohongshu / Douyin / WeChat Channels), or asks to learn visual design patterns from a reference video/image. Trigger when the user mentions creating a knowledge video, narrated explainer, video podcast, or talking-head topic video from a topic — even if they don't say "video podcast" explicitly. Also trigger when the user wants to regenerate, re-render, rebuild, update, or iterate on a narrated video this skill already produced — e.g. they edited the script/prompt, changed the visuals, or swapped the background music and want the final video remade (reuse the existing videos/{name}/ directory, never start a new project). Do NOT trigger for generic video editing, trimming, format conversion, color grading, or non-narrative video tasks. Produces 4K video via research → script → TTS → Remotion → MP4 + BGM.
 argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 2.4.0
+version: 2.4.1
 created: 2025-01-27
 updated: 2026-06-28
 bilibili: https://space.bilibili.com/441831884
@@ -44,6 +44,7 @@ Automated pipeline for **4K Bilibili horizontal knowledge videos** from a topic.
 
 - [Bootstrap](#bootstrap) — update check + prerequisites (run before Step 1)
 - [Execution Modes](#execution-modes) — Auto vs Interactive, default decisions
+- [Regenerating an Existing Video](#regenerating-an-existing-video) — reuse `videos/{name}/` to iterate on a finished video
 - [Workflow](#workflow) — the 15 steps + phase-file pointers + mandatory stops
 - [Hard Rules](#hard-rules) — non-negotiable production constraints + output specs
 - [Per-Video Layout](#per-video-layout) — directory structure, `--public-dir`, naming
@@ -108,7 +109,32 @@ Prompts at each decision point.
 
 ---
 
+## Regenerating an Existing Video
+
+If `videos/{name}/` **already exists** and the user is iterating on a finished or in-progress video — "regenerate", "re-render", "rebuild", "I edited the script/prompt", "update the video", "change the BGM" — **reuse that directory**. Do NOT start a new project or a new `videos/{newname}/`; that is the [Single Project](#hard-rules) rule applied to iteration, and starting fresh is the most common mistake here.
+
+Pick the **smallest** re-run for what actually changed. Every command targets the *same* `videos/{name}/`, and every Remotion command keeps `--public-dir videos/{name}/`:
+
+| Changed | Re-run | Reuses (don't redo) |
+|---------|--------|---------------------|
+| Narration script (`podcast.txt`) | Step 8 (`generate_tts.py --output-dir videos/{name}`) → Step 10 render → Step 11 BGM | topic research + section design |
+| Visuals only (components, layout, colors, props) | Step 10 render | `podcast_audio.wav` / `timing.json` (audio unchanged) |
+| Background music only | Step 11 mix | `output.mp4` (no re-render) |
+| Subtitles only | Step 12 | `output.mp4` / `video_with_bgm.mp4` |
+
+A **script** change shifts every downstream timestamp, so always regenerate `timing.json` through TTS — never hand-edit it (see [Audio-Master Clock](#audio-master-clock--sync)). After any re-run, re-verify:
+
+```bash
+python3 ${SKILL_DIR}/scripts/verify_output.py videos/{name}/
+```
+
+> Cleanup only removes TTS temp files, never `output.mp4` / `video_with_bgm.mp4` — so BGM/subtitle re-runs avoid a full ~8-min re-render.
+
+---
+
 ## Workflow
+
+> **Iterating on a finished video?** If `videos/{name}/` already exists and the user wants to regenerate after a change, do NOT start at Step 1 — see [Regenerating an Existing Video](#regenerating-an-existing-video) for the minimal re-run.
 
 At Step 1 start, create one task per step in your agent's tracker (Claude Code `TaskCreate` / Codex todo list / equivalent). Mark `in_progress` on start, `completed` on finish. Files in `videos/{name}/` are the durable record — if interrupted, inspect the directory to determine where to resume.
 
