@@ -126,15 +126,16 @@ Structured envelope on `--format json`:
 
 ```bash
 python3 ${SKILL_DIR}/scripts/verify_output.py videos/{name}/ --format json
-# Success: {"ok": true,  "data": {"final_video": {...}, "thumbnails": {...}, "audio_timing": {...}, "warnings": [...], "fixes_applied": [...]}, "meta": {...}}
+# Success: {"ok": true,  "data": {"final_video": {...}, "thumbnails": {...}, "audio_timing": {...}, "final_video_sync": {...}, "warnings": [...], "fixes_applied": [...]}, "meta": {...}}
 # Failure: {"ok": false, "error": {"code": "validation_failed", "missing_required": [...], "errors": [...], "warnings": [...]}, "meta": {...}}
 ```
 
 What it checks:
 - Required files: podcast.txt, podcast_audio.{wav,srt}, timing.json, output.mp4, **final_video.mp4**, publish_info.md, both thumbnails
-- Final video specs: 3840×2160, h264 + aac, has audio track, duration plausible
+- Final video specs: 3840×2160 (or 2160×3840 vertical), h264 + aac, has audio track, duration plausible
 - Thumbnail dimensions: 1920×1080 (16:9) and 1200×900 (4:3) — each aspect ratio accepts either `thumbnail_remotion_*.png` or `thumbnail_ai_*.png`, only flagged missing when both alternatives are absent
 - Audio/timing drift: WAV duration matches timing.json within 0.5s (uses an audio-only ffprobe pass so .wav containers don't false-fail)
+- Final video / audio sync: final_video.mp4 duration matches podcast_audio.wav within 0.5s — the rendered/mixed output must stay locked to the master clock
 - publish_info.md: contains promo line + per-platform required section headers (bilibili: 标题/标签/简介/章节; youtube: Title/Tags/Description/Chapters; xiaohongshu/douyin/weixin-channels: shorter set without chapters) — resolved from `user_prefs.json` → `global.platform`, defaults to bilibili
 
 What it auto-fixes:

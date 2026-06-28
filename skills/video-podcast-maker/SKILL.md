@@ -274,7 +274,7 @@ python3 ${SKILL_DIR}/scripts/cli.py <resource> <action> --help    # forwards to 
 python3 ${SKILL_DIR}/scripts/cli.py schema [<method>]       # JSON parameter schema
 ```
 
-Routes: `tts run|validate`, `verify`, `audit beats`, `shorts gen`, `design list|show|delete|add`, `prereqs`, `prefs get|migrate|backend|bgm-path`, `schema [<method>]`. Direct script invocation (`python3 scripts/<name>.py ...`) keeps working — the dispatcher is additive.
+Routes: `tts run|validate`, `verify`, `align`, `audit beats`, `shorts gen`, `design list|show|delete|add`, `prereqs`, `prefs get|migrate|backend|bgm-path`, `schema [<method>]`. Direct script invocation (`python3 scripts/<name>.py ...`) keeps working — the dispatcher is additive.
 
 ---
 

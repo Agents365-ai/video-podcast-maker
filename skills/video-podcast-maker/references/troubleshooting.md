@@ -16,14 +16,14 @@
 The suite is reachable through one hierarchical entry point at `scripts/cli.py`:
 
 ```bash
-python3 scripts/cli.py --help                       # 8 resources
+python3 scripts/cli.py --help                       # 9 resources
 python3 scripts/cli.py <resource> --help            # actions for one resource
 python3 scripts/cli.py <resource> <action> --help   # full args (forwards to underlying script)
-python3 scripts/cli.py schema                       # JSON list of all 14 methods
+python3 scripts/cli.py schema                       # JSON list of all 15 methods
 python3 scripts/cli.py schema <method>              # typed parameter schema for one method
 ```
 
-When a script fails with a structured envelope (most do — see `--format json`), the `code` field tells an agent how to recover: `input_not_found`, `auth_missing_env`, `tool_missing`, `validation_failed`, `confirmation_required`, `ffmpeg_failed`, `backend_failed`, `internal_error`. Direct invocations (`python3 scripts/<name>.py ...`) still work — the dispatcher is additive.
+When a script fails with a structured envelope (most do — see `--format json`), the `code` field tells an agent how to recover: `input_not_found`, `input_invalid`, `auth_missing_env`, `tool_missing`, `validation_failed`, `confirmation_required`, `ffmpeg_failed`, `backend_failed`, `internal_error`. Direct invocations (`python3 scripts/<name>.py ...`) still work — the dispatcher is additive.
 
 ## Troubleshooting
 
