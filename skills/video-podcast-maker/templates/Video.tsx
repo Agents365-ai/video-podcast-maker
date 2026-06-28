@@ -310,12 +310,14 @@ export const Video = (props: VideoProps) => {
   const sections = timing.sections;
   const transitionFrames = props.transitionDuration;
   const transitionCount = Math.max(0, sections.length - 1);
+  const effectiveTransitionFrames =
+    props.transitionType !== "none" && transitionFrames > 0 ? transitionFrames : 0;
 
-  // Audio-master-clock: TransitionSeries renders sum(sections) + (N-1)*transitionFrames.
+  // Audio-master-clock: TransitionSeries renders sum(sections) - (N-1)*transitionFrames.
   // Scale every section proportionally so the rendered total equals timing.total_frames,
   // instead of stuffing all overlap frames into the first section (which desyncs it).
   const originalTotal = sections.reduce((sum, s) => sum + s.duration_frames, 0);
-  const targetTotal = timing.total_frames + transitionCount * transitionFrames;
+  const targetTotal = timing.total_frames + transitionCount * effectiveTransitionFrames;
   const scaleFactor = originalTotal > 0 ? targetTotal / originalTotal : 1;
 
   const compensatedSections = sections.map((s) => ({

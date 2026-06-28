@@ -178,7 +178,7 @@ Visual minimums (text sizes, content width, safe zones, animation safety) live i
      → render
    ```
 3. **Never hand-write `timing.json` before audio exists.** If you already have curated slides, run `align_timing_from_srt.py` to anchor them to the real SRT, or add a `"section"` field to each slide and then run it.
-4. **Compensate TransitionSeries overlap.** `TransitionSeries` renders `sum(section.duration_frames) + (N-1) * transitionFrames` frames. To keep the rendered length equal to `timing.total_frames`, scale every section proportionally; do **not** stuff all overlap frames into the first section. The corrected pattern is in `templates/Video.tsx`.
+4. **Compensate TransitionSeries overlap.** `TransitionSeries` renders `sum(section.duration_frames) - (N-1) * transitionFrames` frames. To keep the rendered length equal to `timing.total_frames`, scale every section proportionally; do **not** stuff all overlap frames into the first section. The corrected pattern is in `templates/Video.tsx`.
 
 ### Mandatory sync checkpoints
 

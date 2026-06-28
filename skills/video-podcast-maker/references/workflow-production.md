@@ -350,7 +350,7 @@ WAV=$(ffprobe -v error -show_entries format=duration -of csv=p=0 videos/{name}/p
 python3 - <<PY
 v, w = float("$VID"), float("$WAV")
 print(f"video={v:.2f}s audio={w:.2f}s diff={abs(v-w):.2f}s")
-raise SystemExit("DIFF TOO LARGE") if abs(v - w) > 0.5 else None
+if abs(v - w) > 0.5: raise SystemExit("DIFF TOO LARGE")
 PY
 ```
 
