@@ -1,0 +1,787 @@
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ SkillSpector Security Report                                                 │
+╰────────────────────────────────── v2.3.11 ───────────────────────────────────╯
+
+Skill: video-podcast-maker
+Source: 
+/Users/niehu/myagents/myskills/video-podcast-maker/skills/video-podcast-maker
+Scanned: 2026-07-12 05:16:15 UTC
+
+
+        Risk Assessment         
+ Score           100/100        
+ Severity        CRITICAL       
+ Recommendation  DO NOT INSTALL 
+
+
+                              Components (105)                               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
+┃ File                                     ┃ Type     ┃  Lines ┃ Executable ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩
+│ SKILL.md                                 │ markdown │    322 │ No         │
+│ assets/bilibili-triple-black.mp4         │ other    │  37836 │ No         │
+│ assets/bilibili-triple-white.mp4         │ other    │  38860 │ No         │
+│ assets/perfect-beauty-191271.mp3         │ other    │ 417503 │ No         │
+│ assets/snow-stevekaldes-piano-397491.mp3 │ other    │ 150500 │ No         │
+│ assets/workflow-cn.drawio                │ other    │    158 │ No         │
+│ assets/workflow-cn.png                   │ other    │   8482 │ No         │
+│ assets/workflow.drawio                   │ other    │    158 │ No         │
+│ assets/workflow.png                      │ other    │   8633 │ No         │
+│ package.json                             │ json     │     33 │ No         │
+│ phonemes.json                            │ json     │    320 │ No         │
+│ phonemes.template.json                   │ json     │    320 │ No         │
+│ prefs_schema.json                        │ json     │    491 │ No         │
+│ references/azure-tts-pitfalls.md         │ markdown │    111 │ No         │
+│ references/design-guide.md               │ markdown │    385 │ No         │
+│ ... and 90 more                          │          │        │            │
+└──────────────────────────────────────────┴──────────┴────────┴────────────┘
+
+
+Issues (118)
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/align_timing_from_srt.py:34–38
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  LOW: AST7 - Dynamic attribute access via getattr()...
+    Location: scripts/assets.py:224
+    Confidence: 50%
+    Remediation: Replace dynamic getattr() with explicit attribute access or a 
+dictionary lookup with an allowlist of permitted attributes....
+
+  LOW: AST7 - Dynamic attribute access via getattr()...
+    Location: scripts/cli.py:282
+    Confidence: 50%
+    Remediation: Replace dynamic getattr() with explicit attribute access or a 
+dictionary lookup with an allowlist of permitted attributes....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/cli.py:231
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/components.py:100
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/generate_shorts.py:120
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/generate_shorts.py:236
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/generate_tts.py:332–334
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/learn_design.py:170–180
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/learn_design.py:189–200
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/learn_design.py:247
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST3 - Dynamic import via __import__()...
+    Location: scripts/tts/backends/__init__.py:210
+    Confidence: 75%
+    Remediation: Use standard import statements instead of __import__(). If 
+dynamic loading is needed, use importlib with an allowlist of permitted 
+modules....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/base.py:10–12
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/doubao.py:98–100
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/doubao.py:105–107
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/edge.py:60–62
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/edge.py:65–67
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/elevenlabs.py:66–68
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/elevenlabs.py:73–75
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/google_tts.py:73–75
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/google_tts.py:80–82
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/openai_tts.py:65–67
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/openai_tts.py:72–74
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/ttscn.py:52
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/backends/ttscn.py:59–61
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/tts/srt.py:142–145
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/verify_output.py:102–105
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  MEDIUM: AST4 - subprocess module call...
+    Location: scripts/verify_output.py:132–135
+    Confidence: 70%
+    Remediation: Use subprocess.run() with shell=False and an explicit argument 
+list. Validate all inputs and avoid passing user-controlled data to commands....
+
+  CRITICAL: TT3 - Tainted flow: 'payload' from os.environ.get (line 58, 
+creden...
+    Location: scripts/tts/backends/doubao.py:82
+    Confidence: 90%
+    Remediation: Never send credentials or environment variables over the 
+network. Use secure credential stores and avoid transmitting secrets in request 
+bodies or URL...
+
+  MEDIUM: LP3 - Skill has no declared permissions but code capabilities were...
+    Location: SKILL.md:1
+    Confidence: 70%
+    Remediation: Add a 'permissions' field to SKILL.md listing the capabilities 
+this skill requires....
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: SKILL.md:161
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: SKILL.md:258
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: SKILL.md:259
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: SKILL.md:260
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx hyperfram...
+    Location: references/hyperframes-overlays.md:42
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx hyperfram...
+    Location: references/hyperframes-overlays.md:58
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx hyperfram...
+    Location: references/hyperframes-overlays.md:59
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx hyperfram...
+    Location: references/hyperframes-overlays.md:61
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/troubleshooting.md:74
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/troubleshooting.md:77
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/troubleshooting.md:88
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/troubleshooting.md:90
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/troubleshooting.md:103
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:58
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:59
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:64
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:334
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:337
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:369
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:395
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-production.md:396
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: references/workflow-publish.md:209
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx tool'....
+    Location: scripts/components.py:108
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx hyperfram...
+    Location: scripts/components.py:120
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: scripts/generate_shorts.py:226
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: scripts/generate_shorts.py:260
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  MEDIUM: RP1 - MCP server referenced without pinned version: 'npx remotion'...
+    Location: scripts/generate_shorts.py:424
+    Confidence: 70%
+    Remediation: Pin the version: npx @scope/server@1.2.3...
+
+  HIGH: E2 - Env Variable Harvesting...
+    Location: scripts/tts/backends/__init__.py:240
+    Confidence: 80%
+    Remediation: Avoid reading sensitive env vars (API keys, tokens) unless 
+strictly required. Use secrets managers or secure config. Never log or transmit 
+credentials...
+
+  HIGH: E2 - Env Variable Harvesting...
+    Location: scripts/tts/backends/__init__.py:254
+    Confidence: 80%
+    Remediation: Avoid reading sensitive env vars (API keys, tokens) unless 
+strictly required. Use secrets managers or secure config. Never log or transmit 
+credentials...
+
+  HIGH: E2 - Env Variable Harvesting...
+    Location: scripts/tts/backends/__init__.py:259
+    Confidence: 80%
+    Remediation: Avoid reading sensitive env vars (API keys, tokens) unless 
+strictly required. Use secrets managers or secure config. Never log or transmit 
+credentials...
+
+  HIGH: E2 - Env Variable Harvesting...
+    Location: scripts/tts/backends/__init__.py:263
+    Confidence: 80%
+    Remediation: Avoid reading sensitive env vars (API keys, tokens) unless 
+strictly required. Use secrets managers or secure config. Never log or transmit 
+credentials...
+
+  HIGH: E2 - Env Variable Harvesting...
+    Location: scripts/tts/backends/__init__.py:267
+    Confidence: 80%
+    Remediation: Avoid reading sensitive env vars (API keys, tokens) unless 
+strictly required. Use secrets managers or secure config. Never log or transmit 
+credentials...
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/doubao.py:82
+    Confidence: 80%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/elevenlabs.py:53
+    Confidence: 80%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/elevenlabs.py:43
+    Confidence: 60%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/google_tts.py:60
+    Confidence: 80%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/openai_tts.py:56
+    Confidence: 70%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/openai_tts.py:56
+    Confidence: 80%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: E1 - External Transmission...
+    Location: scripts/tts/backends/openai_tts.py:57
+    Confidence: 60%
+    Remediation: Verify the destination URL is trusted and necessary. Remove or 
+replace with documented APIs. Ensure no secrets, tokens, or PII are 
+transmitted....
+
+  MEDIUM: EA2 - Autonomous Decision Making...
+    Location: scripts/migrate_prefs.py:139
+    Confidence: 75%
+    Remediation: Add human-in-the-loop confirmation for destructive, 
+irreversible, or high-impact operations. Never auto-execute commands that modify
+files, send data,...
+
+  MEDIUM: MP2 - Context Window Stuffing...
+    Location: scripts/align_timing_from_srt.py:257
+    Confidence: 80%
+    Remediation: Implement context-window management that detects and rejects 
+padding or stuffing attempts. Prioritize system instructions over user-injected 
+content....
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/generate_shorts.py:120
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/generate_shorts.py:236
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/generate_tts.py:332
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/learn_design.py:170
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/learn_design.py:189
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/learn_design.py:247
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/base.py:10
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/doubao.py:98
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/doubao.py:105
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/edge.py:60
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/edge.py:65
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/elevenlabs.py:66
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/elevenlabs.py:73
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/google_tts.py:73
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/google_tts.py:80
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/openai_tts.py:65
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/openai_tts.py:72
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/ttscn.py:52
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/backends/ttscn.py:59
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: OH1 - Unvalidated Output Injection...
+    Location: scripts/tts/srt.py:142
+    Confidence: 95%
+    Remediation: Validate and sanitize all model output before using it in 
+downstream contexts. Use parameterized queries for SQL, shell quoting for 
+commands, and HTML...
+
+  HIGH: PE3 - Credential Access...
+    Location: references/troubleshooting.md:350
+    Confidence: 21%
+    Remediation: Remove references to credential paths. Use environment 
+variables or secrets managers. For docs, use placeholder paths (e.g., 
+/path/to/config). Never l...
+
+  HIGH: P2 - Hidden Instructions...
+    Location: assets/workflow-cn.drawio:9
+    Confidence: 70%
+    Remediation: Audit all comments and invisible characters. Remove any 
+instructions that direct the agent to perform unauthorized actions. Use plain, 
+reviewable cont...
+
+  HIGH: P2 - Hidden Instructions...
+    Location: assets/workflow-cn.drawio:86
+    Confidence: 70%
+    Remediation: Audit all comments and invisible characters. Remove any 
+instructions that direct the agent to perform unauthorized actions. Use plain, 
+reviewable cont...
+
+  HIGH: P2 - Hidden Instructions...
+    Location: assets/workflow-cn.drawio:140
+    Confidence: 70%
+    Remediation: Audit all comments and invisible characters. Remove any 
+instructions that direct the agent to perform unauthorized actions. Use plain, 
+reviewable cont...
+
+  HIGH: P2 - Hidden Instructions...
+    Location: assets/workflow.drawio:9
+    Confidence: 70%
+    Remediation: Audit all comments and invisible characters. Remove any 
+instructions that direct the agent to perform unauthorized actions. Use plain, 
+reviewable cont...
+
+  HIGH: P2 - Hidden Instructions...
+    Location: assets/workflow.drawio:86
+    Confidence: 70%
+    Remediation: Audit all comments and invisible characters. Remove any 
+instructions that direct the agent to perform unauthorized actions. Use plain, 
+reviewable cont...
+
+  HIGH: P2 - Hidden Instructions...
+    Location: assets/workflow.drawio:140
+    Confidence: 70%
+    Remediation: Audit all comments and invisible characters. Remove any 
+instructions that direct the agent to perform unauthorized actions. Use plain, 
+reviewable cont...
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:14
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:15
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:16
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:17
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:18
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:19
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:20
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:21
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:22
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:23
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:24
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:25
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:26
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:29
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC1 - Unpinned Dependencies...
+    Location: package.json:30
+    Confidence: 40%
+    Remediation: Pin all dependency versions in requirements.txt or 
+pyproject.toml. Use exact versions (==) or compatible ranges. Run pip-audit 
+regularly....
+
+  LOW: SC4 - Known Vulnerable Dependency: zod==3.22.0 — 1 advisory(ies): ...
+    Location: package.json:26
+    Confidence: 60%
+    Remediation: Update the dependency to a patched version that addresses the 
+known CVE. Check OSV (osv.dev) or NVD for details on the vulnerability....
+
+  MEDIUM: SC4 - Known Vulnerable Dependency: requests==2.31.0 — 5 advisory(i...
+    Location: requirements.txt:2
+    Confidence: 70%
+    Remediation: Update the dependency to a patched version that addresses the 
+known CVE. Check OSV (osv.dev) or NVD for details on the vulnerability....
+
+  HIGH: TM1 - Tool Parameter Abuse...
+    Location: references/workflow-assets.md:112
+    Confidence: 26%
+    Remediation: Validate all tool parameters against an allowlist. Reject 
+dangerous parameter values (shell=True, --force, -rf /) and use safe 
+defaults....
+
+  HIGH: TM1 - Tool Parameter Abuse...
+    Location: references/workflow-production.md:69
+    Confidence: 26%
+    Remediation: Validate all tool parameters against an allowlist. Reject 
+dangerous parameter values (shell=True, --force, -rf /) and use safe 
+defaults....
+
+  HIGH: YR4 - YARA rule 'agent_skill_mcp_tool_poisoning_metadata': MCP/too...
+    Location: package.json:4
+    Confidence: 80%
+    Remediation: Remove offensive tool references and exploit code. Legitimate 
+agent skills should not contain penetration testing tools, exploit frameworks, 
+or reconn...
+
+Executable scripts: Yes
+

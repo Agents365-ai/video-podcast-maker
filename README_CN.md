@@ -2,7 +2,9 @@
 
 [English](README.md)
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（Edge/Azure/豆包/CosyVoice）、Remotion 视频渲染和 FFmpeg 音频混音。
+自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，含 ttsCN 桥接）、Remotion 视频渲染和 FFmpeg 音频混音。
+
+**v3.0「资产引擎」**：统一的资产层从五种生产者向合成供货——你自己的文件、[assetSeeker](https://github.com/Agents365-ai/assetSeeker) 免费图库、[imagenCN](https://github.com/Agents365-ai/imagenCN) AI 图片、[videogenCN](https://github.com/Agents365-ai/videogenCN) AI 视频片段、[Hyperframes](https://github.com/heygen-com/hyperframes) 透明动画叠层——全部登记进每视频的 manifest 并记录许可来源。免费资源自动解析，付费生成必先确认。所有生产者均为可选：一个不装也能产出精良的纯文字动画视频。
 
 **支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — 任何支持 SKILL.md 的 coding agent
 
@@ -16,7 +18,11 @@
 
 - **主题研究** - 网络搜索与内容收集
 - **脚本撰写** - 带章节标记的结构化旁白
-- **多 TTS 引擎** - Edge TTS（免费）、Azure Speech、火山引擎豆包、CosyVoice、ElevenLabs、Google Cloud TTS、OpenAI TTS
+- **资产引擎（v3.0）** - 每视频的 `assets/manifest.json` 登记全部图片/视频/叠层/音频资产（角色、来源、许可），Remotion 侧通过 `AssetImage` / `AssetVideo` / `OverlayLayer` 消费
+- **五种资产生产者** - 用户文件、assetSeeker（许可核验的图库/BGM/音效/图标）、imagenCN（AI 图片与封面）、videogenCN（AI B-roll，dry-run 报价）、Hyperframes（透明 WebM VP9 动画叠层）
+- **成本确认门** - 付费 AI 生成绝不静默执行：报价 → manifest `pending_confirmation` → 明确批准
+- **能力探测** - `cli.py capabilities` 报告各生产者的安装与密钥状态；全链路优雅降级
+- **多 TTS 引擎（11 个后端）** - Edge TTS（免费）、Azure Speech、火山引擎豆包、CosyVoice、ElevenLabs、Google Cloud TTS、OpenAI TTS，另经 `ttscn` 桥接 ttsCN 技能获得腾讯/百度/MiniMax/讯飞
 - **Remotion 视频** - 基于 React 的视频合成与动画
 - **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
 - **实时预览** - Remotion Studio 即时调试，渲染前预览效果
@@ -39,7 +45,7 @@
 **B站:**
 - **脚本结构** - 欢迎开场 + 一键三连片尾引导
 - **章节时间戳** - 自动生成 `MM:SS` 格式，直接复制到B站
-- **封面生成** - AI (imagen/imagen-qwen) 或 Remotion，自动生成 16:9 + 4:3 双版本
+- **封面生成** - AI (imagenCN) 或 Remotion，自动生成 16:9 + 4:3 双版本
 - **视觉风格** - 大字饱满、极少留白、信息密度高
 - **发布信息** - 标题公式、标签策略、简介模板
 
@@ -69,7 +75,7 @@
 
 ## 工作流程
 
-![工作流程](skills/video-podcast-maker/assets/workflow.png)
+![工作流程](skills/video-podcast-maker/assets/workflow-cn.png)
 
 ## ⚠️ 给读到这里的你（不是给 AI 看的）：`podcast.txt` 必须人工反复打磨
 
@@ -93,9 +99,13 @@
 本技能依赖 **remotion-best-practices**，并可与其他可选技能配合使用：
 
 - **remotion-best-practices** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范）
+- **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - 许可核验的免费图库/视频/BGM/音效/图标/字体（可选资产生产者）
+- **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI 图片生成，用于场景插图与封面（可选，付费 API）
+- **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
+- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - 经 `ttscn` 桥接后端获得更多中文 TTS 平台（可选）
+- **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→视频渲染器，产出透明动画叠层（可选，Node 22+）
 - **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
 - **ffmpeg** - 高级音视频处理（可选）
-- **imagen / imagen-qwen** - AI 封面生成（可选）
 
 
 ## 环境要求
@@ -172,7 +182,7 @@ npm install remotion @remotion/cli @remotion/player zod
 
 ```bash
 # TTS 后端选择：edge（默认，免费）、azure、doubao、cosyvoice、elevenlabs、google、openai
-export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai"
+export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai" / "ttscn"（桥接）
 
 # Azure TTS（高质量后端）
 export AZURE_SPEECH_KEY="your-azure-speech-key"

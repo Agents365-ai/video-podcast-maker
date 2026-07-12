@@ -2,7 +2,9 @@
 
 [中文文档](README_CN.md)
 
-Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (Edge/Azure/Doubao/CosyVoice), Remotion video rendering, and FFmpeg audio mixing.
+Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (11 backends incl. the ttsCN bridge), Remotion video rendering, and FFmpeg audio mixing.
+
+**v3.0 "Asset Engine"**: a unified asset layer feeds the composition from five producers — your own files, [assetSeeker](https://github.com/Agents365-ai/assetSeeker) stock, [imagenCN](https://github.com/Agents365-ai/imagenCN) AI stills, [videogenCN](https://github.com/Agents365-ai/videogenCN) AI B-roll, and [Hyperframes](https://github.com/heygen-com/hyperframes) transparent overlays — all registered in a per-video manifest with license provenance. Free sources auto-resolve; paid generation always asks first. Every producer is optional: with none installed you still get a polished text-animation video.
 
 **Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — any coding agent that supports SKILL.md
 
@@ -16,7 +18,11 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 - **Topic Research** - Web search and content gathering
 - **Script Writing** - Structured narration with section markers
-- **Multi-TTS** - Edge TTS (free), Azure Speech, Volcengine Doubao, CosyVoice, ElevenLabs, Google Cloud TTS, OpenAI TTS
+- **Asset Engine (v3.0)** - Per-video `assets/manifest.json` registers every image/clip/overlay/audio asset with role, source, and license; consumed in Remotion via `AssetImage` / `AssetVideo` / `OverlayLayer`
+- **Five Asset Producers** - User files, assetSeeker (license-vetted stock/BGM/SFX/icons), imagenCN (AI stills & thumbnails), videogenCN (AI B-roll with dry-run cost quotes), Hyperframes (transparent WebM VP9 overlay animations)
+- **Cost Gates** - Paid AI generation never runs silently: quote → manifest `pending_confirmation` → explicit approval
+- **Capability Probe** - `cli.py capabilities` reports which producers are installed and credentialed; everything degrades gracefully
+- **Multi-TTS (11 backends)** - Edge TTS (free), Azure Speech, Volcengine Doubao, CosyVoice, ElevenLabs, Google Cloud TTS, OpenAI TTS, plus Tencent/Baidu/MiniMax/Xunfei via the `ttscn` bridge to the ttsCN skill
 - **Remotion Video** - React-based video composition with animations
 - **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
@@ -40,7 +46,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 **Bilibili:**
 - **Script Structure** - Welcome intro + call-to-action outro (一键三连)
 - **Chapter Timestamps** - Auto-generated `MM:SS` format for B站 chapters
-- **Thumbnail Generation** - AI (imagen/imagen-qwen) or Remotion, auto-generates 16:9 + 4:3 versions
+- **Thumbnail Generation** - AI (imagenCN) or Remotion, auto-generates 16:9 + 4:3 versions
 - **Visual Style** - Bold text, minimal whitespace, high information density
 - **Publish Info** - Title formulas, tag strategies, description templates
 
@@ -70,7 +76,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 ## Workflow
 
-![Workflow](assets/workflow.png)
+![Workflow](skills/video-podcast-maker/assets/workflow.png)
 
 ## ⚠️ For the human reading this (not the AI): manually polish `podcast.txt`, repeatedly
 
@@ -94,9 +100,13 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 This skill depends on **remotion-best-practices** and works alongside other optional skills:
 
 - **remotion-best-practices** - Official Remotion best practices (required, provides core Remotion patterns and guidelines)
+- **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - License-vetted free stock photos/video/BGM/SFX/icons/fonts (optional asset producer)
+- **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI image generation for scene illustrations and thumbnails (optional, paid APIs)
+- **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI video clip generation for B-roll and i2v (optional, paid APIs)
+- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - Extra Chinese TTS providers via the `ttscn` bridge backend (optional)
+- **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→video renderer for transparent overlay animations (optional, Node 22+)
 - **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
 - **ffmpeg** - Advanced audio/video processing (optional)
-- **imagen / imagen-qwen** - AI thumbnail generation (optional)
 
 
 ## Requirements
@@ -178,7 +188,7 @@ Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
 # TTS Backend: edge (default, free), azure, doubao, cosyvoice, elevenlabs, google, openai
-export TTS_BACKEND="edge"                            # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai"
+export TTS_BACKEND="edge"                            # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai" / "ttscn" (bridge)
 
 # Azure TTS (high quality)
 export AZURE_SPEECH_KEY="your-azure-speech-key"

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.2.6">
+  <diagram name="workflow">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" page="1" pageWidth="1400" pageHeight="800">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== Stage containers (top row) ===== -->
+        <mxCell id="plan" value="📋 规划" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="n_topic" value="🎯 选题" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="plan">
+          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_research" value="🔍 调研" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="plan">
+          <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_sections" value="📐 章节设计" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="plan">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="content" value="✍️ 内容" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="n_script" value="📝 撰写文案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_pubinfo" value="🏷️ 发布信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_thumb" value="🖼️ 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="prod" value="🎬 制作" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="560" y="40" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="n_tts" value="🎙️ TTS 配音" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_remotion" value="⚛️ Remotion 合成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_preview" value="⏸ Studio 审片" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_render" value="🎞️ 渲染 4K" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="230" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="post" value="🎛️ 后期" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="820" y="40" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="n_bgm" value="🎵 混合 BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_subs" value="📜 字幕" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="out" value="📦 输出" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="40" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="n_verify" value="✅ 验收" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="out">
+          <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_mp4" value="🎉 成品 MP4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="out">
+          <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Stage-to-stage flow -->
+        <mxCell id="e_s1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="plan" target="content">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="content" target="prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="prod" target="post">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="post" target="out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Asset Layer (v3.0) ===== -->
+        <mxCell id="assets" value="🧩 资产层（v3.0 新增）" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="1240" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="p_user" value="📁 用户文件" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="assets">
+          <mxGeometry x="20" y="50" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p_seek" value="🔎 assetSeeker&#xa;图库 · BGM · 音效" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="assets">
+          <mxGeometry x="220" y="50" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p_imagen" value="💰 imagenCN&#xa;AI 图片 · 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="assets">
+          <mxGeometry x="420" y="50" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p_videogen" value="💰 videogenCN&#xa;AI 视频 · 图生视频" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="assets">
+          <mxGeometry x="620" y="50" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p_hyper" value="🌈 Hyperframes&#xa;透明动画叠层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="assets">
+          <mxGeometry x="820" y="50" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p_ttscn" value="🎙️ ttsCN&#xa;桥接 TTS 后端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="assets">
+          <mxGeometry x="1020" y="50" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_manifest" value="🗂️ assets/manifest.json&#xa;角色 · 来源 · 许可 · 状态" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;boundedLbl=1;" vertex="1" parent="assets">
+          <mxGeometry x="480" y="130" width="260" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Producers → manifest -->
+        <mxCell id="e_p1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="assets" source="p_user" target="n_manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_p2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="assets" source="p_seek" target="n_manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_p3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="assets" source="p_imagen" target="n_manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_p4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="assets" source="p_videogen" target="n_manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_p5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="assets" source="p_hyper" target="n_manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- manifest → Remotion (via corridor) -->
+        <mxCell id="e_manifest" value="经 --public-dir 注入合成" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;fontColor=#82b366;labelBackgroundColor=#ffffff;fontSize=11;" edge="1" parent="1" source="n_manifest" target="n_remotion">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="380" />
+              <mxPoint x="530" y="380" />
+              <mxPoint x="530" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ttsCN → TTS Audio (dashed bridge) -->
+        <mxCell id="e_ttscn" value="TTS_BACKEND=ttscn" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#d79b00;fontColor=#d79b00;labelBackgroundColor=#ffffff;fontSize=11;" edge="1" parent="1" source="p_ttscn" target="n_tts">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="390" />
+              <mxPoint x="790" y="390" />
+              <mxPoint x="790" y="110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Notes -->
+        <mxCell id="note1" value="💰 付费 — 需成本确认 &amp;nbsp;·&amp;nbsp; ⏸ 渲染 4K 前强制 Studio 审片 &amp;nbsp;·&amp;nbsp; 组件缺失时优雅降级（纯文字视频仍可产出）" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="240" y="670" width="840" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
