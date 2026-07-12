@@ -55,3 +55,4 @@ export { useAssets, getAsset, getSectionAssets, assetSrc } from "./useAssets";
 export type { AssetEntry, AssetManifest } from "./useAssets";
 export { AssetImage } from "./AssetImage";
 export { AssetVideo } from "./AssetVideo";
+export { OverlayLayer } from "./OverlayLayer";

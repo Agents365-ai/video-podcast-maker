@@ -108,12 +108,15 @@ def ffprobe_video(path):
         a = next((s for s in data['streams'] if s['codec_type'] == 'audio'), None)
         if not v:
             return None
+        num, _, den = v.get('r_frame_rate', '0/1').partition('/')
         return {
             'width': int(v['width']),
             'height': int(v['height']),
             'duration': float(data['format']['duration']),
             'video_codec': v['codec_name'],
             'audio_codec': a['codec_name'] if a else None,
+            'fps': (float(num) / float(den)) if float(den or 1) else None,
+            'pix_fmt': v.get('pix_fmt'),
         }
     except (subprocess.CalledProcessError, KeyError, ValueError):
         return None
@@ -181,6 +184,50 @@ def auto_fix(video_dir):
         fixes.append('Created final_video.mp4 from output.mp4 (no BGM mix; consider running Step 11)')
 
     return fixes
+
+
+# Alpha-capable pixel formats accepted for overlay assets
+# (WebM VP9 → yuva420p; ProRes 4444 → yuva444p10le; PNG-sequence overlays are
+# directories of RGBA frames and are not probed here).
+OVERLAY_ALPHA_PIX_FMTS = {'yuva420p', 'yuva444p10le', 'yuva422p10le', 'argb', 'rgba'}
+OVERLAY_FPS = 30
+
+
+def check_overlay_assets(video_dir, manifest):
+    """Spec-check resolved overlay assets (Hyperframes renders).
+
+    Returns (errors, warnings, details). An overlay without alpha would
+    cover the whole composition, and an fps mismatch breaks audio-master
+    sync — both are errors. Duration/resolution deviations are warnings.
+    """
+    errors, warnings, details = [], [], {}
+    for a in (manifest or {}).get('assets', []):
+        if a.get('type') != 'overlay' or a.get('status') != 'resolved' or not a.get('path'):
+            continue
+        label = a.get('id', a.get('path'))
+        path = Path(video_dir) / a['path']
+        if path.is_dir():
+            continue  # PNG-sequence overlays: presence checked by manifest validation
+        info = ffprobe_video(path)
+        if info is None:
+            errors.append(f"overlay {label}: ffprobe failed on {a['path']}")
+            continue
+        details[label] = info
+        if info['pix_fmt'] not in OVERLAY_ALPHA_PIX_FMTS:
+            errors.append(
+                f"overlay {label}: pix_fmt {info['pix_fmt']} has no alpha channel "
+                f"(expected one of {sorted(OVERLAY_ALPHA_PIX_FMTS)})")
+        if info['fps'] is None or abs(info['fps'] - OVERLAY_FPS) > 0.01:
+            errors.append(f"overlay {label}: fps {info['fps']} != {OVERLAY_FPS}")
+        declared = a.get('duration_s')
+        if declared is not None and abs(info['duration'] - declared) > 0.15:
+            warnings.append(
+                f"overlay {label}: duration {info['duration']:.2f}s vs manifest "
+                f"{declared}s — realign to the section window")
+        if (info['width'], info['height']) not in EXPECTED_RES:
+            warnings.append(
+                f"overlay {label}: {info['width']}x{info['height']} is not full-frame 4K")
+    return errors, warnings, details
 
 
 def verify(video_dir, strict=False, do_auto_fix=True):
@@ -444,11 +491,19 @@ def verify(video_dir, strict=False, do_auto_fix=True):
         if not m_errors:
             count = len(m_manifest.get('assets', []))
             print(f"  ✓ {count} assets registered, no errors")
+        o_errors, o_warnings, o_details = check_overlay_assets(video_dir, m_manifest)
+        for e in o_errors:
+            print(f"  ✗ {e}")
+            errors.append(f"asset manifest: {e}")
+        for w in o_warnings:
+            print(f"  ⚠ {w}")
+            warnings.append(f"asset manifest: {w}")
         result['asset_manifest'] = {
             'present': m_manifest is not None,
             'asset_count': len(m_manifest.get('assets', [])) if m_manifest else 0,
-            'errors': m_errors,
-            'warnings': m_warnings,
+            'errors': m_errors + o_errors,
+            'warnings': m_warnings + o_warnings,
+            'overlays': o_details,
         }
 
     result['warnings'] = warnings

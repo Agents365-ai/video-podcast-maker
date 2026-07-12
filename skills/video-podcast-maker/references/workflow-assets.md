@@ -166,17 +166,15 @@ assets/city_broll.mp4 --duration-s <n> --license "AI-generated (<model>)"`.
 - Keep clips 5–15s and let narration length drive how many you need; B-roll
   is seasoning, not the meal.
 
-### Hyperframes overlays (P3 — plan only for now)
+### Transparent overlays via Hyperframes (free, needs Node 22+)
 
-Transparent animation overlays land in P3. You may still register the plan so
-the manifest documents intent:
-
-```bash
-python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
-  --id growth_chart --section features --type overlay --role overlay \
-  --source hyperframes --prompt "animated bar chart of star growth"
-# status=planned — composition ignores it until resolved
-```
+For data-chart animations, animated infographics, and bespoke transitions the
+Remotion library can't express — author HTML/GSAP, render to **WebM VP9 with
+alpha**, register as `type overlay`, composite with `<OverlayLayer>`. Full
+format contract, authoring rules, and troubleshooting:
+**[hyperframes-overlays.md](hyperframes-overlays.md)**. If `capabilities`
+reports Hyperframes unusable, fall back to Remotion-native animation
+components.
 
 ## 5c. Validate & consume
 

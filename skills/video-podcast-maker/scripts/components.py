@@ -20,6 +20,8 @@ Usage:
 """
 import argparse
 import os
+import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -89,9 +91,45 @@ def find_component(name):
     return None, None
 
 
+HYPERFRAMES_MIN_NODE = 22
+
+
+def _node_major():
+    """Return the installed Node.js major version, or None."""
+    try:
+        out = subprocess.check_output(["node", "--version"], text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m = re.match(r"v(\d+)", out.strip())
+    return int(m.group(1)) if m else None
+
+
+def _probe_hyperframes():
+    """Hyperframes is an npx tool, not a skill — only Node >= 22 is required."""
+    major = _node_major()
+    usable = major is not None and major >= HYPERFRAMES_MIN_NODE
+    if major is None:
+        hint = "node not found — install Node.js 22+"
+    elif not usable:
+        hint = f"node v{major} too old — Hyperframes needs Node {HYPERFRAMES_MIN_NODE}+"
+    else:
+        hint = None
+    return {
+        "installed": major is not None,
+        "root": None,
+        "entry": "npx hyperframes",
+        "env_ready": True,
+        "env_present": [],
+        "usable": usable,
+        "provides": "transparent overlay renders (WebM VP9 alpha; charts, transitions)",
+        "hint": hint,
+        "node_major": major,
+    }
+
+
 def probe():
     """Return the availability matrix for all components."""
-    report = {}
+    report = {"hyperframes": _probe_hyperframes()}
     for name, spec in COMPONENTS.items():
         base, script = find_component(name)
         env_any = spec["env_any"]

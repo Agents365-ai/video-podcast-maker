@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 2.7.0
+version: 2.8.0
 created: 2025-01-27
 updated: 2026-07-12
 bilibili: https://space.bilibili.com/441831884
@@ -282,6 +282,7 @@ Load on demand — **do NOT load all at once**:
 | [references/workflow-script.md](references/workflow-script.md) | Steps 1-4 (topic → script) |
 | [references/natural-narration.md](references/natural-narration.md) | **Load before Step 4 script writing** — anti-slop rules for spoken narration (kill list, structural tells, checklist) |
 | [references/workflow-assets.md](references/workflow-assets.md) | Step 5, or when the user supplies images/clips or wants stock/AI media |
+| [references/hyperframes-overlays.md](references/hyperframes-overlays.md) | A section needs a data-chart/infographic animation beyond the component library (transparent overlay via Hyperframes) |
 | [references/workflow-production.md](references/workflow-production.md) | Steps 6-11 (publish info → TTS → Remotion → render → BGM) |
 | [references/workflow-publish.md](references/workflow-publish.md) | Steps 12-15 (subtitles, publish, cleanup, shorts) |
 | [references/design-guide.md](references/design-guide.md) | **MUST load before Step 9** — visual minimums, typography, animation safety |
