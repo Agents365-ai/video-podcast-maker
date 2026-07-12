@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 2.6.0
+version: 2.7.0
 created: 2025-01-27
 updated: 2026-07-12
 bilibili: https://space.bilibili.com/441831884
@@ -100,7 +100,7 @@ Full pipeline with sensible defaults. **Mandatory stop at Step 9** (Studio revie
 
 Override any default in the initial request:
 - "make a video about AI, burn subtitles" → auto + subtitles on
-- "use dark theme, AI thumbnails" → auto + dark + imagen
+- "use dark theme, AI thumbnails" → auto + dark + imagenCN
 - "need screenshots" → auto + media collection enabled
 
 ### Interactive Mode
@@ -302,7 +302,7 @@ python3 ${SKILL_DIR}/scripts/cli.py <resource> <action> --help    # forwards to 
 python3 ${SKILL_DIR}/scripts/cli.py schema [<method>]       # JSON parameter schema
 ```
 
-Routes: `tts run|validate`, `verify`, `align`, `audit beats`, `shorts gen`, `design list|show|delete|add`, `assets init|add|list|validate`, `prereqs`, `prefs get|migrate|backend|bgm-path`, `schema [<method>]`. Direct script invocation (`python3 scripts/<name>.py ...`) keeps working — the dispatcher is additive.
+Routes: `tts run|validate`, `verify`, `align`, `audit beats`, `shorts gen`, `design list|show|delete|add`, `assets init|add|list|validate`, `prereqs`, `capabilities`, `prefs get|migrate|backend|bgm-path`, `schema [<method>]`. Direct script invocation (`python3 scripts/<name>.py ...`) keeps working — the dispatcher is additive.
 
 ---
 

@@ -45,7 +45,7 @@ Based on `podcast.txt`, generate `publish_info.md`:
 ## Step 7: Generate Video Thumbnail
 
 **Auto mode:** Generate Remotion thumbnails (16:9 + 4:3).
-**Interactive mode:** Ask user: Remotion-generated / AI (imagen skill) / both.
+**Interactive mode:** Ask user: Remotion-generated / AI (imagenCN) / both.
 
 **MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required for horizontal video. (9:16 thumbnail is generated alongside the vertical render in Step 10/15 — not here.)
 
@@ -63,6 +63,29 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 ```bash
 npx remotion still src/remotion/index.ts Thumbnail3x4 videos/{name}/thumbnail_remotion_3x4.png --public-dir videos/{name}/
 ```
+
+**AI thumbnails (imagenCN)** — only when the user asked for AI thumbnails.
+Locate the entry via `cli.py capabilities`; it is paid generation, so quote
+the cost (~0.2 RMB/image) and confirm first. Generate at the model's native
+size, then normalize to the exact spec sizes `verify_output.py` expects
+(1920×1080 / 1200×900):
+
+```bash
+IMAGEN=<entry from capabilities>
+python3 "$IMAGEN" "<thumbnail prompt: bold title text, high contrast>" \
+  videos/{name}/thumb_raw.png --size 16:9
+ffmpeg -y -i videos/{name}/thumb_raw.png \
+  -vf "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080" \
+  videos/{name}/thumbnail_ai_16x9.png
+ffmpeg -y -i videos/{name}/thumb_raw.png \
+  -vf "scale=1200:900:force_original_aspect_ratio=increase,crop=1200:900" \
+  videos/{name}/thumbnail_ai_4x3.png
+rm videos/{name}/thumb_raw.png
+```
+
+The default model (`qwen-image-2.0-pro`) renders legible Chinese title text
+directly in the image — put the exact title wording in the prompt. Keep the
+Remotion thumbnails too when generating both; verify accepts either naming.
 
 ---
 

@@ -55,6 +55,19 @@ AI generation), then register the answers the same way.
 
 ## 5b. Resolve
 
+Before resolving, probe which producers are actually available:
+
+```bash
+python3 ${SKILL_DIR}/scripts/cli.py capabilities
+# JSON: data.usable = ["assetSeeker", ...]; per-component entry paths + hints
+```
+
+Components are discovered via `<NAME>_HOME` env vars, `VPM_COMPONENT_ROOTS`
+(colon-separated parent dirs), then `~/.claude/skills/<name>`. Use the
+reported `entry` path for every invocation below. A component that is missing
+or lacks keys is simply skipped — tell the user what installing it would
+unlock, don't fail.
+
 ### User-supplied files (the `@xx.png` flow)
 
 When the user references a local file for a scene, copy + register it in one
@@ -92,11 +105,71 @@ Notes: Iconify icons need no API key; Pexels allows 200 req/hr — batch your
 searches. If assetSeeker is missing or has no keys, skip stock assets
 silently.
 
-### Generated assets (registered now, produced in later phases)
+### AI stills via imagenCN (paid — confirm before generating)
 
-imagenCN stills, videogenCN clips, and Hyperframes overlays are P2/P3
-producers. Until those phases land, you may still register the *plan* so the
-manifest documents intent:
+Use for scene illustrations and backgrounds that stock search can't provide
+(specific concepts, consistent style, Chinese typography). Cost is low
+(~0.02–0.22 RMB/image) but it is still paid generation — follow the gate:
+
+1. Write the full detailed prompt yourself (subject, style, composition,
+   colors matching `props.primaryColor`, "no text" unless text is wanted).
+   Skip imagenCN's interactive 3-variant refinement — that is for standalone
+   use.
+2. Register the plan, present the cost sheet, wait for user confirmation:
+
+```bash
+python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
+  --id hero_art --section hero --type image --role background \
+  --source imagen --prompt "<detailed prompt>" --cost-estimate "~0.2 RMB"
+```
+
+3. After the user confirms, generate and flip the entry to resolved:
+
+```bash
+IMAGEN=<entry path from capabilities>   # .../imagenCN/scripts/generate_image.py
+python3 "$IMAGEN" "<detailed prompt>" videos/{name}/assets/hero_art.png --size 16:9
+python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
+  --id hero_art --section hero --type image --role background \
+  --source imagen --prompt "<detailed prompt>" --replace \
+  --path assets/hero_art.png --license "AI-generated (<platform>/<model>)"
+```
+
+Default model (`qwen-image-2.0-pro`) renders 16:9 at 2688×1536 — fine for
+`background`/`inline` roles (Remotion scales). Record the actual model from
+the JSON envelope (`data.model`) in the license string.
+
+### AI B-roll via videogenCN (most expensive — hard gate)
+
+Per-second billing. The `--dry-run` quote is MANDATORY before asking:
+
+```bash
+VIDEOGEN=<entry path from capabilities>   # .../videogenCN/scripts/generate_video.py
+python3 "$VIDEOGEN" "<中文提示词>" videos/{name}/assets/city_broll.mp4 \
+  -d 5 -r 1080P --ratio 16:9 --dry-run          # prints request + cost estimate
+python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
+  --id city_broll --section intro --type video --role broll \
+  --source videogen --prompt "<提示词>" --cost-estimate "<from dry-run>"
+```
+
+Only after explicit user confirmation, drop `--dry-run` and run the real
+generation (it blocks through submit → poll → download; result URLs expire in
+24h so never defer the download). Then re-register with `--replace --path
+assets/city_broll.mp4 --duration-s <n> --license "AI-generated (<model>)"`.
+
+- Prompts are Chinese; pass detailed prompts (>80 chars) to skip the
+  component's interactive refinement.
+- If the process is interrupted mid-task, resume with
+  `--task-id <id> videos/{name}/assets/x.mp4` instead of paying again.
+- **i2v chain**: generate a keyframe with imagenCN first, then animate it —
+  `python3 "$VIDEOGEN" "<动作描述>" out.mp4 --image videos/{name}/assets/hero_art.png`.
+  Both default platforms share `DASHSCOPE_API_KEY`.
+- Keep clips 5–15s and let narration length drive how many you need; B-roll
+  is seasoning, not the meal.
+
+### Hyperframes overlays (P3 — plan only for now)
+
+Transparent animation overlays land in P3. You may still register the plan so
+the manifest documents intent:
 
 ```bash
 python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \

@@ -22,6 +22,7 @@ Resources / actions:
     design    list | show | delete | add
     assets    init | add | list | validate
     prereqs
+    capabilities
     prefs     get | migrate | backend | bgm-path
     schema    [<method>]
 """
@@ -132,6 +133,12 @@ ACTIONS = {
         'parser_attr': 'build_parser',
         'description': 'Pre-flight check: required CLIs + backend env vars',
     },
+    'capabilities': {
+        'script': 'components.py',
+        'prepend': ['probe'],
+        'parser_attr': None,
+        'description': 'Probe optional component skills (assetSeeker/imagenCN/videogenCN/ttsCN)',
+    },
     'prefs.get': {
         'script': 'get_pref.py',
         'prepend': [],
@@ -187,6 +194,7 @@ def build_parser():
     _build_leaf(sub, 'verify', ACTIONS['verify']['description'])
     _build_leaf(sub, 'align', ACTIONS['align']['description'])
     _build_leaf(sub, 'prereqs', ACTIONS['prereqs']['description'])
+    _build_leaf(sub, 'capabilities', ACTIONS['capabilities']['description'])
 
     # schema subcommand — uses cli_envelope envelope on stdout
     schema = sub.add_parser('schema', help='Print parameter schema for an action')
@@ -315,7 +323,7 @@ def _type_name(t):
 # the action — there's no second positional. Both lists are derived from
 # ACTIONS keys but kept explicit so the routing is readable.
 _RESOURCES_WITH_ACTIONS = {'tts', 'audit', 'shorts', 'design', 'assets', 'prefs'}
-_LEAF_RESOURCES = {'verify', 'align', 'prereqs'}
+_LEAF_RESOURCES = {'verify', 'align', 'prereqs', 'capabilities'}
 
 
 def main():
