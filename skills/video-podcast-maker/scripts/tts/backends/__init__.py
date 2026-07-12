@@ -173,6 +173,17 @@ BACKENDS = {
         'max_chars': 400,
         'supports_ssml': False,
     },
+    # Bridge to the ttsCN component skill — adds its providers (tencent,
+    # baidu, minimax, xunfei, ...) without duplicating adapters. Env vars are
+    # validated by ttsCN itself for the platform actually chosen
+    # (TTSCN_PLATFORM); install detection happens in _build_config.
+    'ttscn': {
+        'module': '.ttscn',
+        'env': [],
+        'import': ('subprocess', 'python3', ''),
+        'max_chars': 2000,
+        'supports_ssml': False,
+    },
 }
 
 
@@ -256,4 +267,19 @@ def _build_config(name):
         config['key'] = os.environ['GOOGLE_TTS_API_KEY']
         config['voice'] = _resolve_voice('google', 'GOOGLE_TTS_VOICE', 'en-US-Neural2-F')
         config['language'] = os.environ.get('GOOGLE_TTS_LANGUAGE', 'en-US')
+    elif name == 'ttscn':
+        import components
+        _, entry = components.find_component('ttsCN')
+        if entry is None:
+            raise MissingPackageError(
+                "ttsCN skill not found — set TTSCN_HOME or install under "
+                "~/.claude/skills/ttsCN",
+                package='ttsCN', install_cmd='export TTSCN_HOME=<skill root>',
+            )
+        config['entry'] = str(entry)
+        config['platform'] = os.environ.get('TTSCN_PLATFORM', 'edge')
+        # Empty default → omit --voice and let ttsCN resolve its own default
+        config['voice'] = (os.environ.get('TTSCN_VOICE')
+                           or user_prefs_get('global', 'tts', 'voices', 'ttscn'))
+        print(f"  ttsCN bridge: platform={config['platform']} entry={config['entry']}")
     return config

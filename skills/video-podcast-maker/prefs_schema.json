@@ -334,6 +334,16 @@
               "type": "boolean",
               "default": true,
               "description": "Include chapter timestamps in publish_info.md"
+            },
+            "heroOpening": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "Fixed opening line for the hero section (null = topic-driven)"
+            },
+            "outroClosing": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "Fixed closing line for the outro section (null = platform CTA)"
             }
           }
         }

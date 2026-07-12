@@ -108,6 +108,14 @@ python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt -
 
 Override per-run (without editing user_prefs): `TTS_BACKEND=edge TTS_RATE="+10%" python3 ...`. CLI `--backend <name>` also works and takes top priority.
 
+**`ttscn` bridge backend** — when the ttsCN component skill is installed
+(`cli.py capabilities`), `TTS_BACKEND=ttscn` routes synthesis through it,
+adding its providers without extra adapters here. Pick the ttsCN-side
+provider and voice with `TTSCN_PLATFORM` (default `edge`; e.g. `tencent`,
+`baidu`, `minimax`, `xunfei`) and `TTSCN_VOICE`; the chosen provider's API
+keys are validated by ttsCN itself. No word boundaries through the bridge —
+SRT uses the standard chunk-level estimation path.
+
 ### Voice Selection by Language
 
 The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. Reference defaults if the user has not customized `tts.voices`:
@@ -426,6 +434,25 @@ cp /path/to/user-bgm.mp3 videos/{name}/bgm.mp3
 ```
 
 **Override (different built-in track)**: edit `user_prefs.bgm.track` to one of the keys in `bgm.tracks` (e.g. `"calm-piano"`, `"perfect-beauty"`). Add new tracks by dropping the mp3 in `${SKILL_DIR}/assets/` and registering it in `bgm.tracks`.
+
+**Fresh BGM via assetSeeker** (when the user asks for new/different music and
+the component is usable per `cli.py capabilities`): search license-vetted
+tracks, download, and register in the asset manifest so provenance is kept:
+
+```bash
+SEEK=<entry from capabilities>
+python3 "$SEEK" search music "calm lofi study" --max 5      # license in results
+python3 "$SEEK" download "<download_url>" --output videos/{name}/bgm.mp3
+python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
+  --id bgm --section global --type audio --role bgm --source seek \
+  --path bgm.mp3 --license "<license>" --credit "<url>"
+```
+
+Pick tracks ~1 dB-flat and loopable (the mix below `-stream_loop`s them);
+mention the credit line in `publish_info.md` when the license requires
+attribution. Sound effects follow the same pattern with
+`search sfx "<cue>"` + `--role sfx`, mixed as extra `amix` inputs at the
+timestamps you need.
 
 ### Mix
 
