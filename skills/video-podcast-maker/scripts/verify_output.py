@@ -429,6 +429,28 @@ def verify(video_dir, strict=False, do_auto_fix=True):
             'sections_missing': sections_missing,
         }
 
+    # Asset manifest (Step 5) — only checked when a manifest exists;
+    # text-only videos have none and that is valid.
+    from assets import validate_manifest
+    m_errors, m_warnings, m_manifest = validate_manifest(video_dir)
+    if m_manifest is not None or m_errors:
+        print("\n--- Asset manifest (assets/manifest.json) ---")
+        for e in m_errors:
+            print(f"  ✗ {e}")
+            errors.append(f"asset manifest: {e}")
+        for w in m_warnings:
+            print(f"  ⚠ {w}")
+            warnings.append(f"asset manifest: {w}")
+        if not m_errors:
+            count = len(m_manifest.get('assets', []))
+            print(f"  ✓ {count} assets registered, no errors")
+        result['asset_manifest'] = {
+            'present': m_manifest is not None,
+            'asset_count': len(m_manifest.get('assets', [])) if m_manifest else 0,
+            'errors': m_errors,
+            'warnings': m_warnings,
+        }
+
     result['warnings'] = warnings
     result['errors'] = errors
 

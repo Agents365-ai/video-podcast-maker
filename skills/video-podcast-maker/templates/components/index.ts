@@ -49,3 +49,9 @@ export { Subtitles } from "./Subtitles";
 // Timing data (runtime loading via staticFile, supports --public-dir)
 export { useTiming, fetchTimingData } from "./useTiming";
 export type { TimingData, TimingSection } from "./useTiming";
+
+// Asset manifest (assets/manifest.json via --public-dir; see scripts/assets.py)
+export { useAssets, getAsset, getSectionAssets, assetSrc } from "./useAssets";
+export type { AssetEntry, AssetManifest } from "./useAssets";
+export { AssetImage } from "./AssetImage";
+export { AssetVideo } from "./AssetVideo";

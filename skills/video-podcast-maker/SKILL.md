@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 2.5.0
+version: 2.6.0
 created: 2025-01-27
-updated: 2026-07-05
+updated: 2026-07-12
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
@@ -92,7 +92,7 @@ Full pipeline with sensible defaults. **Mandatory stop at Step 9** (Studio revie
 | Step | Decision | Auto Default |
 |------|----------|-------------|
 | 3 | Title position | top-center |
-| 5 | Media assets | Skip (text-only animations) |
+| 5 | Assets | Free sources auto-resolve; paid generation needs confirmation |
 | 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
 | 9 | Outro animation | Pre-made MP4 (white/black by theme) |
 | 12 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
@@ -145,7 +145,7 @@ At Step 1 start, create one task per step in your agent's tracker (Claude Code `
 | 3 | Design 5-7 sections | (in-memory) | [workflow-script.md](references/workflow-script.md) |
 | 4 | Write narration script | `podcast.txt` | [workflow-script.md](references/workflow-script.md) |
 | 4.5 | Pronunciation pre-flight (zh-CN) | `phonemes.json` | [workflow-script.md](references/workflow-script.md) |
-| 5 | Collect media (Auto: skip) | `media_manifest.json` | [workflow-production.md](references/workflow-production.md) |
+| 5 | Asset plan & resolve | `assets/manifest.json` | [workflow-assets.md](references/workflow-assets.md) |
 | 6 | Generate publish info (Part 1) | `publish_info.md` | [workflow-production.md](references/workflow-production.md) |
 | 7 | Generate thumbnails (16:9 + 4:3) | `thumbnail_*.png` | [workflow-production.md](references/workflow-production.md) |
 | 8 | Generate TTS audio | `podcast_audio.wav`, `timing.json` | [workflow-production.md](references/workflow-production.md) |
@@ -281,7 +281,8 @@ Load on demand — **do NOT load all at once**:
 |------|-----------|
 | [references/workflow-script.md](references/workflow-script.md) | Steps 1-4 (topic → script) |
 | [references/natural-narration.md](references/natural-narration.md) | **Load before Step 4 script writing** — anti-slop rules for spoken narration (kill list, structural tells, checklist) |
-| [references/workflow-production.md](references/workflow-production.md) | Steps 5-11 (media → TTS → Remotion → render → BGM) |
+| [references/workflow-assets.md](references/workflow-assets.md) | Step 5, or when the user supplies images/clips or wants stock/AI media |
+| [references/workflow-production.md](references/workflow-production.md) | Steps 6-11 (publish info → TTS → Remotion → render → BGM) |
 | [references/workflow-publish.md](references/workflow-publish.md) | Steps 12-15 (subtitles, publish, cleanup, shorts) |
 | [references/design-guide.md](references/design-guide.md) | **MUST load before Step 9** — visual minimums, typography, animation safety |
 | [references/design-learning.md](references/design-learning.md) | User provides a reference video/image, or manages style profiles |
@@ -301,7 +302,7 @@ python3 ${SKILL_DIR}/scripts/cli.py <resource> <action> --help    # forwards to 
 python3 ${SKILL_DIR}/scripts/cli.py schema [<method>]       # JSON parameter schema
 ```
 
-Routes: `tts run|validate`, `verify`, `align`, `audit beats`, `shorts gen`, `design list|show|delete|add`, `prereqs`, `prefs get|migrate|backend|bgm-path`, `schema [<method>]`. Direct script invocation (`python3 scripts/<name>.py ...`) keeps working — the dispatcher is additive.
+Routes: `tts run|validate`, `verify`, `align`, `audit beats`, `shorts gen`, `design list|show|delete|add`, `assets init|add|list|validate`, `prereqs`, `prefs get|migrate|backend|bgm-path`, `schema [<method>]`. Direct script invocation (`python3 scripts/<name>.py ...`) keeps working — the dispatcher is additive.
 
 ---
 

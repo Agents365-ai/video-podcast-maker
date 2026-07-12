@@ -19,21 +19,17 @@
 
 ---
 
-## Step 5: Collect Media Assets
+## Step 5: Asset Plan & Resolve
 
-**Auto mode:** Skip media collection (text-only animated sections). Proceed to Step 6.
-**Interactive mode:** Ask per-section media source (skip / local file / screenshot / web search / AI generated).
+Moved to its own phase file — **load [workflow-assets.md](workflow-assets.md)**.
 
-If user mentioned AI images, screenshots, or specific assets in initial request, collect those regardless of mode.
-
-Save assets to `videos/{name}/media/`, generate `media_manifest.json`.
-
-**Available sources:**
-- **Unsplash** / **Pexels** / **Pixabay** — free images
-- **unDraw** — open-source SVG illustrations
-- **Simple Icons** — brand SVG icons
-- **Playwright** — web screenshots
-- **imagen skill** — AI-generated images
+Summary: plan per-section assets (role + source), register everything in
+`videos/{name}/assets/manifest.json` via `cli.py assets …`, resolve free
+sources (user files, assetSeeker stock) automatically, gate paid generation
+behind a cost confirmation, and consume in Remotion with `<AssetImage>` /
+`<AssetVideo>`. Playwright web screenshots are still available for
+product-UI captures — save them under `videos/{name}/assets/` and register
+with `assets add --path`.
 
 ---
 
