@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 3.0.0
+version: 3.0.1
 created: 2025-01-27
 updated: 2026-07-12
 bilibili: https://space.bilibili.com/441831884
@@ -117,10 +117,12 @@ Pick the **smallest** re-run for what actually changed. Every command targets th
 
 | Changed | Re-run | Reuses (don't redo) |
 |---------|--------|---------------------|
-| Narration script (`podcast.txt`) | Step 8 (`generate_tts.py --output-dir videos/{name}`) → Step 10 render → Step 11 BGM | topic research + section design |
-| Visuals only (components, layout, colors, props) | Step 10 render | `podcast_audio.wav` / `timing.json` (audio unchanged) |
+| Narration script (`podcast.txt`) | Step 8 (`generate_tts.py --output-dir videos/{name}`) → Step 9 preview → Step 10 render (on explicit confirm) → Step 11 BGM | topic research + section design |
+| Visuals only (components, layout, colors, props) | Step 9 preview → Step 10 render (on explicit confirm) | `podcast_audio.wav` / `timing.json` (audio unchanged) |
 | Background music only | Step 11 mix | `output.mp4` (no re-render) |
 | Subtitles only | Step 12 | `output.mp4` / `video_with_bgm.mp4` |
+
+Any re-run that changes what the viewer **sees or hears** re-enters the Step 9 gate: apply the change, let Studio hot-reload (or relaunch it), and wait for a fresh explicit "render 4K" — the confirmation that started the previous render does **not** carry over to the adjusted version. Only the audio-untouched post-render steps (BGM mix, subtitles) skip the gate.
 
 A **script** change shifts every downstream timestamp, so always regenerate `timing.json` through TTS — never hand-edit it (see [Audio-Master Clock](#audio-master-clock--sync)). After any re-run, re-verify:
 
@@ -158,7 +160,7 @@ At Step 1 start, create one task per step in your agent's tracker (Claude Code `
 | 15 | Generate vertical shorts (optional) | `shorts/` | [workflow-publish.md](references/workflow-publish.md) |
 
 **Mandatory stops** (bold rows above):
-- **Step 9 — Studio review.** MUST launch `npx remotion studio` and wait for user feedback before rendering. NEVER render 4K until the user explicitly confirms ("render 4K" / "render final").
+- **Step 9 — Studio review.** MUST launch `npx remotion studio` and wait for user feedback before rendering. NEVER render 4K until the user explicitly confirms ("render 4K" / "render final"). A reply containing adjustment requests is **not** confirmation — even if it also says "otherwise looks good": apply the changes, let Studio hot-reload, and ask again. Every round of adjustments needs its own fresh confirmation before Step 10.
 - **Step 14 — `verify_output.py`.** MUST pass before declaring the video done. Exit 0 = green; exit 2 = warnings still publishable. Auto-fixes common omissions (creates `final_video.mp4` if missing). For machine-readable output add `--format json` (auto when piped).
 
 **Pre-render audit (recommended)** — before Step 9:
@@ -185,7 +187,7 @@ Flags beats that drift > 1.5s from narration. Especially important for kinetic-t
 | **4K Output** | 3840×2160 (or 2160×3840 vertical), use `scale(2)` wrapper over 1920×1080 design space |
 | **Audio Sync** | Audio (`podcast_audio.wav` + `podcast_audio.srt`) is the master clock. `timing.json` MUST be generated from the real TTS output, never hand-estimated. Before rendering, final video duration must match audio within ±0.5s. See [Audio-Master Clock](#audio-master-clock--sync). |
 | **Thumbnail** | MUST generate both 16:9 (1920×1080) AND 4:3 (1200×900) — see [design-guide.md](references/design-guide.md) |
-| **Studio Before Render** | MUST launch `remotion studio` for review. NEVER render 4K until user explicitly confirms. |
+| **Studio Before Render** | MUST launch `remotion studio` for review. NEVER render 4K until user explicitly confirms. Adjustment feedback ≠ confirmation — apply, hot-reload, ask again. |
 | **`--public-dir`** | Every Remotion command uses `--public-dir videos/{name}/` |
 
 Visual minimums (text sizes, content width, safe zones, animation safety) live in [references/design-guide.md](references/design-guide.md). **MUST load before Step 9.**

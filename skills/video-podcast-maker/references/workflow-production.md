@@ -348,8 +348,13 @@ If you intentionally run multiple Remotion projects in parallel, launch Studio o
    - Layout/animation tweaks → edit components, Studio auto-refreshes
    - Script/content changes → edit `podcast.txt`, may need re-TTS (Step 8)
    - Pronunciation fixes → re-run TTS (Step 8)
-4. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" → proceed to Step 10
-5. Do NOT proceed to Step 10 until the user confirms.
+
+   A reply that requests **any** adjustment stays inside this loop — it is never an
+   implicit render request, even when phrased as "change X, the rest looks good" or
+   when the user confirmed a render for an earlier version. After applying the
+   changes, tell the user Studio has hot-reloaded and ask them to review again.
+4. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" **in a message that requests no further changes** → proceed to Step 10
+5. Do NOT proceed to Step 10 until the user confirms. Each round of adjustments invalidates any earlier confirmation — wait for a fresh one.
 
 ---
 
