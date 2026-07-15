@@ -1,6 +1,6 @@
 # 视频播客生成器
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/network/members)
 [![Latest Release](https://img.shields.io/github/v/release/Agents365-ai/video-podcast-maker?logo=github)](https://github.com/Agents365-ai/video-podcast-maker/releases/latest)
@@ -317,14 +317,6 @@ videos/{视频名称}/
 - [ ] YouTube 自动化发布 — 通过 YouTube Data API 上传视频、元数据、章节、封面
 - [ ] Windows 适配 (WSL 验证 + 文档)
 
-## 💬 社区
-
-- **Discord:** https://discord.gg/79JF5Atuk
-- **微信:** 扫描下方二维码
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/agents365ai_wechat_1.png" width="200" alt="微信交流群">
-</p>
 
 ## ❤️ 支持作者
 
@@ -364,4 +356,4 @@ videos/{视频名称}/
 
 ## 📄 开源协议
 
-[MIT](LICENSE)
+[CC BY-NC 4.0](LICENSE) — 非商业使用免费，商业使用需授权。

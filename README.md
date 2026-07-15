@@ -1,6 +1,6 @@
 # Video Podcast Maker
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/network/members)
 [![Latest Release](https://img.shields.io/github/v/release/Agents365-ai/video-podcast-maker?logo=github)](https://github.com/Agents365-ai/video-podcast-maker/releases/latest)
@@ -302,14 +302,6 @@ Included tracks in `skills/video-podcast-maker/assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 
-## 💬 Community
-
-- **Discord:** https://discord.gg/79JF5Atuk
-- **WeChat:** scan the QR code below
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Agents365-ai/images_payment/main/qrcode/agents365ai_wechat_1.png" width="200" alt="WeChat Community Group">
-</p>
 
 ## ❤️ Support
 
@@ -349,4 +341,4 @@ If this project helps you, consider supporting the author:
 
 ## 📄 License
 
-[MIT](LICENSE)
+[CC BY-NC 4.0](LICENSE) — Free for non-commercial use. Commercial use requires permission.

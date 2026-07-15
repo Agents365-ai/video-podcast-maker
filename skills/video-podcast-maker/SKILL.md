@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 4.0.0
+version: 4.0.1
 created: 2025-01-27
 updated: 2026-07-15
 bilibili: https://space.bilibili.com/441831884

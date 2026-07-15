@@ -43,7 +43,7 @@ COMPONENTS = {
     "imagenCN": {
         "entry": "scripts/generate_image.py",
         "env_any": ["DASHSCOPE_API_KEY", "ARK_API_KEY", "HUNYUAN_API_KEY",
-                    "ZHIPUAI_API_KEY", "STEP_API_KEY"],
+                    "ZHIPUAI_API_KEY", "STEP_API_KEY", "GEMINI_API_KEY"],
         "env_optional": [],
         "provides": "AI stills (scene illustrations, thumbnails)",
     },
