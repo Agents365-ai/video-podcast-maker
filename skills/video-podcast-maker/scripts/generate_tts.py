@@ -11,6 +11,7 @@ import argparse
 import subprocess
 
 import cli_envelope
+from tts.markers import protect_pauses, restore_pauses, render_markers, strip_markers
 from tts.phonemes import load_phoneme_dicts, extract_inline_phonemes
 from tts.sections import parse_sections, validate_sections, print_validation_report, match_section_times
 from tts.srt import write_srt, write_timing, reconcile_timing_with_wav
@@ -73,7 +74,10 @@ def _hard_split(sentence, max_chars):
         if len(buf) >= budget:
             cut = -1
             for i in range(len(buf) - 1, max(-1, len(buf) - lookback - 1), -1):
-                if buf[i] in _SOFT_PUNCT:
+                # Never cut inside an unclosed [...] token — [PAUSE:0p8]
+                # contains ':' which would otherwise be a soft-punct cut.
+                if buf[i] in _SOFT_PUNCT and \
+                        buf.rfind("[", 0, i + 1) <= buf.rfind("]", 0, i + 1):
                     cut = i
                     break
             if cut >= 0:
@@ -234,9 +238,13 @@ def _run(args, started_at):
     if phoneme_dict and not args.validate:
         from tts.backends import BACKENDS
         if not BACKENDS.get(BACKEND, {}).get('supports_ssml'):
-            print(f"Warning: {BACKEND} TTS does not consume SSML. "
-                  "Inline phoneme markers and phonemes.json will be ignored. "
-                  "Consider using Azure for phoneme support.", file=sys.stderr)
+            if BACKEND == 'ttscn' and os.environ.get('TTSCN_PLATFORM', 'edge') == 'minimax':
+                print("Note: phonemes will be applied as MiniMax pinyin "
+                      "annotations (字(pin1)) by the ttscn bridge.")
+            else:
+                print(f"Warning: {BACKEND} TTS does not consume SSML. "
+                      "Inline phoneme markers and phonemes.json will be ignored. "
+                      "Consider using Azure for phoneme support.", file=sys.stderr)
 
     # --- Default section ---
     if not sections:
@@ -298,9 +306,25 @@ def _run(args, started_at):
             "non_silent_sections": len(non_silent),
         }, started_at=started_at))
 
+    # --- Expressiveness markers ---
+    # [PAUSE:x] / sound tags must never reach subtitles or section matching;
+    # section anchors are compared against marker-free boundary text.
+    for s in sections:
+        s['first_text'] = strip_markers(s.get('first_text', ''))
+
     # --- Chunk text ---
-    chunks = chunk_text(clean_text, MAX_CHARS)
+    # protect_pauses keeps the '.' inside [PAUSE:0.8] from being treated as a
+    # sentence boundary (a chunk split mid-marker would break it in half).
+    chunks = [restore_pauses(c) for c in chunk_text(protect_pauses(clean_text), MAX_CHARS)]
     print(f"Split into {len(chunks)} chunks")
+
+    # Render markers per backend: azure -> SSML <break/>; ttscn passes them
+    # through (the bridge renders <#x#> for minimax, strips otherwise); every
+    # other backend would speak them aloud, so strip.
+    if BACKEND == 'azure':
+        chunks = [render_markers(c, 'ssml') for c in chunks]
+    elif BACKEND != 'ttscn':
+        chunks = [render_markers(c, 'plain') for c in chunks]
 
     # --- Synthesize ---
     config['speech_rate'] = SPEECH_RATE

@@ -151,3 +151,36 @@ def apply_phonemes(text, phoneme_dict):
         result = result.replace(placeholder, phoneme_tag)
 
     return result
+
+
+def apply_phonemes_minimax(text, phoneme_dict):
+    """Annotate polyphonic words with MiniMax pinyin syntax: 重(chong2)庆(qing4).
+
+    MiniMax (speech-2.x) reads a parenthesized numbered-pinyin annotation
+    placed directly after a character. Each dict word is expanded to per-char
+    annotations; entries whose syllable count doesn't match the character
+    count are skipped (fail-safe: default pronunciation). Longest-first with
+    placeholders, mirroring apply_phonemes().
+    """
+    if not phoneme_dict:
+        return text
+
+    sorted_words = sorted(phoneme_dict.keys(), key=len, reverse=True)
+    placeholders = {}
+    result = text
+
+    for i, word in enumerate(sorted_words):
+        syllables = phoneme_dict[word].split()
+        if len(syllables) != len(word) or word not in result:
+            continue
+        placeholder = f"__PHM_{i}__"
+        annotated = "".join(
+            f"{char}({pinyin_to_sapi(syl).replace(' ', '')})"
+            for char, syl in zip(word, syllables))
+        placeholders[placeholder] = annotated
+        result = result.replace(word, placeholder)
+
+    for placeholder, annotated in placeholders.items():
+        result = result.replace(placeholder, annotated)
+
+    return result

@@ -177,11 +177,14 @@ BACKENDS = {
     # baidu, minimax, xunfei, ...) without duplicating adapters. Env vars are
     # validated by ttsCN itself for the platform actually chosen
     # (TTSCN_PLATFORM); install detection happens in _build_config.
+    # max_chars stays small on purpose: word boundaries are per-chunk
+    # estimates, so shorter chunks = denser measured anchors for SRT and
+    # section matching (ttsCN sub-chunks internally anyway).
     'ttscn': {
         'module': '.ttscn',
         'env': [],
         'import': ('subprocess', 'python3', ''),
-        'max_chars': 2000,
+        'max_chars': 400,
         'supports_ssml': False,
     },
 }

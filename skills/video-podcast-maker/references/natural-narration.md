@@ -83,6 +83,23 @@ humanity helps — but keep it **calm and factual**, not edgy or performative
 
 ---
 
+## Expressiveness markers (backend-neutral)
+
+`podcast.txt` may use two marker types; the pipeline renders or strips them per backend, and subtitles are always marker-free.
+
+- **`[PAUSE:x]`** — pause of `x` seconds (0.01–99.99), e.g. `说完了。[PAUSE:0.8]然后呢?`
+  Rendered as SSML `<break/>` on Azure, `<#x#>` on ttsCN/minimax, stripped elsewhere.
+- **Sound tags** — `(laughs)` `(chuckle)` `(sighs)` `(breath)` `(inhale)` `(exhale)` `(coughs)`.
+  Only spoken on ttsCN/minimax with a speech-2.8 model (`MINIMAX_MODEL=speech-2.8-hd`); stripped on every other backend. Other parenthesized text is left alone.
+
+Usage rules:
+
+- Use `[PAUSE:x]` for dramatic beats only (before a reveal, after a question). Normal pacing comes from punctuation — a script peppered with pauses reads as slow, not dramatic.
+- Don't put markers inside a sentence's clause flow; place them at sentence boundaries.
+- Polyphone fixes need no markers: `phonemes.json` entries apply automatically (SSML on Azure, pinyin annotation `字(zi4)` on ttsCN/minimax).
+
+---
+
 ## Pre-delivery checklist (run on every `podcast.txt`)
 
 - [ ] Any opener filler ("接下来我们来看看" / "总的来说" / "here's what")? Cut to the point.

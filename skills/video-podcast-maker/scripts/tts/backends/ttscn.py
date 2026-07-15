@@ -5,11 +5,17 @@ without duplicating their adapters here. Each chunk is synthesized by one
 `tts.py` invocation (ttsCN sub-chunks internally per provider limits and
 concatenates), then normalized to the suite's 48 kHz mono WAV.
 
-No word boundaries are available through the bridge — SRT falls back to the
-same chunk-level estimation path as the other non-edge backends.
+Word boundaries are estimated per chunk (measured chunk duration distributed
+across characters, same fallback as doubao) so SRT and section matching work.
+Keep registry max_chars small (400) — estimation error is bounded by chunk
+length, and chunk durations themselves are always measured.
+
+For platform=minimax the bridge also renders expressiveness:
+[PAUSE:x] -> <#x#>, sound tags kept, and phonemes.json entries become
+pinyin annotations (字(pin1)). Other platforms get marker-stripped text.
 
 config keys: entry (tts.py path), platform (ttsCN backend id), voice,
-speech_rate.
+speech_rate, phoneme_dict.
 """
 import json
 import os
@@ -17,6 +23,8 @@ import subprocess
 import sys
 import time
 from .base import check_resume
+from ..markers import render_markers, strip_markers
+from ..phonemes import apply_phonemes_minimax
 
 
 def synthesize(chunks, config, output_dir, resume=False):
@@ -26,7 +34,21 @@ def synthesize(chunks, config, output_dir, resume=False):
     speech_rate = config.get('speech_rate')
 
     part_files = []
+    word_boundaries = []
     accumulated_duration = 0
+
+    def estimate_boundaries(chunk, duration, base_offset):
+        """Distribute a measured chunk duration across its visible chars."""
+        chars = [c for c in strip_markers(chunk) if c.strip()]
+        if not chars or duration <= 0:
+            return
+        per = duration / len(chars)
+        for idx, ch in enumerate(chars):
+            word_boundaries.append({
+                "text": ch,
+                "offset": base_offset + idx * per,
+                "duration": max(0.01, per),
+            })
 
     for i, chunk in enumerate(chunks):
         part_file = os.path.join(output_dir, f"part_{i}.wav")
@@ -36,11 +58,18 @@ def synthesize(chunks, config, output_dir, resume=False):
             dur = check_resume(part_file)
             if dur is not None:
                 print(f"  ⏭ Part {i + 1}/{len(chunks)} skipped (resume, {dur:.1f}s)")
+                estimate_boundaries(chunk, dur, accumulated_duration)
                 accumulated_duration += dur
                 continue
 
+        if platform == 'minimax':
+            speak_text = apply_phonemes_minimax(
+                render_markers(chunk, 'minimax'), config.get('phoneme_dict') or {})
+        else:
+            speak_text = render_markers(chunk, 'plain')
+
         raw_file = os.path.join(output_dir, f"part_{i}_ttscn.wav")
-        cmd = [sys.executable, entry, chunk, raw_file,
+        cmd = [sys.executable, entry, speak_text, raw_file,
                '--platform', platform, '--format', 'json']
         if voice:
             cmd += ['--voice', voice]
@@ -64,6 +93,7 @@ def synthesize(chunks, config, output_dir, resume=False):
                 if not chunk_duration:
                     dur = check_resume(part_file)
                     chunk_duration = dur or 0
+                estimate_boundaries(chunk, chunk_duration, accumulated_duration)
                 accumulated_duration += chunk_duration
                 print(f"  ✓ Part {i + 1}/{len(chunks)} done via ttsCN/{platform} "
                       f"({len(chunk)} chars, {chunk_duration:.1f}s)")
@@ -81,4 +111,4 @@ def synthesize(chunks, config, output_dir, resume=False):
         if not success:
             raise RuntimeError(f"Part {i + 1} synthesis failed via ttsCN/{platform}")
 
-    return part_files, [], accumulated_duration
+    return part_files, word_boundaries, accumulated_duration
