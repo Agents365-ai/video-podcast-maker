@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 3.1.0
+version: 3.1.1
 created: 2025-01-27
-updated: 2026-07-12
+updated: 2026-07-15
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
