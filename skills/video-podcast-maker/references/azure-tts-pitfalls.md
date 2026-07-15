@@ -1,6 +1,8 @@
 # Azure TTS Pitfalls
 
-> **When to load:** When choosing voice/style for Azure backend, or when debugging hoarse / missing / glitchy audio. Skip for other backends.
+> **When to load:** When choosing voice/style for the Azure backend, or when debugging hoarse / missing / glitchy audio. Skip for other backends.
+>
+> Since v4.0.0 Azure synthesis (SSML building, phoneme tags, English-term wrapping) runs inside the **ttsCN component skill** — but everything below still applies: voice choice, `TTS_STYLE`, and phoneme behavior ride through the bridge via env vars and `phonemes_resolved.json`.
 
 The Azure neural-TTS engine is excellent in the common path but has several deterministic failure modes that have wasted hours of iteration. This file documents the known traps and how to avoid them.
 
@@ -63,19 +65,17 @@ The `tts/voice_advisor.py` module analyses your script and prints a recommendati
 
 ---
 
-## How `mark_english_terms` chooses what to wrap
+## How English-term wrapping works
 
-The function in `scripts/tts/ssml.py` runs in one of three modes, picked by `wrap_mode_for(backend, voice)` in the same file:
+English-term wrapping (`<lang xml:lang="en-US">` around brand phrases and, on Multilingual voices, longer English words) is performed by the ttsCN azure adapter, not by this skill. The behavior to expect:
 
-| Backend × voice | Mode | What gets wrapped |
-|---|---|---|
-| `azure` + standard `zh-CN-XiaoxiaoNeural` | `multi_word_only` | Brand / proper-noun phrases only (Visual Studio Code, Andrew Ng, Apple Intelligence, …). Bare abbreviations (AI, ML, GPT, CLI, API) are left alone — standard voice reads them as natural Chinese letter pronunciations. |
-| `azure` + `zh-CN-XiaoxiaoMultilingualNeural` | `aggressive` | Brand phrases + single English words ≥5 chars with at least one lowercase letter and not in `voice_advisor.COMMON_ABBREVS` (e.g. *transformer*, *embedding*, *Python*). Bare abbreviations still skipped. |
-| `edge` / `cosyvoice` / `doubao` / `elevenlabs` / `openai` / `google` | `off` | Nothing. These backends pass plain text and would either escape or speak `<lang>` tags aloud. |
+| Voice | What gets wrapped |
+|---|---|
+| Standard `zh-CN-XiaoxiaoNeural` | Brand / proper-noun phrases only (Visual Studio Code, Andrew Ng, Apple Intelligence, …). Bare abbreviations (AI, ML, GPT, CLI, API) are left alone — standard voice reads them as natural Chinese letter pronunciations. |
+| `zh-CN-XiaoxiaoMultilingualNeural` | Brand phrases + single English words that look like real words (≥5 chars, lowercase letters, not common abbreviations like JSON/HTTPS). Bare abbreviations still skipped. |
+| Non-azure platforms | Nothing — they consume plain text; ttsCN strips or ignores SSML for them. |
 
-The matrix is driven by `BACKENDS[name]['supports_ssml']` in `scripts/tts/backends/__init__.py` — change one place and both `wrap_mode_for` and the phoneme-not-supported warning in `generate_tts.py` follow.
-
-To force a specific brand phrase to be wrapped under standard voice, add it to `BRAND_PHRASES` in `scripts/tts/ssml.py`. To force a one-off proper-noun pronunciation in a single script, hand-write `<lang xml:lang="en-US">…</lang>` directly in `podcast.txt`; the placeholder mechanism preserves it through `mark_english_terms`.
+To force a one-off proper-noun pronunciation in a single script, hand-write `<lang xml:lang="en-US">…</lang>` directly in `podcast.txt` (azure platform only), or prefer an inline `[pinyin]` marker / `phonemes.json` entry, which works through the phoneme path.
 
 ---
 

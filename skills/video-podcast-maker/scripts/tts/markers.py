@@ -5,13 +5,9 @@ Scripts may contain:
   (chuckle) etc.  — MiniMax sound tags: laughs, chuckle, sighs, breath,
                     inhale, exhale, coughs (speech-2.8 models only)
 
-Rendering policy per backend (applied in generate_tts before synthesis):
-  azure   -> [PAUSE:x] becomes <break time="xs"/> (SSML); sound tags stripped
-  ttscn   -> markers pass through; the bridge renders <#x#> for minimax and
-             strips everything for other ttsCN platforms
-  others  -> all markers stripped (they would be spoken aloud)
-
-Subtitles/section matching always use marker-stripped text.
+Markers ride RAW through the ttsCN bridge — ttsCN renders or strips them
+per platform. vpm only needs strip_markers here, for subtitle/boundary
+estimation, section matching, and chunk-length accounting.
 
 [PAUSE:x] contains a '.' which the sentence chunker treats as a boundary —
 protect_pauses()/restore_pauses() swap the dot out around chunk_text().
@@ -37,21 +33,6 @@ def restore_pauses(text):
 
 
 def strip_markers(text):
-    """Remove all markers — for subtitles, section matching, and plain backends."""
+    """Remove all markers — for subtitles, boundary estimation, section matching."""
     text = PAUSE_RE.sub("", text)
     return SOUND_TAG_RE.sub("", text)
-
-
-def render_markers(text, target):
-    """Render markers for a synthesis target.
-
-    target: 'ssml'    — Azure: pauses -> <break/>, sound tags stripped
-            'minimax' — pauses -> <#x#>, sound tags kept (speech-2.8)
-            'plain'   — everything stripped
-    """
-    if target == "ssml":
-        text = PAUSE_RE.sub(lambda m: '<break time="%ss"/>' % m.group(1), text)
-        return SOUND_TAG_RE.sub("", text)
-    if target == "minimax":
-        return PAUSE_RE.sub(lambda m: "<#%s#>" % m.group(1), text)
-    return strip_markers(text)

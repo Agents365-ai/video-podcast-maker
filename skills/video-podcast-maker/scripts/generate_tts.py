@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-TTS Script for Video Podcast Maker (Azure / Doubao / CosyVoice / Edge / ElevenLabs / OpenAI / Google TTS)
+TTS Script for Video Podcast Maker — all backends route through the ttsCN component skill.
 Generates audio from podcast.txt and creates SRT subtitles + timing.json for Remotion sync
 """
+import json
 import os
 import sys
 import re
@@ -11,7 +12,7 @@ import argparse
 import subprocess
 
 import cli_envelope
-from tts.markers import protect_pauses, restore_pauses, render_markers, strip_markers
+from tts.markers import protect_pauses, restore_pauses, strip_markers
 from tts.phonemes import load_phoneme_dicts, extract_inline_phonemes
 from tts.sections import parse_sections, validate_sections, print_validation_report, match_section_times
 from tts.srt import write_srt, write_timing, reconcile_timing_with_wav
@@ -21,16 +22,18 @@ from tts.voice_advisor import print_advisory
 def build_parser():
     parser = argparse.ArgumentParser(
         description='Generate TTS audio from podcast script',
-        epilog='Backends: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai, google, '
-               'ttscn (bridge to the ttsCN component skill; TTSCN_PLATFORM picks its provider). '
-               'Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, '
-               'DASHSCOPE_API_KEY, EDGE_TTS_VOICE, ELEVENLABS_API_KEY, OPENAI_API_KEY, GOOGLE_TTS_API_KEY, TTS_RATE'
+        epilog='Backends (all synthesized by the required ttsCN component skill): edge (default, '
+               'free), azure, cosyvoice, doubao, tencent, baidu, minimax, xunfei, elevenlabs, '
+               'openai, google, plus the ttscn alias (TTSCN_PLATFORM picks its platform). '
+               'Env: TTS_BACKEND, TTS_VOICE, TTS_RATE + per-platform API keys (check_prereqs.py '
+               'validates the active backend).'
     )
     parser.add_argument('--input', '-i', default='podcast.txt', help='Input script file (default: podcast.txt)')
     parser.add_argument('--output-dir', '-o', default='.', help='Output directory (default: current dir)')
     parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file')
     parser.add_argument('--backend', '-b', default=None,
-        help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, openai, google, or ttscn')
+        help='TTS backend (routed via ttsCN): edge, azure, cosyvoice, doubao, tencent, '
+             'baidu, minimax, xunfei, elevenlabs, openai, google, or ttscn')
     parser.add_argument('--resume', action='store_true', help='Resume from last breakpoint')
     parser.add_argument('--dry-run', action='store_true',
         help='Plan synthesis without calling the TTS API. Emits backend, voice, '
@@ -234,18 +237,11 @@ def _run(args, started_at):
     phoneme_dict = {**file_phonemes, **inline_phonemes}
     print(f"Phoneme dictionary: {len(phoneme_dict)} entries (file: {len(file_phonemes)} + inline: {len(inline_phonemes)})")
 
-    # Phoneme markup is SSML — only emit on backends that consume SSML.
-    # The matrix lives in tts/backends/__init__.py BACKENDS[name]['supports_ssml'].
-    if phoneme_dict and not args.validate:
-        from tts.backends import BACKENDS
-        if not BACKENDS.get(BACKEND, {}).get('supports_ssml'):
-            if BACKEND == 'ttscn' and os.environ.get('TTSCN_PLATFORM', 'edge') == 'minimax':
-                print("Note: phonemes will be applied as MiniMax pinyin "
-                      "annotations (字(pin1)) by the ttscn bridge.")
-            else:
-                print(f"Warning: {BACKEND} TTS does not consume SSML. "
-                      "Inline phoneme markers and phonemes.json will be ignored. "
-                      "Consider using Azure for phoneme support.", file=sys.stderr)
+    # Phoneme application happens inside ttsCN (azure -> SSML <phoneme>,
+    # minimax -> pinyin annotations; other platforms ignore the file).
+    if phoneme_dict:
+        print("Note: phonemes are applied by ttsCN where the platform "
+              "supports them (azure SSML, minimax pinyin annotations).")
 
     # --- Default section ---
     if not sections:
@@ -319,17 +315,18 @@ def _run(args, started_at):
     chunks = [restore_pauses(c) for c in chunk_text(protect_pauses(clean_text), MAX_CHARS)]
     print(f"Split into {len(chunks)} chunks")
 
-    # Render markers per backend: azure -> SSML <break/>; ttscn passes them
-    # through (the bridge renders <#x#> for minimax, strips otherwise); every
-    # other backend would speak them aloud, so strip.
-    if BACKEND == 'azure':
-        chunks = [render_markers(c, 'ssml') for c in chunks]
-    elif BACKEND != 'ttscn':
-        chunks = [render_markers(c, 'plain') for c in chunks]
+    # Chunks keep raw [PAUSE:x] / sound-tag markers — ttsCN renders or
+    # strips them per platform.
 
     # --- Synthesize ---
     config['speech_rate'] = SPEECH_RATE
-    config['phoneme_dict'] = phoneme_dict
+    if phoneme_dict:
+        # ttsCN consumes phonemes as a file — write the merged dict
+        # (global + project + inline) next to the audio parts.
+        phonemes_path = os.path.join(args.output_dir, "phonemes_resolved.json")
+        with open(phonemes_path, "w", encoding="utf-8") as f:
+            json.dump(phoneme_dict, f, ensure_ascii=False, indent=2)
+        config['phonemes_path'] = phonemes_path
     synthesize = get_synthesize_func(BACKEND)
     part_files, word_boundaries, total_duration = synthesize(chunks, config, args.output_dir, resume=args.resume)
     print(f"\nCollected {len(word_boundaries)} word boundaries")

@@ -32,7 +32,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Five Asset Producers** - User files, assetSeeker (license-vetted stock/BGM/SFX/icons), imagenCN (AI stills & thumbnails), videogenCN (AI B-roll with dry-run cost quotes), Hyperframes (transparent WebM VP9 overlay animations)
 - **Cost Gates** - Paid AI generation never runs silently: quote → manifest `pending_confirmation` → explicit approval
 - **Capability Probe** - `cli.py capabilities` reports which producers are installed and credentialed; everything degrades gracefully
-- **Multi-TTS (11 backends)** - Edge TTS (free), Azure Speech, Volcengine Doubao, CosyVoice, ElevenLabs, Google Cloud TTS, OpenAI TTS, plus Tencent/Baidu/MiniMax/Xunfei via the `ttscn` bridge to the ttsCN skill
+- **Multi-TTS (11 platforms via ttsCN)** - Edge TTS (free), Azure Speech, CosyVoice, Volcengine Doubao, Tencent, Baidu, MiniMax, Xunfei, ElevenLabs, Google Cloud TTS, OpenAI TTS — all synthesized by the required [ttsCN](https://github.com/Agents365-ai/ttsCN) component skill; set `TTS_BACKEND` to any platform id directly
 - **Remotion Video** - React-based video composition with animations
 - **Visual Style Editing** - Adjust colors, fonts, and layout in Remotion Studio UI
 - **Real-time Preview** - Remotion Studio for instant debugging before render
@@ -113,7 +113,7 @@ This skill depends on **remotion-best-practices** and works alongside other opti
 - **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - License-vetted free stock photos/video/BGM/SFX/icons/fonts (optional asset producer)
 - **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI image generation for scene illustrations and thumbnails (optional, paid APIs)
 - **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI video clip generation for B-roll and i2v (optional, paid APIs)
-- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - Extra Chinese TTS providers via the `ttscn` bridge backend (optional)
+- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - The TTS engine behind all 11 backends (**required** — install under `~/.claude/skills/ttsCN` or set `TTSCN_HOME`)
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→video renderer for transparent overlay animations (optional, Node 22+)
 - **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
 - **ffmpeg** - Advanced audio/video processing (optional)
@@ -178,17 +178,30 @@ cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
 ```
 
-### API Keys Required
+### TTS Backends (all via ttsCN)
+
+All 11 TTS platforms are synthesized by the **required** [ttsCN](https://github.com/Agents365-ai/ttsCN) component skill — install it under `~/.claude/skills/ttsCN` (or point `TTSCN_HOME` at its root). Set `TTS_BACKEND` to any platform id; only the active platform's env vars are needed:
+
+| `TTS_BACKEND` | Provider | Required env vars | Get Key |
+|---------------|----------|-------------------|---------|
+| `edge` (default) | Microsoft Edge TTS | *(none — free)* | — |
+| `azure` | Microsoft Azure Speech | `AZURE_SPEECH_KEY` (+ `AZURE_SPEECH_REGION`) | [Azure Portal](https://portal.azure.com/) |
+| `cosyvoice` | Aliyun CosyVoice | `DASHSCOPE_API_KEY` | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
+| `doubao` | Volcengine Doubao | `VOLCENGINE_APPID`, `VOLCENGINE_ACCESS_TOKEN` | [Volcengine Console](https://console.volcengine.com/speech/service/8) |
+| `tencent` | Tencent Cloud TTS | `TENCENT_SECRET_ID`, `TENCENT_SECRET_KEY` | [Tencent Console](https://console.cloud.tencent.com/tts) |
+| `baidu` | Baidu AI TTS | `BAIDU_APP_ID`, `BAIDU_API_KEY`, `BAIDU_SECRET_KEY` | [Baidu Console](https://console.bce.baidu.com/ai/#/ai/speech/overview) |
+| `minimax` | MiniMax TTS | `MINIMAX_API_KEY` | [MiniMax Platform](https://platform.minimaxi.com/) |
+| `xunfei` | iFlytek Xunfei TTS | `XUNFEI_APP_ID`, `XUNFEI_API_KEY`, `XUNFEI_API_SECRET` | [Xfyun](https://www.xfyun.cn/) |
+| `elevenlabs` | ElevenLabs | `ELEVENLABS_API_KEY` | [ElevenLabs](https://elevenlabs.io/) |
+| `openai` | OpenAI TTS | `OPENAI_API_KEY` | [OpenAI Platform](https://platform.openai.com/) |
+| `google` | Google Cloud TTS | `GOOGLE_TTS_API_KEY` | [Google Cloud Console](https://console.cloud.google.com/) |
+
+The legacy `TTS_BACKEND=ttscn` alias still works and picks its platform from `TTSCN_PLATFORM`.
+
+### API Keys Required (non-TTS)
 
 | Service | Purpose | Get Key |
 |---------|---------|---------|
-| **Azure Speech** | TTS audio generation (high quality) | [Azure Portal](https://portal.azure.com/) → Speech Services |
-| **Volcengine Doubao Speech** | TTS audio generation (alternative backend) | [Volcengine Console](https://console.volcengine.com/speech/service/8) |
-| **Aliyun CosyVoice** | TTS audio generation (alternative backend) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
-| **Edge TTS** | TTS audio generation (default, free, no key needed) | `pip install edge-tts` |
-| **ElevenLabs** | TTS audio generation (highest quality English) | [ElevenLabs](https://elevenlabs.io/) |
-| **Google Cloud TTS** | TTS audio generation (wide language support) | [Google Cloud Console](https://console.cloud.google.com/) |
-| **OpenAI** | TTS audio generation (simple API) | [OpenAI Platform](https://platform.openai.com/) |
 | **Google Gemini** | AI thumbnail generation (optional) | [AI Studio](https://aistudio.google.com/) |
 | **Aliyun Dashscope** | AI thumbnail - Chinese optimized (optional) | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
 
@@ -197,36 +210,21 @@ npm install remotion @remotion/cli @remotion/player zod
 Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-# TTS Backend: edge (default, free), azure, doubao, cosyvoice, elevenlabs, google, openai
-export TTS_BACKEND="edge"                            # Default (free), or "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai" / "ttscn" (bridge)
+# TTS backend (see table above; all synthesis runs through the ttsCN component skill)
+export TTS_BACKEND="edge"                            # or azure / cosyvoice / doubao / tencent / baidu / minimax / xunfei / elevenlabs / openai / google
 
-# Azure TTS (high quality)
+# Optional: voice override (unset = ttsCN's per-platform default)
+export TTS_VOICE="zh-CN-XiaoxiaoNeural"              # legacy per-backend vars (AZURE_TTS_VOICE, EDGE_TTS_VOICE, ...) still work
+
+# API keys for the active platform only, e.g. for azure:
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
 
-# Volcengine Doubao TTS (alternative backend)
-export VOLCENGINE_APPID="your-volcengine-appid"
-export VOLCENGINE_ACCESS_TOKEN="your-volcengine-access-token"
-export VOLCENGINE_CLUSTER="volcano_tts"              # Default cluster, adjust per console config
-export VOLCENGINE_VOICE_TYPE="BV001_streaming"       # Adjust per console voice options
-
-# Aliyun CosyVoice TTS (alternative backend) + AI thumbnails
-export DASHSCOPE_API_KEY="your-dashscope-api-key"
-
-# Optional: Edge TTS voice override
-export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
-
-# ElevenLabs TTS
-export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
-
-# Google Cloud TTS
-export GOOGLE_TTS_API_KEY="your-google-tts-api-key"
-
-# OpenAI TTS
-export OPENAI_API_KEY="your-openai-api-key"
-
 # Optional: Google Gemini for AI thumbnails
 export GEMINI_API_KEY="your-gemini-api-key"
+
+# Optional: Aliyun Dashscope for AI thumbnails (also the cosyvoice TTS key)
+export DASHSCOPE_API_KEY="your-dashscope-api-key"
 ```
 
 Then reload: `source ~/.zshrc`

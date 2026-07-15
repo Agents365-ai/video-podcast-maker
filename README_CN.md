@@ -32,7 +32,7 @@
 - **五种资产生产者** - 用户文件、assetSeeker（许可核验的图库/BGM/音效/图标）、imagenCN（AI 图片与封面）、videogenCN（AI B-roll，dry-run 报价）、Hyperframes（透明 WebM VP9 动画叠层）
 - **成本确认门** - 付费 AI 生成绝不静默执行：报价 → manifest `pending_confirmation` → 明确批准
 - **能力探测** - `cli.py capabilities` 报告各生产者的安装与密钥状态；全链路优雅降级
-- **多 TTS 引擎（11 个后端）** - Edge TTS（免费）、Azure Speech、火山引擎豆包、CosyVoice、ElevenLabs、Google Cloud TTS、OpenAI TTS，另经 `ttscn` 桥接 ttsCN 技能获得腾讯/百度/MiniMax/讯飞
+- **多 TTS 引擎（11 个平台，经 ttsCN 合成）** - Edge TTS（免费）、Azure Speech、CosyVoice、火山引擎豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、Google Cloud TTS、OpenAI TTS —— 全部由必装的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能合成，`TTS_BACKEND` 可直接填任意平台 id
 - **Remotion 视频** - 基于 React 的视频合成与动画
 - **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
 - **实时预览** - Remotion Studio 即时调试，渲染前预览效果
@@ -112,7 +112,7 @@
 - **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - 许可核验的免费图库/视频/BGM/音效/图标/字体（可选资产生产者）
 - **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI 图片生成，用于场景插图与封面（可选，付费 API）
 - **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
-- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - 经 `ttscn` 桥接后端获得更多中文 TTS 平台（可选）
+- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - 全部 11 个 TTS 后端的合成引擎（**必需** —— 安装到 `~/.claude/skills/ttsCN` 或设置 `TTSCN_HOME`）
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→视频渲染器，产出透明动画叠层（可选，Node 22+）
 - **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
 - **ffmpeg** - 高级音视频处理（可选）
@@ -172,17 +172,30 @@ cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
 ```
 
-### 所需 API 密钥
+### TTS 后端（全部经 ttsCN 合成）
+
+全部 11 个 TTS 平台均由**必装**的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能负责合成 —— 请将其安装到 `~/.claude/skills/ttsCN`（或用 `TTSCN_HOME` 指向其根目录）。`TTS_BACKEND` 直接填平台 id，只需配置当前平台的环境变量：
+
+| `TTS_BACKEND` | 平台 | 所需环境变量 | 获取密钥 |
+|---------------|------|-------------|---------|
+| `edge`（默认） | 微软 Edge TTS | *（无 —— 免费）* | — |
+| `azure` | 微软 Azure Speech | `AZURE_SPEECH_KEY`（+ `AZURE_SPEECH_REGION`） | [Azure 门户](https://portal.azure.com/) |
+| `cosyvoice` | 阿里云 CosyVoice | `DASHSCOPE_API_KEY` | [百炼控制台](https://bailian.console.aliyun.com/) |
+| `doubao` | 火山引擎豆包 | `VOLCENGINE_APPID`、`VOLCENGINE_ACCESS_TOKEN` | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
+| `tencent` | 腾讯云 TTS | `TENCENT_SECRET_ID`、`TENCENT_SECRET_KEY` | [腾讯云控制台](https://console.cloud.tencent.com/tts) |
+| `baidu` | 百度 AI TTS | `BAIDU_APP_ID`、`BAIDU_API_KEY`、`BAIDU_SECRET_KEY` | [百度控制台](https://console.bce.baidu.com/ai/#/ai/speech/overview) |
+| `minimax` | MiniMax TTS | `MINIMAX_API_KEY` | [MiniMax 平台](https://platform.minimaxi.com/) |
+| `xunfei` | 科大讯飞 TTS | `XUNFEI_APP_ID`、`XUNFEI_API_KEY`、`XUNFEI_API_SECRET` | [讯飞开放平台](https://www.xfyun.cn/) |
+| `elevenlabs` | ElevenLabs | `ELEVENLABS_API_KEY` | [ElevenLabs](https://elevenlabs.io/) |
+| `openai` | OpenAI TTS | `OPENAI_API_KEY` | [OpenAI Platform](https://platform.openai.com/) |
+| `google` | Google Cloud TTS | `GOOGLE_TTS_API_KEY` | [Google Cloud 控制台](https://console.cloud.google.com/) |
+
+旧的 `TTS_BACKEND=ttscn` 别名仍然可用，其平台由 `TTSCN_PLATFORM` 指定。
+
+### 所需 API 密钥（非 TTS）
 
 | 服务 | 用途 | 获取方式 |
 |------|------|---------|
-| **Azure Speech** | TTS 语音合成（高质量后端） | [Azure 门户](https://portal.azure.com/) → 语音服务 |
-| **火山引擎豆包语音** | TTS 语音合成（备选后端） | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
-| **阿里云 CosyVoice** | TTS 语音合成（备选后端） | [百炼控制台](https://bailian.console.aliyun.com/) |
-| **Edge TTS** | TTS 语音合成（默认后端，免费，无需密钥） | `pip install edge-tts` |
-| **ElevenLabs** | TTS 语音合成（英文最高质量） | [ElevenLabs](https://elevenlabs.io/) |
-| **Google Cloud TTS** | TTS 语音合成（语言支持最广） | [Google Cloud 控制台](https://console.cloud.google.com/) |
-| **OpenAI** | TTS 语音合成（简洁 API） | [OpenAI Platform](https://platform.openai.com/) |
 | **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
 | **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
 
@@ -191,36 +204,21 @@ npm install remotion @remotion/cli @remotion/player zod
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# TTS 后端选择：edge（默认，免费）、azure、doubao、cosyvoice、elevenlabs、google、openai
-export TTS_BACKEND="edge"                            # 默认值，或 "azure" / "doubao" / "cosyvoice" / "elevenlabs" / "google" / "openai" / "ttscn"（桥接）
+# TTS 后端（见上表；所有合成均经 ttsCN 组件技能完成）
+export TTS_BACKEND="edge"                            # 或 azure / cosyvoice / doubao / tencent / baidu / minimax / xunfei / elevenlabs / openai / google
 
-# Azure TTS（高质量后端）
+# 可选：音色覆盖（不设置则使用 ttsCN 的平台默认音色）
+export TTS_VOICE="zh-CN-XiaoxiaoNeural"              # 旧的按后端变量（AZURE_TTS_VOICE、EDGE_TTS_VOICE 等）仍然有效
+
+# 仅需当前平台的 API 密钥，例如 azure：
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"
 
-# 火山引擎豆包 TTS（备选后端）
-export VOLCENGINE_APPID="your-volcengine-appid"
-export VOLCENGINE_ACCESS_TOKEN="your-volcengine-access-token"
-export VOLCENGINE_CLUSTER="volcano_tts"              # 默认值，可按控制台配置修改
-export VOLCENGINE_VOICE_TYPE="BV001_streaming"       # 可按控制台音色修改
-
-# 阿里云 CosyVoice TTS（备选后端）+ AI 封面
-export DASHSCOPE_API_KEY="your-dashscope-api-key"
-
-# 可选：Edge TTS 语音覆盖
-export EDGE_TTS_VOICE="zh-CN-XiaoxiaoNeural"
-
-# ElevenLabs TTS
-export ELEVENLABS_API_KEY="your-elevenlabs-api-key"
-
-# Google Cloud TTS
-export GOOGLE_TTS_API_KEY="your-google-tts-api-key"
-
-# OpenAI TTS
-export OPENAI_API_KEY="your-openai-api-key"
-
 # 可选：Google Gemini 生成 AI 封面
 export GEMINI_API_KEY="your-gemini-api-key"
+
+# 可选：阿里云百炼生成 AI 封面（同时也是 cosyvoice 的 TTS 密钥）
+export DASHSCOPE_API_KEY="your-dashscope-api-key"
 ```
 
 然后重新加载：`source ~/.zshrc`
@@ -304,7 +302,7 @@ videos/{视频名称}/
 - [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
 - [x] 组件模板库 (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
 - [x] 广播级画质升级（渐变背景、多层阴影、动画计数器、质量检查清单）
-- [x] 多 TTS 引擎支持（7 引擎：Edge、Azure、豆包、CosyVoice、ElevenLabs、OpenAI、Google Cloud）
+- [x] 多 TTS 引擎支持（11 个平台，经 ttsCN 组件合成：Edge、Azure、CosyVoice、豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、OpenAI、Google Cloud）
 - [x] Edge TTS 免费后端（无需 API 密钥）
 - [x] 多平台支持（B站 + YouTube），独立语言配置（zh-CN、en-US）
 - [x] 断点续传（`--resume` 参数）

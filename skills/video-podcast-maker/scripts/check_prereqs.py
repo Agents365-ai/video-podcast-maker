@@ -59,11 +59,11 @@ def check_prereqs(env=None):
     missing_bins = [b for b in REQUIRED_BINS if not shutil.which(b)]
     missing_env_vars = [v for v in required_env_vars if not env.get(v)]
 
-    # The ttscn bridge has no env vars of its own but requires the ttsCN
-    # component skill to be installed — validate that here instead of letting
-    # generate_tts.py fail at synthesis time.
+    # Since v4.0.0 every backend synthesizes through the ttsCN component
+    # skill — validate the install here instead of letting generate_tts.py
+    # fail at synthesis time.
     missing_components = []
-    if backend == "ttscn":
+    if backend_known:
         import components
         if components.find_component("ttsCN")[1] is None:
             missing_components.append("ttsCN")
@@ -139,10 +139,16 @@ def main():
     all_missing = missing_bins + missing_env_vars + \
         [f"{c}(component)" for c in missing_components]
 
+    hint = ""
+    if missing_components:
+        hint = (" The ttsCN component skill is required for all TTS backends — "
+                "install it under ~/.claude/skills/ttsCN or set TTSCN_HOME "
+                "(https://github.com/Agents365-ai/ttsCN).")
+
     if cli_envelope.use_json(args):
         sys.exit(cli_envelope.emit_error(
             args, code,
-            f"{len(all_missing)} prereq(s) missing for backend '{backend}'",
+            f"{len(all_missing)} prereq(s) missing for backend '{backend}'.{hint}",
             extra={
                 "backend": backend,
                 "backend_source": state["backend_source"],
@@ -153,6 +159,8 @@ def main():
             started_at=started_at,
         ))
     print(f"MISSING:{' '.join(all_missing)} (backend={backend})")
+    if hint:
+        print(hint.strip(), file=sys.stderr)
     sys.exit(2)
 
 

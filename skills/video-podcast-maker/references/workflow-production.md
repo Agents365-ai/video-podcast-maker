@@ -93,7 +93,7 @@ Remotion thumbnails too when generating both; verify accepts either naming.
 
 > **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[azure-tts-pitfalls.md](azure-tts-pitfalls.md)** before picking a voice or style — covers Multilingual-variant phoneme behavior, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio. Worth ~30 seconds of reading time and saves a re-render.
 
-**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > hardcoded default. The script logs which source it picked at startup.
+**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
 
 ```bash
 # Primary command — backend, rate, and voice all auto-resolved from user_prefs
@@ -108,35 +108,39 @@ python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt -
 
 Override per-run (without editing user_prefs): `TTS_BACKEND=edge TTS_RATE="+10%" python3 ...`. CLI `--backend <name>` also works and takes top priority.
 
-**`ttscn` bridge backend** — when the ttsCN component skill is installed
-(`cli.py capabilities`), `TTS_BACKEND=ttscn` routes synthesis through it,
-adding its providers without extra adapters here. Pick the ttsCN-side
-provider and voice with `TTSCN_PLATFORM` (default `edge`; e.g. `tencent`,
-`baidu`, `minimax`, `xunfei`) and `TTSCN_VOICE`; the chosen provider's API
-keys are validated by ttsCN itself. No word boundaries through the bridge —
-SRT uses the standard chunk-level estimation path.
+**ttsCN engine (required)** — every backend synthesizes through the ttsCN
+component skill (`cli.py capabilities` shows the install; `check_prereqs.py`
+fails with an install hint when missing). `TTS_BACKEND` accepts the platform
+id directly: `edge` (default, free), `azure`, `cosyvoice`, `doubao`,
+`tencent`, `baidu`, `minimax`, `xunfei`, `elevenlabs`, `openai`, `google`.
+The legacy `ttscn` alias still works and picks its platform from
+`TTSCN_PLATFORM` (default `edge`). ttsCN renders expressiveness markers
+(`[PAUSE:x]`, sound tags) and applies phonemes per platform. Word
+boundaries: native per-word timings for platforms that report them (edge,
+azure); chunk-level estimation otherwise — both feed the same SRT/timing
+pipeline.
 
 ### Voice Selection by Language
 
-The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. Reference defaults if the user has not customized `tts.voices`:
+The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, `--voice` is omitted and ttsCN resolves its own per-platform default. Reference recommendations:
 
 | Language | Azure | Edge | Doubao | CosyVoice |
 |----------|-------|------|--------|-----------|
 | zh-CN | zh-CN-XiaoxiaoNeural | zh-CN-XiaoxiaoNeural | BV001_streaming | longxiaochun |
 | en-US | en-US-JennyNeural | en-US-JennyNeural | BV700_streaming | longlaoshu_v2 |
 
-**Manual override (one-off run, no prefs change)** — set the per-backend env var:
+**Manual override (one-off run, no prefs change)** — set `TTS_VOICE` (generic) or a legacy per-backend env var:
 
 ```bash
-# Per-backend env vars: AZURE_TTS_VOICE / EDGE_TTS_VOICE / VOLCENGINE_VOICE_TYPE / etc.
-EDGE_TTS_VOICE="en-US-JennyNeural" python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
+# Generic: TTS_VOICE. Legacy per-backend vars still work: AZURE_TTS_VOICE / EDGE_TTS_VOICE / VOLCENGINE_VOICE_TYPE / etc.
+TTS_VOICE="en-US-JennyNeural" python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 
-Precedence: env var > `user_prefs.json` > hardcoded default. The script logs which source it picked at startup.
+Precedence: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
 
-### Phoneme Correction (SSML)
+### Phoneme Correction
 
-Three tiers (highest to lowest priority):
+The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to ttsCN, which applies it where the platform supports it (azure → SSML `<phoneme>`, minimax → pinyin annotations; other platforms ignore it). Three tiers (highest to lowest priority):
 
 **1. Inline annotation** (highest) — in podcast.txt:
 ```text

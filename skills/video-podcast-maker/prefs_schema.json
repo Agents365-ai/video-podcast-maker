@@ -229,8 +229,9 @@
           "properties": {
             "backend": {
               "type": "string",
-              "enum": ["azure", "doubao", "cosyvoice", "edge", "elevenlabs", "google", "openai"],
-              "default": "edge"
+              "enum": ["azure", "doubao", "cosyvoice", "edge", "elevenlabs", "google", "openai", "tencent", "baidu", "minimax", "xunfei", "ttscn"],
+              "default": "edge",
+              "description": "TTS backend id — all synthesis routes through the ttsCN component skill"
             },
             "rate": {
               "type": "string",

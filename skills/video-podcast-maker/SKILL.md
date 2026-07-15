@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 3.1.0
+version: 4.0.0
 created: 2025-01-27
-updated: 2026-07-12
+updated: 2026-07-15
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:
@@ -24,9 +24,6 @@ metadata:
       - kind: brew
         formula: ffmpeg
         bins: [ffmpeg]
-      - kind: uv
-        package: edge-tts
-        bins: [edge-tts]
 ---
 
 > **REQUIRED: Load Remotion Best Practices First**
@@ -68,6 +65,8 @@ python3 "${SKILL_DIR}/scripts/check_prereqs.py"
 Updates flow through the plugin marketplace (`/plugin update`); direct git-clone installs use `git pull` per the README. This skill performs no update checks.
 
 **Prereqs failures** — see README.md for setup. The check is backend-aware (resolves `TTS_BACKEND` env → `user_prefs.json` `global.tts.backend` → `edge` default), so only env vars required by the active backend are validated.
+
+**TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`, plus the legacy `ttscn` alias) synthesize through the **ttsCN component skill**, which is **required**: install it under `~/.claude/skills/ttsCN` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
 
 > **Design Learning shortcut**: If the user provides a reference video/image or asks to save/list/delete style profiles, see [references/design-learning.md](references/design-learning.md) instead of running the workflow below.
 

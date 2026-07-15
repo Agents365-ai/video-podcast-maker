@@ -1,14 +1,7 @@
-# Core (always needed)
-requests>=2.31.0,<3.0.0
-
-# TTS backends (install only the ones you use)
-edge-tts>=6.1.0,<7.0.0                        # TTS_BACKEND=edge (default, free)
-azure-cognitiveservices-speech>=1.35.0,<2.0.0  # TTS_BACKEND=azure
-dashscope>=1.17.0,<2.0.0                       # TTS_BACKEND=cosyvoice
-# TTS_BACKEND=doubao     — uses requests only (no extra package)
-# TTS_BACKEND=elevenlabs — uses requests only (no extra package)
-# TTS_BACKEND=openai     — uses requests only (no extra package)
-# TTS_BACKEND=google     — uses requests only (no extra package)
+# No Python packages required by the core pipeline (stdlib only).
+#
+# TTS synthesis is delegated to the ttsCN component skill, which brings its
+# own per-provider dependencies: https://github.com/Agents365-ai/ttsCN
 
 # Design learning (optional)
 # playwright             # Only needed for scripts/learn_design.py URL analysis

@@ -239,7 +239,7 @@ Read podcast.txt sentence by sentence. For every Chinese polyphone risk, pick th
 
 ### Pass 2 — English term review
 
-`mark_english_terms` (in `scripts/tts/ssml.py`) auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but has known gaps:
+On the azure platform, ttsCN auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but the wrapping has known gaps:
 - **Hyphenated names**: `tldraw-cli` → only `cli` may get wrapped; `tldraw` reads through the voice's default Chinese pronunciation of letters.
 - **Initialisms**: `API`, `URL`, `MCP` are wrapped as words. If you intend letter-by-letter reading, add an **inline marker** in podcast.txt: `配置 API[ei pi ai] 后...`
 - **Versioned names**: `GPT-4`, `Claude 4.6` — verify the digit reads as digit and the dash reads as space.

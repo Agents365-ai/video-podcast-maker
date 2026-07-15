@@ -60,7 +60,7 @@ COMPONENTS = {
         "env_optional": ["VOLCENGINE_APPID", "DASHSCOPE_API_KEY", "AZURE_SPEECH_KEY",
                          "TENCENT_SECRET_ID", "BAIDU_APP_ID", "MINIMAX_API_KEY",
                          "XUNFEI_APP_ID"],
-        "provides": "TTS bridge backends (P4; Edge works with no key)",
+        "provides": "TTS engine — required for Step 8 (Edge platform works with no key)",
     },
 }
 

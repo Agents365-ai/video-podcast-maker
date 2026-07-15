@@ -322,22 +322,21 @@ Run `references list` — orphaned entries are auto-cleaned on list.
 
 ---
 
-### Doubao TTS: Phoneme System Not Supported
+### Phoneme Support by Platform
 
-**Symptoms**: Inline phoneme markers `执行器[zhí xíng qì]` and `phonemes.json` entries are ignored when using Doubao backend.
+**Symptoms**: Inline phoneme markers `执行器[zhí xíng qì]` and `phonemes.json` entries are ignored.
 
-**Explanation**: Doubao TTS uses a plain-text HTTP API that does not support SSML or phoneme tags. The phoneme system (inline markers, project `phonemes.json`, global `phonemes.json`) only works with Azure TTS. CosyVoice and Edge TTS also do not apply phonemes.
+**Explanation**: The phoneme dictionary is passed to ttsCN, which applies it only on platforms with a pronunciation-override mechanism: `azure` (SSML `<phoneme>`) and `minimax` (pinyin annotations). All other platforms consume plain text and ignore the file.
 
-**Workaround**: If pronunciation accuracy is critical, use Azure TTS (`TTS_BACKEND=azure`).
+**Workaround**: If pronunciation accuracy is critical, use `TTS_BACKEND=azure` or `TTS_BACKEND=minimax`.
 
 ---
 
-### ElevenLabs / OpenAI / Google TTS Limitations
+### Word-Boundary Precision by Platform
 
-- **No phoneme support**: Inline markers `执行器[zhí xíng qì]` and `phonemes.json` are ignored
-- **OpenAI TTS has no word boundaries**: Subtitle timing is approximate (evenly distributed across words). For precise subtitles, use Azure, Edge, or ElevenLabs
-- **Google Cloud TTS has no word boundaries**: Subtitle timing is approximate (same as OpenAI). For precise subtitles, use Azure, Edge, or ElevenLabs
-- **Workaround**: If subtitle precision is critical, use Azure TTS (`TTS_BACKEND=azure`), Edge TTS (`TTS_BACKEND=edge`), or Google Cloud TTS is not recommended for subtitle-critical workflows
+- **Native per-word timings**: only platforms with boundary events (`edge`, `azure`) — ttsCN returns them and the bridge shifts offsets per chunk
+- **All other platforms**: subtitle timing is estimated by distributing each measured chunk duration across its characters (chunks are capped at 400 chars to bound the error)
+- **Workaround**: If subtitle precision is critical, use `TTS_BACKEND=azure` or `TTS_BACKEND=edge`
 
 ---
 

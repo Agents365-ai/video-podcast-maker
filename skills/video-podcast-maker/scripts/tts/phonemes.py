@@ -1,4 +1,9 @@
-"""Chinese phoneme (多音字) processing for TTS."""
+"""Chinese phoneme (多音字) dictionary loading for TTS.
+
+vpm only loads/merges phoneme dictionaries and extracts inline annotations;
+the merged dict is written to a file and passed to ttsCN via --phonemes,
+which applies it per platform (azure SSML <phoneme>, minimax pinyin).
+"""
 import os
 import re
 import json
@@ -92,95 +97,3 @@ def extract_inline_phonemes(text):
 
     clean = re.sub(pattern, extract, text)
     return clean, phonemes
-
-
-def pinyin_to_sapi(pinyin):
-    """Convert pinyin with tone marks to SAPI format with numeric tones.
-
-    Example: "zhí xíng qì" -> "zhi 2 xing 2 qi 4"
-    """
-    tone_map = {
-        'ā': ('a', '1'), 'á': ('a', '2'), 'ǎ': ('a', '3'), 'à': ('a', '4'),
-        'ē': ('e', '1'), 'é': ('e', '2'), 'ě': ('e', '3'), 'è': ('e', '4'),
-        'ī': ('i', '1'), 'í': ('i', '2'), 'ǐ': ('i', '3'), 'ì': ('i', '4'),
-        'ō': ('o', '1'), 'ó': ('o', '2'), 'ǒ': ('o', '3'), 'ò': ('o', '4'),
-        'ū': ('u', '1'), 'ú': ('u', '2'), 'ǔ': ('u', '3'), 'ù': ('u', '4'),
-        'ǖ': ('v', '1'), 'ǘ': ('v', '2'), 'ǚ': ('v', '3'), 'ǜ': ('v', '4'), 'ü': ('v', '5'),
-    }
-
-    syllables = pinyin.split()
-    result = []
-
-    for syllable in syllables:
-        tone = '5'
-        converted = ''
-        for char in syllable:
-            if char in tone_map:
-                base, t = tone_map[char]
-                converted += base
-                tone = t
-            else:
-                converted += char
-        result.append(f"{converted} {tone}")
-
-    return ' '.join(result)
-
-
-def apply_phonemes(text, phoneme_dict):
-    """Apply SSML phoneme tags for multi-character words.
-
-    Uses SAPI alphabet with numeric tones for Azure TTS compatibility.
-    """
-    if not phoneme_dict:
-        return text
-
-    sorted_words = sorted(phoneme_dict.keys(), key=len, reverse=True)
-    placeholders = {}
-    result = text
-
-    for i, word in enumerate(sorted_words):
-        if word not in result:
-            continue
-        placeholder = f"__PH_{i}__"
-        placeholders[placeholder] = (word, phoneme_dict[word])
-        result = result.replace(word, placeholder)
-
-    for placeholder, (word, pinyin) in placeholders.items():
-        sapi_pinyin = pinyin_to_sapi(pinyin)
-        phoneme_tag = f'<phoneme alphabet="sapi" ph="{sapi_pinyin}">{word}</phoneme>'
-        result = result.replace(placeholder, phoneme_tag)
-
-    return result
-
-
-def apply_phonemes_minimax(text, phoneme_dict):
-    """Annotate polyphonic words with MiniMax pinyin syntax: 重(chong2)庆(qing4).
-
-    MiniMax (speech-2.x) reads a parenthesized numbered-pinyin annotation
-    placed directly after a character. Each dict word is expanded to per-char
-    annotations; entries whose syllable count doesn't match the character
-    count are skipped (fail-safe: default pronunciation). Longest-first with
-    placeholders, mirroring apply_phonemes().
-    """
-    if not phoneme_dict:
-        return text
-
-    sorted_words = sorted(phoneme_dict.keys(), key=len, reverse=True)
-    placeholders = {}
-    result = text
-
-    for i, word in enumerate(sorted_words):
-        syllables = phoneme_dict[word].split()
-        if len(syllables) != len(word) or word not in result:
-            continue
-        placeholder = f"__PHM_{i}__"
-        annotated = "".join(
-            f"{char}({pinyin_to_sapi(syl).replace(' ', '')})"
-            for char, syl in zip(word, syllables))
-        placeholders[placeholder] = annotated
-        result = result.replace(word, placeholder)
-
-    for placeholder, annotated in placeholders.items():
-        result = result.replace(placeholder, annotated)
-
-    return result
