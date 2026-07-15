@@ -23,7 +23,7 @@ import subprocess
 import sys
 import time
 from .base import check_resume
-from ..markers import render_markers, strip_markers
+from ..markers import SOUND_TAG_RE, render_markers, strip_markers
 from ..phonemes import apply_phonemes_minimax
 
 
@@ -65,6 +65,13 @@ def synthesize(chunks, config, output_dir, resume=False):
         if platform == 'minimax':
             speak_text = apply_phonemes_minimax(
                 render_markers(chunk, 'minimax'), config.get('phoneme_dict') or {})
+            # Sound tags are only understood by speech-2.8 models — on older
+            # models MiniMax reads "(chuckle)" aloud, so strip them instead.
+            if not os.environ.get('MINIMAX_MODEL', '').startswith('speech-2.8'):
+                if SOUND_TAG_RE.search(speak_text):
+                    print("  ⚠ sound tags stripped: set MINIMAX_MODEL=speech-2.8-hd "
+                          "to voice them")
+                speak_text = SOUND_TAG_RE.sub('', speak_text)
         else:
             speak_text = render_markers(chunk, 'plain')
 
