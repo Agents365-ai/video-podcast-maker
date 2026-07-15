@@ -20,7 +20,8 @@ from tts.voice_advisor import print_advisory
 def build_parser():
     parser = argparse.ArgumentParser(
         description='Generate TTS audio from podcast script',
-        epilog='Backends: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai, google. '
+        epilog='Backends: edge (default, free), azure, doubao, cosyvoice, elevenlabs, openai, google, '
+               'ttscn (bridge to the ttsCN component skill; TTSCN_PLATFORM picks its provider). '
                'Env: TTS_BACKEND, AZURE_SPEECH_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, '
                'DASHSCOPE_API_KEY, EDGE_TTS_VOICE, ELEVENLABS_API_KEY, OPENAI_API_KEY, GOOGLE_TTS_API_KEY, TTS_RATE'
     )
@@ -28,7 +29,7 @@ def build_parser():
     parser.add_argument('--output-dir', '-o', default='.', help='Output directory (default: current dir)')
     parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file')
     parser.add_argument('--backend', '-b', default=None,
-        help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, openai, or google')
+        help='TTS backend: edge, azure, doubao, cosyvoice, elevenlabs, openai, google, or ttscn')
     parser.add_argument('--resume', action='store_true', help='Resume from last breakpoint')
     parser.add_argument('--dry-run', action='store_true',
         help='Plan synthesis without calling the TTS API. Emits backend, voice, '
