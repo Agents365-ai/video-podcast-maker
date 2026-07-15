@@ -354,8 +354,13 @@ def _run(args, started_at):
         for pf in part_files:
             f.write(f"file '{os.path.basename(pf)}'\n")
 
+    # cwd is output_dir (the list entries are basenames), so the list and
+    # output paths must be basenames too — a relative --output-dir would
+    # otherwise be resolved twice and point nowhere.
     concat_result = subprocess.run(
-        ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list, "-c", "copy", output_wav],
+        ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+         "-i", os.path.basename(concat_list), "-c", "copy",
+         os.path.basename(output_wav)],
         capture_output=True, text=True, cwd=args.output_dir)
     if concat_result.returncode != 0:
         sys.exit(cli_envelope.emit_error(
