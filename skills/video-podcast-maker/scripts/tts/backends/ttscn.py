@@ -7,13 +7,13 @@ one `tts.py` invocation (ttsCN sub-chunks internally per provider limits),
 then normalized to the suite's 48 kHz mono WAV.
 
 Word boundaries: when ttsCN returns data.word_boundaries (platforms with
-native boundary events: edge, azure), each offset_sec — absolute within
-that invocation's file — is shifted by the accumulated duration of prior
-chunks, and non-spoken script characters (punctuation) are reinserted
-between word tokens (_merge_native_boundaries) because srt.py and section
-matching rely on them. Otherwise (and for resume-skipped parts) boundaries
-are estimated by distributing the measured chunk duration across visible
-characters.
+native boundary events: edge, azure, doubao, minimax), each offset_sec —
+absolute within that invocation's file — is shifted by the accumulated
+duration of prior chunks, and non-spoken script characters (punctuation)
+are reinserted between word tokens (_merge_native_boundaries) because
+srt.py and section matching rely on them. Otherwise (and for
+resume-skipped parts) boundaries are estimated by distributing the
+measured chunk duration across visible characters.
 Keep registry max_chars small (400): estimation error is bounded by chunk
 length, and chunk durations themselves are always measured.
 
