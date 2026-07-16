@@ -334,7 +334,7 @@ Run `references list` — orphaned entries are auto-cleaned on list.
 
 ### Word-Boundary Precision by Platform
 
-- **Native per-word timings**: only platforms with boundary events (`edge`, `azure`, `doubao`, `minimax` — ttsCN ≥1.5.0 for the latter two) — ttsCN returns them and the bridge shifts offsets per chunk
+- **Native per-word timings**: only platforms with boundary events (`edge`, `azure`, `doubao`, `minimax`, `cosyvoice` — ttsCN ≥1.5.0 for doubao/minimax, ≥1.6.0 for cosyvoice) — ttsCN returns them and the bridge shifts offsets per chunk
 - **All other platforms**: subtitle timing is estimated by distributing each measured chunk duration across its characters (chunks are capped at 400 chars to bound the error)
 - **Workaround**: If subtitle precision is critical, use `TTS_BACKEND=azure` or `TTS_BACKEND=edge`
 
