@@ -210,6 +210,10 @@ export TTS_BACKEND="edge"                            # 或 azure / cosyvoice / d
 # 可选：音色覆盖（不设置则使用 ttsCN 的平台默认音色）
 export TTS_VOICE="zh-CN-XiaoxiaoNeural"              # 旧的按后端变量（AZURE_TTS_VOICE、EDGE_TTS_VOICE 等）仍然有效
 
+# 可选：语速与 Azure express-as 风格
+export TTS_RATE="+5%"                                # 默认 +5%；也可写入 user_prefs.json（global.tts.rate）
+export TTS_STYLE="gentle"                            # 仅 azure 生效；"" 关闭 express-as 包装（global.tts.style）
+
 # 仅需当前平台的 API 密钥，例如 azure：
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"

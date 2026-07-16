@@ -56,6 +56,7 @@
     "tts": {
       "backend": "edge",
       "rate": "+5%",
+      "style": "gentle",
       "voices": {
         "azure": "zh-CN-XiaoxiaoNeural",
         "edge": "zh-CN-XiaoxiaoNeural",

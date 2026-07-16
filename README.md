@@ -216,6 +216,10 @@ export TTS_BACKEND="edge"                            # or azure / cosyvoice / do
 # Optional: voice override (unset = ttsCN's per-platform default)
 export TTS_VOICE="zh-CN-XiaoxiaoNeural"              # legacy per-backend vars (AZURE_TTS_VOICE, EDGE_TTS_VOICE, ...) still work
 
+# Optional: speech rate and Azure express-as style
+export TTS_RATE="+5%"                                # default +5%; also settable in user_prefs.json (global.tts.rate)
+export TTS_STYLE="gentle"                            # azure only; "" disables the wrapper (global.tts.style)
+
 # API keys for the active platform only, e.g. for azure:
 export AZURE_SPEECH_KEY="your-azure-speech-key"
 export AZURE_SPEECH_REGION="eastasia"

@@ -236,8 +236,13 @@
             "rate": {
               "type": "string",
               "pattern": "^[+-]?\\d+%$",
-              "default": "+0%",
+              "default": "+5%",
               "description": "Speech rate adjustment (e.g. +5%, -10%)"
+            },
+            "style": {
+              "type": "string",
+              "default": "gentle",
+              "description": "Azure express-as style (env TTS_STYLE overrides; empty string disables the wrapper; ignored on non-azure platforms)"
             },
             "voices": {
               "type": "object",

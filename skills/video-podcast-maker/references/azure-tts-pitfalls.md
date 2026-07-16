@@ -95,7 +95,7 @@ These styles are reliably supported on `zh-CN-XiaoxiaoNeural`:
 
 For Multilingual voice, restrict to `gentle` or `""`. Other styles are inconsistent.
 
-Set per-run via env: `TTS_STYLE=cheerful python3 generate_tts.py ...` or persist in `user_prefs.json` → `global.tts.azure_style`.
+Set per-run via env: `TTS_STYLE=cheerful python3 generate_tts.py ...` or persist in `user_prefs.json` → `global.tts.style`.
 
 ---
 
