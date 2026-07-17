@@ -1,4 +1,5 @@
 import { useCurrentFrame, useVideoConfig, interpolate, spring, Easing } from "remotion";
+import type { TransitionPresentation } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
@@ -230,8 +231,11 @@ export const useStaggeredDrawOn = (
   });
 };
 
-// Transition presentation mapper
-export const getPresentation = (type: string) => {
+// Transition presentation mapper. The widened return type lets the union of
+// fade/slide/wipe/none presentations flow into <TransitionSeries.Transition>.
+export const getPresentation = (
+  type: string,
+): TransitionPresentation<Record<string, unknown>> => {
   switch (type) {
     case "fade": return fade();
     case "slide": return slide({ direction: "from-right" });

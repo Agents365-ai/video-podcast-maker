@@ -46,15 +46,19 @@ def test_filter_skips_default_hero_outro():
         {"name": "outro",   "duration": 30, "is_silent": False},
         {"name": "content", "duration": 30, "is_silent": False},
     )
-    kept = filter_sections(timing, DEFAULT_MIN_DURATION, DEFAULT_SKIP)
+    kept, skipped = filter_sections(timing, DEFAULT_MIN_DURATION, DEFAULT_SKIP)
     assert [s["name"] for s in kept] == ["content"]
+    assert {s["name"] for s in skipped} == {"hero", "outro"}
+    assert all(s["reason"] == "in --skip list" for s in skipped)
 
 
 def test_filter_drops_silent_sections():
     timing = _timing(
         {"name": "content", "duration": 30, "is_silent": True},
     )
-    assert filter_sections(timing, DEFAULT_MIN_DURATION, "") == []
+    kept, skipped = filter_sections(timing, DEFAULT_MIN_DURATION, "")
+    assert kept == []
+    assert skipped == [{"name": "content", "reason": "silent section"}]
 
 
 def test_filter_drops_sections_below_min_duration():
@@ -62,8 +66,10 @@ def test_filter_drops_sections_below_min_duration():
         {"name": "short", "duration": 5,  "is_silent": False},
         {"name": "long",  "duration": 30, "is_silent": False},
     )
-    kept = filter_sections(timing, min_duration=20, skip_names="")
+    kept, skipped = filter_sections(timing, min_duration=20, skip_names="")
     assert [s["name"] for s in kept] == ["long"]
+    assert skipped[0]["name"] == "short"
+    assert "below --min-duration" in skipped[0]["reason"]
 
 
 # --- load_script -----------------------------------------------------------

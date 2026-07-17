@@ -451,17 +451,6 @@ def _list_references(prefs, design_refs_base):
         print(f"{ref_id:<35} {title:<30} {analyzed:<12} {frame_count}")
 
 
-def _show_reference(ref_id, design_refs_base):
-    """Print report.json for a given reference ID."""
-    ref_dir = os.path.join(design_refs_base, ref_id)
-    try:
-        report = load_report(ref_dir)
-        print(json.dumps(report, ensure_ascii=False, indent=2))
-    except FileNotFoundError:
-        print(f"Error: no report found for '{ref_id}'", file=sys.stderr)
-        sys.exit(1)
-
-
 # ============ CLI Entry Point ============
 
 def _build_parser():
@@ -572,6 +561,17 @@ def main():
         sys.stdout = sys.stderr
     try:
         return _run(parser, args, started_at)
+    except json.JSONDecodeError as exc:
+        sys.exit(cli_envelope.emit_error(
+            args, "input_invalid", f"malformed JSON: {exc}",
+            started_at=started_at,
+        ))
+    except Exception as exc:
+        # An agent must always get an envelope, never a bare traceback.
+        sys.exit(cli_envelope.emit_error(
+            args, "internal_error", f"{type(exc).__name__}: {exc}",
+            started_at=started_at,
+        ))
     finally:
         sys.stdout = sys.__stdout__
 

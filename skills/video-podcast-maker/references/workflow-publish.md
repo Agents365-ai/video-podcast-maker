@@ -4,7 +4,14 @@
 >
 > **Covers:** Steps 12-15 (subtitles → publish info → verify + cleanup → optional vertical shorts).
 >
-> **Previous phase:** See `workflow-production.md` for Steps 5-11.
+> **Previous phase:** See `workflow-production.md` for Steps 6-11.
+
+## Contents
+
+- [Step 12: Finalize (optional legacy subtitle burn)](#step-12-finalize-optional-legacy-subtitle-burn)
+- [Step 13: Complete Publish Info (Part 2)](#step-13-complete-publish-info-part-2)
+- [Step 14: Verify Output & Cleanup](#step-14-verify-output--cleanup)
+- [Step 15: Generate Vertical Shorts (Optional)](#step-15-generate-vertical-shorts-optional)
 
 ---
 

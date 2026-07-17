@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { staticFile, delayRender, continueRender } from "remotion";
+import { staticFile, delayRender, continueRender, cancelRender } from "remotion";
 
 export interface TimingSection {
   name: string;
@@ -58,10 +58,18 @@ export const useTiming = (): TimingData => {
       setTiming(cached);
       return;
     }
-    fetchTiming().then((data) => {
-      setTiming(data);
-      if (handle !== null) continueRender(handle);
-    });
+    fetchTiming()
+      .then((data) => {
+        setTiming(data);
+        if (handle !== null) continueRender(handle);
+      })
+      .catch((err) => {
+        // Fail fast with the real cause — otherwise the render hangs until
+        // the delayRender timeout with no hint that timing.json is the issue.
+        cancelRender(
+          new Error(`Failed to load timing.json from --public-dir: ${err}`),
+        );
+      });
   }, [handle, cached]);
 
   // Return placeholder while loading (render is delayed anyway)

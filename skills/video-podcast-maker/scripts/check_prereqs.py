@@ -117,7 +117,8 @@ def main():
                 },
                 started_at=started_at,
             ))
-        print(f"UNKNOWN_BACKEND:{backend} (known: {','.join(known)})", file=sys.stderr)
+        # stdout, like ALL_OK / MISSING — the prose contract is grepped there.
+        print(f"UNKNOWN_BACKEND:{backend} (known: {','.join(known)})")
         sys.exit(2)
 
     if not missing_bins and not missing_env_vars and not missing_components:

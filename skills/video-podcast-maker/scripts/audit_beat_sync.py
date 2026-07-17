@@ -113,17 +113,6 @@ def parse_srt(srt_text: str):
     return out
 
 
-def srt_at(subs, sec, window=0.5):
-    """Return the SRT text active at given seconds (with small lookback window)."""
-    cur = ''
-    for st, en, txt in subs:
-        if st <= sec + window:
-            cur = txt
-        else:
-            break
-    return cur
-
-
 def srt_overlap(subs, range_start, range_end):
     """Return all SRT entries overlapping the given range, as concatenated text."""
     parts = []

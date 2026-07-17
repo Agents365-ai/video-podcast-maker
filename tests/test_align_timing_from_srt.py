@@ -173,6 +173,46 @@ def test_align_counts_explicit_section_field(tmp_path):
     assert [s["section"] for s in result["slides"]] == ["hero", "problem", "outro"]
 
 
+def test_align_trailing_silent_outro_anchors_to_audio_end(tmp_path):
+    """A silent [SECTION:outro] has no SRT presence; it must anchor to the end
+    of the audio, not to a proportional guess that collapses the previous
+    section's window to the 0.2s monotonic minimum."""
+    podcast = textwrap.dedent("""\
+        [SECTION:hero]
+        大家好，欢迎来到本期视频。今天我们聊聊缓存。
+
+        [SECTION:problem]
+        缓存失效是计算机科学的两大难题之一。
+
+        [SECTION:outro]
+    """)
+    srt = textwrap.dedent("""\
+        1
+        00:00:00,000 --> 00:00:03,000
+        大家好欢迎来到本期视频
+
+        2
+        00:00:03,000 --> 00:00:06,000
+        今天我们聊聊缓存
+
+        3
+        00:00:06,000 --> 00:00:12,000
+        缓存失效是计算机科学的两大难题之一
+    """)
+    sections = [
+        {"name": "s1", "section": "hero", "headline": "欢迎来到本期视频", "duration": 6.0},
+        {"name": "s2", "section": "problem", "headline": "缓存失效是计算机科学的两大难题之一", "duration": 5.0},
+        {"name": "s3", "section": "outro", "headline": "感谢观看", "duration": 2.0},
+    ]
+    vdir = _write_project(tmp_path, _timing(sections), podcast=podcast, srt=srt)
+
+    result = ali.align_timing(vdir, dry_run=True)
+
+    slides = result["slides"]
+    assert slides[2]["start"] >= 12.0                        # outro at audio end
+    assert slides[1]["end"] - slides[1]["start"] >= 5.0      # problem window kept
+
+
 def test_align_missing_input_raises_filenotfound(tmp_path):
     vdir = _write_project(tmp_path, _timing([{"name": "hero", "duration": 6.0}]))
     (vdir / "podcast_audio.srt").unlink()

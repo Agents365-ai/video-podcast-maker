@@ -19,7 +19,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # A failed test run must block the marketplace sync — tests.yml runs in
+  # parallel on push, so the gate has to live inside this workflow.
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install pytest
+      - run: pytest -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-package-lock
+        working-directory: skills/video-podcast-maker
+      - run: npx tsc -p tsconfig.templates.json
+        working-directory: skills/video-podcast-maker
+
   sync:
+    needs: gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source

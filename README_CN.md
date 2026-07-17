@@ -14,6 +14,8 @@
 
 自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，含 ttsCN 桥接）、Remotion 视频渲染和 FFmpeg 音频混音。
 
+**v4.0「ttsCN 路由」**：全部 11 个 TTS 后端统一经必装的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能合成——单一桥接适配器，按平台处理表现力标记与多音字，支持原生字级时间戳的平台自动启用。
+
 **v3.0「资产引擎」**：统一的资产层从五种生产者向合成供货——你自己的文件、[assetSeeker](https://github.com/Agents365-ai/assetSeeker) 免费图库、[imagenCN](https://github.com/Agents365-ai/imagenCN) AI 图片、[videogenCN](https://github.com/Agents365-ai/videogenCN) AI 视频片段、[Hyperframes](https://github.com/heygen-com/hyperframes) 透明动画叠层——全部登记进每视频的 manifest 并记录许可来源。免费资源自动解析，付费生成必先确认。所有生产者均为可选：一个不装也能产出精良的纯文字动画视频。
 
 **支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — 任何支持 SKILL.md 的 coding agent
@@ -38,10 +40,10 @@
 - **实时预览** - Remotion Studio 即时调试，渲染前预览效果
 - **自动同步** - 通过 `timing.json` 实现音视频同步
 - **背景音乐** - FFmpeg 叠加背景音乐
-- **字幕烧录** - 可选 SRT 字幕嵌入
+- **Remotion 原生字幕** - SRT 在 Remotion 内以 React/CSS 直接 4K 渲染（默认）；传统 FFmpeg 烧录仍可用于特殊场景
 - **4K 输出** - 3840x2160 分辨率，画质清晰
 - **章节进度条** - 可视化时间轴，实时显示当前章节
-- **中英混读** - Azure Speech 支持中英文混合旁白
+- **中英混读** - Azure Speech 或 CosyVoice 支持中英文混合旁白
 - **发音校正** - 全局 + 项目级多音字词典，精准控制中文发音
 - **B站模板** - 开箱即用的 Remotion 模板（`Video.tsx`、`Root.tsx`、`Thumbnail.tsx`、`podcast.txt`），快速搭建项目
 - **手动风格档案** - 用户在 `user_prefs.json` 的 `style_profiles` 中维护配色/字体/动画设置，跨视频复用（自动偏好学习在路线图上，尚未实现）
@@ -85,7 +87,7 @@
 
 ## 工作流程
 
-![工作流程](skills/video-podcast-maker/assets/workflow-cn.png)
+![工作流程](images/workflow-cn.png)
 
 ## ⚠️ 给读到这里的你（不是给 AI 看的）：`podcast.txt` 必须人工反复打磨
 
@@ -108,7 +110,7 @@
 
 本技能依赖 **remotion-best-practices**，并可与其他可选技能配合使用：
 
-- **remotion-best-practices** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范）
+- **[remotion-best-practices](https://github.com/remotion-dev/skills)** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范——从 [remotion-dev/skills](https://github.com/remotion-dev/skills) 安装，文档见 [remotion.dev/docs/ai/skills](https://www.remotion.dev/docs/ai/skills)）
 - **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - 许可核验的免费图库/视频/BGM/音效/图标/字体（可选资产生产者）
 - **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI 图片生成，用于场景插图与封面（可选，付费 API）
 - **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
@@ -312,7 +314,7 @@ videos/{视频名称}/
 - [x] 断点续传（`--resume` 参数）
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）
 - [ ] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）——规划中，当前偏好为手动管理
-- [x] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等
+- [ ] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等——规划中，尚未实现
 - [x] 将技能文档重构为可被 Claude Code、Codex、OpenCode、OpenClaw 共同使用的 `SKILL.md` 工作流
 - [x] 设计学习系统 — 从参考视频/图片中学习设计风格，构建设计参考库和可复用的风格档案
 - [ ] Playwright 自动抓取 — 通过 URL 直接分析 B站/YouTube 视频设计风格（Phase 4）

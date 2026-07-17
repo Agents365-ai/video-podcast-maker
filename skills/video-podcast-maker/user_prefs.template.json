@@ -37,7 +37,7 @@
       "typography": {
         "heroTitle": 96,
         "sectionTitle": 80,
-        "cardTitle": 38,
+        "cardTitle": 40,
         "bodyText": 32,
         "caption": 24,
         "scalePreference": 1.0
@@ -45,7 +45,7 @@
       "layout": {
         "textAlign": "center",
         "contentWidth": 0.9,
-        "cardPadding": 36
+        "cardPadding": 40
       },
       "spacing": {
         "sectionPadding": 60,
@@ -78,7 +78,7 @@
     "content": {
       "tone": "professional",
       "verbosity": "balanced",
-      "sectionCount": 5,
+      "sectionCount": 6,
       "outroStyle": "standard",
       "chapters": true,
       "heroOpening": null,

@@ -4,7 +4,17 @@
 >
 > **Covers:** Pre-workflow (optional design reference extraction) → Startup (load user preferences) → Steps 1-4 (topic → research → sections → script).
 >
-> **Next phase:** See `workflow-production.md` for Steps 5-11 (media, TTS, Remotion, render, BGM).
+> **Next phase:** See `workflow-assets.md` for Step 5 (asset plan & resolve), then `workflow-production.md` for Steps 6-11 (publish info, TTS, Remotion, render, BGM).
+
+## Contents
+
+- [Pre-workflow: Design Reference (Optional)](#pre-workflow-design-reference-optional)
+- [Startup: Load User Preferences](#startup-load-user-preferences)
+- [Step 1: Define Topic Direction](#step-1-define-topic-direction)
+- [Step 2: Research Topic](#step-2-research-topic)
+- [Step 3: Design Video Sections](#step-3-design-video-sections)
+- [Step 4: Write Narration Script](#step-4-write-narration-script)
+- [Step 4.5: Pronunciation Pre-Flight (zh-CN only)](#step-45-pronunciation-pre-flight-zh-cn-only)
 
 ---
 

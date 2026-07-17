@@ -13,6 +13,10 @@ Usage:
 Outputs:
   videos/<name>/timing.json        overwritten with aligned timing
   videos/<name>/timing.json.bak    backup of the original
+
+The in-place rewrite is exempt from the suite's --yes gate (same rationale
+as verify_output.py auto-fix): timing.json is a regenerable artifact, the
+original is preserved in timing.json.bak, and --dry-run previews the result.
 """
 from __future__ import annotations
 
@@ -144,7 +148,7 @@ def find_section_entry_index(start_time: float, entries):
     return min(idx, len(entries) - 1)
 
 
-def find_real_section_starts(script_sections, entries, concat, offsets):
+def find_real_section_starts(script_sections, entries, concat, offsets, real_duration):
     """Anchor each [SECTION:name] to its first appearance in SRT.
 
     Prefer the longest substring match to avoid matching a generic phrase that
@@ -167,6 +171,17 @@ def find_real_section_starts(script_sections, entries, concat, offsets):
             start_time = None
             matched = False
         real_starts.append({"name": sec["name"], "start_time": start_time, "matched": matched})
+
+    # Trailing silent sections (empty content, e.g. [SECTION:outro]) never
+    # appear in the SRT. Anchor them to the end of the audio — the
+    # proportional estimate below would place them mid-audio, and the
+    # monotonic clamp would then collapse the previous section's window
+    # to the 0.2s minimum, squeezing all of its slides together.
+    idx = len(script_sections)
+    while idx > 0 and not script_sections[idx - 1]["first_text"] \
+            and real_starts[idx - 1]["start_time"] is None:
+        real_starts[idx - 1]["start_time"] = real_duration
+        idx -= 1
 
     # Fill missing values with proportional estimates.
     n_sections = len(script_sections)
@@ -349,7 +364,7 @@ def align_timing(video_dir: Path, dry_run: bool = False):
         raise ValueError("podcast.txt has no [SECTION:name] markers")
 
     # --- Step 1: initial section anchors from first_text matching ---
-    real_starts = find_real_section_starts(script_sections, entries, concat, offsets)
+    real_starts = find_real_section_starts(script_sections, entries, concat, offsets, real_duration)
 
     # Pre-compute search keys and original starts.
     keys_list = [build_search_keys(s) for s in slides]

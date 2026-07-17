@@ -126,9 +126,15 @@ def synthesize(chunks, config, output_dir, resume=False):
             except json.JSONDecodeError:
                 pass
             if proc.returncode == 0 and envelope and envelope.get('ok'):
-                subprocess.run(
+                resample = subprocess.run(
                     ["ffmpeg", "-y", "-i", raw_file, "-ar", "48000", "-ac", "1", part_file],
-                    capture_output=True)
+                    capture_output=True, text=True)
+                if resample.returncode != 0:
+                    # Fail here with the real cause — otherwise the part is
+                    # reported done at 0.0s and the run dies later at concat.
+                    raise RuntimeError(
+                        f"ffmpeg resample failed for part {i + 1}: "
+                        f"{resample.stderr.strip()[-200:]}")
                 os.remove(raw_file)
                 chunk_duration = float(envelope['data'].get('duration_seconds') or 0)
                 if not chunk_duration:

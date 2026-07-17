@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 4.0.3
+version: 4.0.4
 created: 2025-01-27
 updated: 2026-07-17
 bilibili: https://space.bilibili.com/441831884
@@ -16,7 +16,7 @@ metadata:
   openclaw:
     requires:
       bins: [python3, ffmpeg, node, npx]
-    primaryEnv: AZURE_SPEECH_KEY
+      env: []
     emoji: "🎬"
     homepage: https://github.com/Agents365-ai/video-podcast-maker
     os: ["macos", "linux"]
@@ -32,6 +32,7 @@ metadata:
 > ```
 > Invoke the skill/tool named: remotion-best-practices
 > ```
+> Not installed? Get it from [remotion-dev/skills](https://github.com/remotion-dev/skills) (docs: [remotion.dev/docs/ai/skills](https://www.remotion.dev/docs/ai/skills)).
 
 # Video Podcast Maker
 
@@ -235,6 +236,8 @@ project-root/                           # Remotion project root
 │   ├── topic_research.md               # Step 2
 │   ├── podcast.txt                     # Step 4: narration script
 │   ├── phonemes.json                   # Step 4.5: zh-CN pronunciation overrides
+│   ├── assets/manifest.json            # Step 5: per-section asset registry
+│   ├── publish_info.md                 # Steps 6+13: title/description/tags
 │   ├── podcast_audio.wav               # Step 8: TTS audio
 │   ├── podcast_audio.srt               # Step 8: subtitles
 │   ├── timing.json                     # Step 8: timeline (drives animations)

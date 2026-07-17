@@ -248,6 +248,11 @@ def cmd_add(args, started_at):
 
 
 def cmd_list(args, started_at):
+    if not os.path.isdir(args.video_dir):
+        return cli_envelope.emit_error(
+            args, "input_not_found",
+            f"Video directory not found: {args.video_dir}",
+            field="video_dir", started_at=started_at)
     manifest, err = load_manifest(args.video_dir)
     if err:
         return cli_envelope.emit_error(args, "input_invalid", err, started_at=started_at)

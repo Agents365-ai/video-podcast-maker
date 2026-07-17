@@ -55,9 +55,11 @@ const SectionComponent = ({
   const sectionPadding = v ? "120px 60px 160px" : "60px 100px 120px";
 
   switch (section.name) {
-    // Reference font sizes (1080p design space, horizontal):
-    // Hero title: 72-120px/800wt, Section title: 72-80px/700-800wt
-    // Subtitle: 30-40px, Card title: 34-38px, Body: 26-34px, Tags: 20-26px
+    // Reference font sizes (1080p design space, horizontal) — see
+    // references/design-guide.md minimums (hero ≥84, section ≥72,
+    // card title ≥40, body ≥32, any text ≥24):
+    // Hero title: 84-120px/800wt, Section title: 72-80px/700-800wt
+    // Subtitle: 30-40px, Card title: 40-48px, Body: 32-40px, Tags: 24-28px
     // Vertical: scale up body/subtitle by ~20%, titles stay similar
 
     case "hero":
@@ -192,7 +194,7 @@ const SectionComponent = ({
               </h2>
               <p
                 style={{
-                  fontSize: v ? 36 : 30,
+                  fontSize: v ? 36 : 32,
                   color: props.textColor,
                   lineHeight: 1.6,
                 }}

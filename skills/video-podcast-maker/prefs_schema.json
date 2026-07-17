@@ -158,28 +158,28 @@
               "properties": {
                 "heroTitle": {
                   "type": "number",
-                  "minimum": 72,
+                  "minimum": 84,
                   "default": 96
                 },
                 "sectionTitle": {
                   "type": "number",
-                  "minimum": 60,
-                  "default": 72
+                  "minimum": 72,
+                  "default": 80
                 },
                 "cardTitle": {
                   "type": "number",
-                  "minimum": 24,
-                  "default": 36
+                  "minimum": 40,
+                  "default": 40
                 },
                 "bodyText": {
                   "type": "number",
-                  "minimum": 24,
-                  "default": 28
+                  "minimum": 32,
+                  "default": 32
                 },
                 "caption": {
                   "type": "number",
-                  "minimum": 18,
-                  "default": 22
+                  "minimum": 24,
+                  "default": 24
                 },
                 "scalePreference": {
                   "type": "number",
@@ -199,14 +199,14 @@
                 },
                 "contentWidth": {
                   "type": "number",
-                  "minimum": 0.5,
+                  "minimum": 0.85,
                   "maximum": 1.0,
-                  "default": 0.85,
+                  "default": 0.9,
                   "description": "Content width as fraction of screen"
                 },
                 "cardPadding": {
                   "type": "number",
-                  "minimum": 0,
+                  "minimum": 40,
                   "default": 40
                 }
               }
@@ -216,13 +216,13 @@
               "properties": {
                 "sectionPadding": {
                   "type": "number",
-                  "minimum": 0,
+                  "minimum": 40,
                   "default": 60
                 },
                 "itemGap": {
                   "type": "number",
                   "minimum": 0,
-                  "default": 24
+                  "default": 28
                 },
                 "marginBottom": {
                   "type": "number",

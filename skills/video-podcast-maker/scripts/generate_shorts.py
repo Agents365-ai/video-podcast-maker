@@ -87,19 +87,24 @@ def load_script(input_dir):
 
 
 def filter_sections(timing, min_duration, skip_names):
-    """Return sections that qualify for short generation."""
+    """Split sections into (qualifying, skipped-with-reason) for short generation."""
     skip_set = {s.strip() for s in skip_names.split(',') if s.strip()}
     qualifying = []
+    skipped = []
     for sec in timing.get('sections', []):
         name = sec['name']
         if name in skip_set:
-            continue
-        if sec.get('is_silent', False):
-            continue
-        if sec.get('duration', 0) < min_duration:
-            continue
-        qualifying.append(sec)
-    return qualifying
+            skipped.append({"name": name, "reason": "in --skip list"})
+        elif sec.get('is_silent', False):
+            skipped.append({"name": name, "reason": "silent section"})
+        elif sec.get('duration', 0) < min_duration:
+            skipped.append({
+                "name": name,
+                "reason": f"duration {sec.get('duration', 0):.1f}s below --min-duration {min_duration}s",
+            })
+        else:
+            qualifying.append(sec)
+    return qualifying, skipped
 
 
 def extract_audio(input_dir, section, output_dir):
@@ -308,26 +313,9 @@ def _run(args, started_at):
 
     script_titles = load_script(input_dir)
 
-    # Build the structured filter result. We replicate filter_sections() here
-    # rather than calling it because we want per-section skip reasons in the
-    # envelope (filter_sections only returns the kept list).
     skip_set = {s.strip() for s in args.skip.split(',') if s.strip()}
     all_section_records = timing.get('sections', [])
-    qualifying = []
-    skipped = []
-    for sec in all_section_records:
-        name = sec['name']
-        if name in skip_set:
-            skipped.append({"name": name, "reason": "in --skip list"})
-        elif sec.get('is_silent', False):
-            skipped.append({"name": name, "reason": "silent section"})
-        elif sec.get('duration', 0) < args.min_duration:
-            skipped.append({
-                "name": name,
-                "reason": f"duration {sec.get('duration', 0):.1f}s below --min-duration {args.min_duration}s",
-            })
-        else:
-            qualifying.append(sec)
+    qualifying, skipped = filter_sections(timing, args.min_duration, args.skip)
 
     shorts_dir = os.path.join(input_dir, 'shorts')
     result = {
@@ -410,6 +398,16 @@ def _run(args, started_at):
         })
 
         print()
+
+    if not result['generated'] and result['failed']:
+        sys.exit(cli_envelope.emit_error(
+            args,
+            "ffmpeg_failed" if all(f['stage'] == 'extract_audio' for f in result['failed'])
+            else "internal_error",
+            f"All {len(result['failed'])} qualifying section(s) failed",
+            extra={"result": result},
+            started_at=started_at,
+        ))
 
     # Summary
     print("=" * 50)

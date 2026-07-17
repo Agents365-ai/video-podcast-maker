@@ -14,6 +14,8 @@
 
 Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (11 backends incl. the ttsCN bridge), Remotion video rendering, and FFmpeg audio mixing.
 
+**v4.0 "ttsCN Routing"**: all 11 TTS backends now synthesize through the required [ttsCN](https://github.com/Agents365-ai/ttsCN) component skill — one bridge adapter, per-platform expressiveness markers and phoneme handling, native word boundaries where the platform supports them.
+
 **v3.0 "Asset Engine"**: a unified asset layer feeds the composition from five producers — your own files, [assetSeeker](https://github.com/Agents365-ai/assetSeeker) stock, [imagenCN](https://github.com/Agents365-ai/imagenCN) AI stills, [videogenCN](https://github.com/Agents365-ai/videogenCN) AI B-roll, and [Hyperframes](https://github.com/heygen-com/hyperframes) transparent overlays — all registered in a per-video manifest with license provenance. Free sources auto-resolve; paid generation always asks first. Every producer is optional: with none installed you still get a polished text-animation video.
 
 **Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — any coding agent that supports SKILL.md
@@ -86,7 +88,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 ## Workflow
 
-![Workflow](skills/video-podcast-maker/assets/workflow.png)
+![Workflow](images/workflow.png)
 
 ## ⚠️ For the human reading this (not the AI): manually polish `podcast.txt`, repeatedly
 
@@ -109,7 +111,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 This skill depends on **remotion-best-practices** and works alongside other optional skills:
 
-- **remotion-best-practices** - Official Remotion best practices (required, provides core Remotion patterns and guidelines)
+- **[remotion-best-practices](https://github.com/remotion-dev/skills)** - Official Remotion best practices (required, provides core Remotion patterns and guidelines — install from [remotion-dev/skills](https://github.com/remotion-dev/skills), docs at [remotion.dev/docs/ai/skills](https://www.remotion.dev/docs/ai/skills))
 - **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - License-vetted free stock photos/video/BGM/SFX/icons/fonts (optional asset producer)
 - **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI image generation for scene illustrations and thumbnails (optional, paid APIs)
 - **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI video clip generation for B-roll and i2v (optional, paid APIs)
@@ -306,6 +308,27 @@ Included tracks in `skills/video-podcast-maker/assets/`:
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
 
+
+## Roadmap
+
+- [x] Vertical video support (9:16) for immersive mobile playback
+- [x] Remotion transitions (@remotion/transitions) for professional chapter cuts
+- [x] Component template library (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
+- [x] Broadcast-grade visual upgrade (gradient backgrounds, layered shadows, animated counters, quality checklist)
+- [x] Multi-engine TTS (11 platforms via the ttsCN component: Edge, Azure, CosyVoice, Doubao, Tencent, Baidu, MiniMax, Xunfei, ElevenLabs, OpenAI, Google Cloud)
+- [x] Free Edge TTS backend (no API key required)
+- [x] Multi-platform publishing (Bilibili + YouTube) with independent language settings (zh-CN, en-US)
+- [x] Resumable synthesis (`--resume`)
+- [x] Estimation mode (`--dry-run` duration estimate without API calls)
+- [ ] Self-evolving user preferences (automatic visual/TTS/content style learning) — planned; preferences are currently user-managed
+- [ ] Visual QA — automated aesthetic/layout review of rendered sections — planned, not yet implemented
+- [x] Skill docs restructured as a `SKILL.md` workflow usable by Claude Code, Codex, OpenCode, and OpenClaw
+- [x] Design learning system — learn visual styles from reference videos/images into a reusable profile library
+- [ ] Playwright auto-capture — analyze Bilibili/YouTube video design straight from a URL (Phase 4)
+- [ ] Step 9 smart recommendations — auto-match saved style profiles when making a video (Phase 5)
+- [ ] Thumbnail design learning — apply learned cover styles to the Thumbnail.tsx template (Phase 5)
+- [ ] Automated YouTube publishing — upload video, metadata, chapters, and thumbnail via the YouTube Data API
+- [ ] Windows support (WSL validation + docs)
 
 ## ❤️ Support
 

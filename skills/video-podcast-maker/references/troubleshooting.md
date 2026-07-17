@@ -16,10 +16,10 @@
 The suite is reachable through one hierarchical entry point at `scripts/cli.py`:
 
 ```bash
-python3 scripts/cli.py --help                       # 9 resources
+python3 scripts/cli.py --help                       # 11 resources
 python3 scripts/cli.py <resource> --help            # actions for one resource
 python3 scripts/cli.py <resource> <action> --help   # full args (forwards to underlying script)
-python3 scripts/cli.py schema                       # JSON list of all 15 methods
+python3 scripts/cli.py schema                       # JSON list of all 20 methods
 python3 scripts/cli.py schema <method>              # typed parameter schema for one method
 ```
 

@@ -2,14 +2,14 @@
 
 > **When to load:** Load after the narration script exists, or when the user asks about media, TTS, Remotion composition, 4K render, or BGM mixing.
 >
-> **Covers:** Steps 5-11 (media collection → publish info draft → thumbnail → TTS → Remotion composition + Studio preview → 4K render → BGM mix).
+> **Covers:** Steps 6-11 (publish info draft → thumbnail → TTS → Remotion composition + Studio preview → 4K render → BGM mix). Step 5 (asset plan & resolve) lives in `workflow-assets.md` — only a pointer stub remains below.
 >
-> **Previous phase:** See `workflow-script.md` for Pre-workflow + Startup + Steps 1-4.
+> **Previous phase:** See `workflow-script.md` for Pre-workflow + Startup + Steps 1-4, then `workflow-assets.md` for Step 5.
 > **Next phase:** See `workflow-publish.md` for Steps 12-15 (subtitles, publish info, cleanup, shorts).
 
 ## Contents
 
-- [Step 5: Collect Media Assets](#step-5-collect-media-assets)
+- [Step 5: Asset Plan & Resolve](#step-5-asset-plan--resolve) — pointer to workflow-assets.md
 - [Step 6: Generate Publish Info (Part 1)](#step-6-generate-publish-info-part-1)
 - [Step 7: Generate Video Thumbnail](#step-7-generate-video-thumbnail)
 - [Step 8: Generate TTS Audio](#step-8-generate-tts-audio) — voice selection, SSML, chunk seams

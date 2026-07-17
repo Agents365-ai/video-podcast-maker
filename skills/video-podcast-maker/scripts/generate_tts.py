@@ -147,6 +147,13 @@ def main():
         sys.stdout = sys.stderr
     try:
         return _run(args, started_at)
+    except Exception as exc:
+        # An agent must always get an envelope on stdout, never a bare
+        # traceback (SystemExit from emit_* passes through untouched).
+        sys.exit(cli_envelope.emit_error(
+            args, "internal_error", f"{type(exc).__name__}: {exc}",
+            started_at=started_at,
+        ))
     finally:
         sys.stdout = sys.__stdout__
 
@@ -328,7 +335,13 @@ def _run(args, started_at):
             json.dump(phoneme_dict, f, ensure_ascii=False, indent=2)
         config['phonemes_path'] = phonemes_path
     synthesize = get_synthesize_func(BACKEND)
-    part_files, word_boundaries, total_duration = synthesize(chunks, config, args.output_dir, resume=args.resume)
+    try:
+        part_files, word_boundaries, total_duration = synthesize(chunks, config, args.output_dir, resume=args.resume)
+    except RuntimeError as exc:
+        sys.exit(cli_envelope.emit_error(
+            args, "backend_failed", str(exc),
+            extra={"backend": BACKEND}, started_at=started_at,
+        ))
     print(f"\nCollected {len(word_boundaries)} word boundaries")
     print(f"Total duration: {total_duration:.1f}s")
 
