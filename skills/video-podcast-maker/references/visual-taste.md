@@ -87,6 +87,13 @@ Pick **one** mode per video from the design read (topic preset + user vibe words
 | **Editorial** | light | serif display + sans body, generous whitespace | accent lines, `clean` | V6 M4 D3 |
 | **Playful / Agency** | either | bold rounded sans, oversized scale jumps | `shapes`, kinetic-typography preset | V8 M8 D3 |
 | **Premium Consumer** | either | refined sans display, controlled spacing | subtle `gradient` | V7 M5 D3 |
+| **Soft / Premium** | light | variable serif display (optical sizing, tight tracking) + soft grotesk body | `gradient` ≤0.04, diffuse glow orb | V6 M4 D2 |
+| **Industrial Brutalist** | either | heavy sans structural headers at extreme scale contrast + mono telemetry rows | `grid` (lines/crosses), accent lines | V7 M5 D8 |
+
+**Mode palettes** — the two new modes carry a locked palette as part of their identity; the Color rules above still apply on top.
+
+- **Soft / Premium** — warm creams + espresso, editorial luxury. This is the one sanctioned use of the cream/espresso family: it is banned as an *unthinking* default reach, not as a declared mode. Cards use double-bezel / nested depth with ultra-soft diffuse shadows (large blur, low alpha, tinted per the Cards rules); massive whitespace and cinematic spatial rhythm carry the pacing.
+- **Industrial Brutalist** — monochrome + a single hazard-red accent, visible hairline dividers instead of card chrome, raw mechanical precision in every transition. CRT scanlines / dithering / halftone are **static texture overlays only** (≤0.08 opacity, no flicker or scroll) — animated scanlines violate design-guide's Animation Safety table.
 
 **Theme lock**: sections never flip light↔dark mid-video. Variety comes from tint shifts and background-layer changes *within* the theme family (design-guide theme rules), never from inverting a section.
 
