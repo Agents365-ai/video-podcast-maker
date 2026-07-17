@@ -55,6 +55,7 @@
 ### 平台优化
 
 **B站:**
+
 - **脚本结构** - 欢迎开场 + 一键三连片尾引导
 - **章节时间戳** - 自动生成 `MM:SS` 格式，直接复制到B站
 - **封面生成** - AI (imagenCN) 或 Remotion，自动生成 16:9 + 4:3 双版本
@@ -62,11 +63,13 @@
 - **发布信息** - 标题公式、标签策略、简介模板
 
 **YouTube:**
+
 - **SEO 优化** - 标题 <70 字符、关键词描述、标签和 hashtags
 - **Chapters** - 自动生成 YouTube 章节时间戳（首行 0:00）
 - **CTA** - "Like, Subscribe & Share" 文字动画或自定义
 
 **小红书:**
+
 - **标题** - 不超过 20 字，简洁有力，可用 emoji
 - **正文** - 200-500 字，种草/知识分享风格，支持 emoji
 - **话题标签** - `#话题#` 格式（双井号），5-10 个
@@ -74,12 +77,14 @@
 - **CTA** - "点赞收藏加关注" 文字动画
 
 **抖音:**
+
 - **格式** - 仅竖屏精华片段（9:16），不生成横屏长视频
 - **文案** - 100-200 字，口语化风格，支持 emoji
 - **话题标签** - `#话题` 格式（单井号），3-8 个
 - **CTA** - "点赞关注" 纯文字（无动画）
 
 **微信视频号:**
+
 - **格式** - 仅竖屏精华片段（9:16），不生成横屏长视频
 - **文案** - 100-300 字，知识分享风格，适合转发
 - **话题标签** - `#话题` 格式（单井号），3-8 个
@@ -119,13 +124,12 @@
 - **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
 - **ffmpeg** - 高级音视频处理（可选）
 
-
 ## 环境要求
 
 ### 系统要求
 
 | 软件 | 版本 | 用途 |
-|------|------|------|
+| ------ | ------ | ------ |
 | **macOS / Linux** | - | 已在 macOS 测试，兼容 Linux |
 | **Python** | 3.8+ | TTS 脚本、自动化 |
 | **Node.js** | 18+ | Remotion 视频渲染 |
@@ -179,7 +183,7 @@ npm install remotion @remotion/cli @remotion/player zod
 全部 11 个 TTS 平台均由**必装**的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能负责合成 —— 请将其安装到 `~/.claude/skills/ttsCN`（或用 `TTSCN_HOME` 指向其根目录）。`TTS_BACKEND` 直接填平台 id，只需配置当前平台的环境变量：
 
 | `TTS_BACKEND` | 平台 | 所需环境变量 | 获取密钥 |
-|---------------|------|-------------|---------|
+| --------------- | ------ | ------------- | --------- |
 | `edge`（默认） | 微软 Edge TTS | *（无 —— 免费）* | — |
 | `azure` | 微软 Azure Speech | `AZURE_SPEECH_KEY`（+ `AZURE_SPEECH_REGION`） | [Azure 门户](https://portal.azure.com/) |
 | `cosyvoice` | 阿里云 CosyVoice | `DASHSCOPE_API_KEY` | [百炼控制台](https://bailian.console.aliyun.com/) |
@@ -197,7 +201,7 @@ npm install remotion @remotion/cli @remotion/player zod
 ### 所需 API 密钥（非 TTS）
 
 | 服务 | 用途 | 获取方式 |
-|------|------|---------|
+| ------ | ------ | --------- |
 | **Google Gemini** | AI 封面生成（可选） | [AI Studio](https://aistudio.google.com/) |
 | **阿里云百炼** | AI 封面生成 - 中文优化（可选） | [百炼控制台](https://bailian.console.aliyun.com/) |
 
@@ -250,6 +254,7 @@ npx remotion studio src/remotion/index.ts
 ```
 
 这会打开一个浏览器编辑器，你可以：
+
 - **可视化样式编辑** - 在右侧面板调整颜色、字体、尺寸
 - 逐帧拖动时间轴查看效果
 - 编辑组件时实时看到更新
@@ -258,20 +263,19 @@ npx remotion studio src/remotion/index.ts
 #### 可编辑属性
 
 | 分类 | 属性 |
-|------|------|
+| ------ | ------ |
 | **颜色** | 主色调、背景色、文字颜色、强调色 |
 | **字体** | 标题大小 (72-120)、副标题、正文 |
 | **进度条** | 显示/隐藏、高度、字号、激活颜色 |
 | **音频** | BGM 音量 (0-0.3) |
 | **动画** | 启用/禁用入场动画 |
 
-
 ## 配置文件
 
 下表所有路径都相对于技能根目录（本仓库为 `skills/video-podcast-maker/`，通过 marketplace 安装后为 `${SKILL_DIR}`）：
 
 | 文件 | 作用域 | 说明 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | `phonemes.json` | 全局 | 多音字词典，所有视频项目共享。首次运行时由脚本从 `phonemes.template.json` 自动复制。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
 | `user_prefs.template.json` | 全局 | 偏好默认模板。首次运行时自动复制为 `user_prefs.json`，后续随使用自动学习你的风格 |
 | `prefs_schema.json` | 全局 | 偏好验证的 JSON Schema，无需手动编辑 |
@@ -299,6 +303,7 @@ videos/{视频名称}/
 ## 背景音乐
 
 `skills/video-podcast-maker/assets/` 目录下包含：
+
 - `perfect-beauty-191271.mp3` - 轻快积极
 - `snow-stevekaldes-piano-397491.mp3` - 舒缓钢琴
 
@@ -322,7 +327,6 @@ videos/{视频名称}/
 - [ ] 封面设计学习 — 将学到的封面风格应用到 Thumbnail.tsx 模板（Phase 5）
 - [ ] YouTube 自动化发布 — 通过 YouTube Data API 上传视频、元数据、章节、封面
 - [ ] Windows 适配 (WSL 验证 + 文档)
-
 
 ## ❤️ 支持作者
 
@@ -353,12 +357,16 @@ videos/{视频名称}/
   </tr>
 </table>
 
+## 💬 支持
+
+如有问题、功能建议或疑问，请在 [GitHub 提交 Issue](https://github.com/Agents365-ai/video-podcast-maker/issues)。
+
 ## 👤 作者
 
 **Agents365-ai**
 
-- B站: https://space.bilibili.com/441831884
-- GitHub: https://github.com/Agents365-ai
+- B站: <https://space.bilibili.com/441831884>
+- GitHub: <https://github.com/Agents365-ai>
 
 ## 📄 开源协议
 

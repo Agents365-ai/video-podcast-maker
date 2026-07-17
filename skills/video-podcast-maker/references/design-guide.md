@@ -1,6 +1,8 @@
 # Video Podcast Maker — Design Guide
 
 > **When to load:** Load this file when working on Step 9 (Remotion composition) or when the user asks about visual design.
+>
+> **Pair with [visual-taste.md](visual-taste.md)** — design-guide owns the hard floors (px minimums, animation safety, checklists); visual-taste owns the judgment calls above those floors (dials, color calibration, typography choices, section rhythm). Load both before Step 9.
 
 ## Contents
 
@@ -20,7 +22,7 @@
 Hard constraints for 1080p design space — prevents small text and empty layouts:
 
 | Constraint | Minimum |
-|------------|---------|
+| ------------ | --------- |
 | **Any text** | ≥ 24px |
 | **Hero title** | ≥ 84px |
 | **Section title** | ≥ 72px |
@@ -35,7 +37,7 @@ Hard constraints for 1080p design space — prevents small text and empty layout
 ### Space Utilization
 
 | Rule | Requirement |
-|------|-------------|
+| ------ | ------------- |
 | **Content width** | Cards/grids must occupy ≥85% available width (maxWidth: 1500-1700px) |
 | **Vertical centering** | All sections must use `justifyContent: 'center'` |
 | **Grid vs Flex** | Prefer `grid` over `flex wrap` for multi-card layouts |
@@ -44,7 +46,7 @@ Hard constraints for 1080p design space — prevents small text and empty layout
 ### Visual Richness
 
 | Element | Requirement |
-|---------|-------------|
+| --------- | ------------- |
 | **Card borders** | Colored border (≥3px) or colored left border (≥6px) |
 | **Shadows** | `boxShadow: '0 8px 24px rgba(color, 0.15)'` |
 | **Color coding** | Parallel elements use different theme colors |
@@ -70,12 +72,14 @@ Templates (`templates/`) are **starting points, not blueprints**. The agent SHOU
 ### Theme-based background rules
 
 When `user_prefs.visual.theme` is `"light"`:
+
 - **All section backgrounds MUST be white (`#ffffff`)**. Do NOT use dark backgrounds, colored backgrounds, or alternate grays.
 - Use subtle radial/linear gradients over white (`${color}06`-`${color}10`) for visual variety between sections.
 - All text must use dark colors (`#1a1a1a` or theme colors). Never use white/light text.
 - Tech cards, stat cards, etc. should use tinted backgrounds (`${color}08`) instead of dark card backgrounds.
 
 When `user_prefs.visual.theme` is `"dark"`:
+
 - Section backgrounds use dark colors (`#0f172a`, `#1a1a2e`, etc.)
 - Text uses white/light colors.
 
@@ -86,7 +90,7 @@ When `user_prefs.visual.theme` is `"dark"`:
 Hard limits to prevent strobing, flicker, and visual fatigue. These apply to every composition regardless of style.
 
 | Rule | Requirement |
-|------|-------------|
+| ------ | ------------- |
 | **Full-screen brightness change** | `opacity` of any full-bleed white/black overlay must NOT exceed `0.30` |
 | **Snap duration** | No light↔dark snap may complete in fewer than `10` frames (~0.33s @ 30fps) |
 | **Section transition flash** | Forbidden by default. Use color pulse (≤0.15 opacity) or simple cut instead. |
@@ -102,7 +106,7 @@ Hard limits to prevent strobing, flicker, and visual fatigue. These apply to eve
 ### Per-Section Checklist
 
 | # | Check | Requirement |
-|---|-------|-------------|
+| --- | ------- | ------------- |
 | 1 | **Space utilization** | Content ≥85% available width, no large blank areas |
 | 2 | **Visual depth** | Shadow + colored border/gradient, at least 2 visual layers |
 | 3 | **Color coding** | Parallel cards use different theme colors (border, title, icon) |
@@ -113,7 +117,7 @@ Hard limits to prevent strobing, flicker, and visual fatigue. These apply to eve
 ### Video-Level Checklist (before render)
 
 | # | Check | Requirement |
-|---|-------|-------------|
+| --- | ------- | ------------- |
 | 1 | **Layout variety** | ≥3 different layout types (centered, grid, split, timeline, etc.) |
 | 2 | **Background alternation** | No 2 consecutive sections share the same background |
 | 3 | **Unified color scheme** | Primary/secondary/accent used consistently |
@@ -127,7 +131,7 @@ Thumbnails render at ~300px in feeds. Only bold, oversized elements survive at t
 **Hard rules (MUST follow):**
 
 | Rule | Requirement |
-|------|-------------|
+| ------ | ------------- |
 | **Layout** | Content centered both horizontally and vertically |
 | **Title** | ≥120px bold. The dominant visual element — as large as the text length allows |
 | **Icons** | ≥120px. Serve as visual anchors alongside text |
@@ -135,6 +139,7 @@ Thumbnails render at ~300px in feeds. Only bold, oversized elements survive at t
 | **Readability** | Must be legible at 300px width — use text-stroke, text-shadow, or contrasting overlay as needed |
 
 **Design guidance (adapt per topic):**
+
 - Prefer 2-3 lines of text (title + subtitle or hook) over a single line — more text = more information density
 - Use high-saturation colors that pop in feeds; avoid muted tones
 - Consider a short hook phrase ("Why It Matters", "Top 5") to boost curiosity — as badge, subtitle, or integrated into the title
@@ -144,7 +149,7 @@ Thumbnails render at ~300px in feeds. Only bold, oversized elements survive at t
 ### TTS Quality Guidance
 
 | Technique | How |
-|-----------|-----|
+| ----------- | ----- |
 | **Section pauses** | Empty line before each `[SECTION:xxx]` for natural breathing room |
 | **Pacing variation** | Slower intro/outro (TTS_RATE="+0%"), normal middle (TTS_RATE="+5%") |
 | **Key sentence emphasis** | SSML `<emphasis>` tags on important sentences (Azure supports this) |
@@ -158,7 +163,7 @@ Production-verified sizes as recommended reference. The agent may adjust freely 
 ### Typography Scale (1080p design space)
 
 | Element | Recommended Size | Weight | When to Use |
-|---------|-----------------|--------|-------------|
+| --------- | ----------------- | -------- | ------------- |
 | **Hero Title** | 84-96px | 800 | Opening section, brand moment |
 | **Section Title** | 72-80px | 700-800 | Each section's main heading |
 | **Large Emphasis** | 48-72px | 600-700 | Key statements, conclusions, quotes |
@@ -170,12 +175,12 @@ Production-verified sizes as recommended reference. The agent may adjust freely 
 
 ### Icon Selection Guide
 
-The full [Lucide icon library](https://lucide.dev/icons/) (1500+ icons) is available. Use kebab-case names (e.g., `"shield-check"`, `"brain-circuit"`). Browse https://lucide.dev/icons/ to find the best match.
+The full [Lucide icon library](https://lucide.dev/icons/) (1500+ icons) is available. Use kebab-case names (e.g., `"shield-check"`, `"brain-circuit"`). Browse <https://lucide.dev/icons/> to find the best match.
 
 **Semantic mapping — pick icons by concept, not by guessing:**
 
 | Concept | Recommended Icon | Alternatives |
-|---------|-----------------|--------------|
+| --------- | ----------------- | -------------- |
 | AI / Intelligence | `brain` | `brain-circuit`, `sparkles`, `bot` |
 | Speed / Performance | `zap` | `gauge`, `rocket`, `timer` |
 | Security / Privacy | `shield` | `shield-check`, `lock`, `key-round` |
@@ -203,8 +208,9 @@ The full [Lucide icon library](https://lucide.dev/icons/) (1500+ icons) is avail
 | Video / Media | `video` | `play-circle`, `clapperboard`, `film` |
 
 **Rules:**
+
 - Always use semantic names from this table when the concept matches
-- For concepts not listed, browse https://lucide.dev/icons/ and pick the closest match
+- For concepts not listed, browse <https://lucide.dev/icons/> and pick the closest match
 - Prefer specific icons over generic ones (e.g., `shield-check` over `check` for "security verified")
 - Each card/section in a group should use a **different** icon — never repeat icons in parallel items
 
@@ -218,9 +224,10 @@ When the video topic involves specific AI companies, LLM models, or developer to
 npm i @lobehub/icons
 ```
 
-**Upstream agent guidance:** read https://lobehub.com/icons/skill.md for the current import pattern and component API. The package evolves independently — always check the upstream skill doc rather than relying on cached examples here.
+**Upstream agent guidance:** read <https://lobehub.com/icons/skill.md> for the current import pattern and component API. The package evolves independently — always check the upstream skill doc rather than relying on cached examples here.
 
 **When to use which:**
+
 - Concept icon (shield, brain, zap) → Lucide
 - Brand mark (the OpenAI logo, the Claude logo) → lobehub
 - Never use both redundantly for the same item (e.g., a card titled "OpenAI" needs only the lobehub OpenAI mark, not lobehub + Lucide `sparkles`)
@@ -228,7 +235,7 @@ npm i @lobehub/icons
 ### Layout Patterns (recommended)
 
 | Pattern | Recommended |
-|---------|-------------|
+| --------- | ------------- |
 | **Card** | `borderRadius: 24-32px`, `padding: 48px 56px`, colored border (3px) + shadow |
 | **Section Padding** | `40px 60px` content, `40px 80px` hero |
 | **Grid Gap** | `28-40px` |
@@ -241,7 +248,7 @@ npm i @lobehub/icons
 ### Color Coding Examples
 
 | Scenario | Approach |
-|----------|----------|
+| ---------- | ---------- |
 | **Feature cards (4)** | Green/purple/orange/pink — different theme color per card |
 | **Workflow steps** | Blue→purple→green→orange→pink→cyan — gradient sequence |
 | **Intro cards (2)** | Green vs purple — contrasting palettes |
@@ -256,7 +263,7 @@ npm i @lobehub/icons
 Every section SHOULD include at least one animated background layer for depth. Available layers from `AnimatedBackground.tsx`:
 
 | Component | Effect | Best For |
-|-----------|--------|----------|
+| ----------- | -------- | ---------- |
 | `MovingGradient` | Slowly rotating gradient overlay | Any section — adds subtle motion |
 | `FloatingShapes` | Drifting circles/rings | Hero, feature sections — adds depth |
 | `GridPattern` | Dot/line/cross grid overlay | Data sections, technical content |
@@ -264,6 +271,7 @@ Every section SHOULD include at least one animated background layer for depth. A
 | `AccentLine` | Animated expanding line | Section dividers, emphasis |
 
 **Rules:**
+
 - Use 1-2 background layers per section (not all at once)
 - Alternate between background styles across sections
 - Keep opacity low (0.03-0.08) — backgrounds should be felt, not seen
@@ -276,7 +284,7 @@ Every section SHOULD include at least one animated background layer for depth. A
 Pre-built layouts from `SectionLayouts.tsx` — the agent SHOULD pick from these before creating custom layouts. Each includes animated backgrounds, proper spacing, and theme integration.
 
 | Layout | Visual | Best For |
-|--------|--------|----------|
+| -------- | -------- | ---------- |
 | `SplitLayout` | Content left + visual right (or reversed) | Feature highlight, explanation + diagram |
 | `StatHighlight` | Full-bleed big number with glow orb | Key metric, percentage, impact statement |
 | `ZigzagCards` | Alternating left/right cards with colored borders | Feature list, pros/cons, step-by-step |
@@ -291,16 +299,18 @@ Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock
 `FlowChart` and `Timeline` now use animated SVG paths with draw-on effects via `@remotion/paths`. The `DiagramReveal` component provides general-purpose node+edge diagram animation.
 
 | Component | Draw-On Feature | Use Case |
-|-----------|----------------|----------|
+| ----------- | ---------------- | ---------- |
 | `FlowChart` | Arrow connectors draw progressively between step cards | Process flows, pipelines |
 | `Timeline` | Node circles and vertical connectors draw on in sequence | History, milestones |
 | `DiagramReveal` | Arbitrary node+edge graphs with curve/elbow/straight edges | Architecture diagrams, mind maps, network graphs |
 
 **Animation hooks** (`animations.tsx`):
+
 - `useDrawOn(path, enabled, delay, duration, preset)` — animate a single SVG path
 - `useStaggeredDrawOn(paths, enabled, delay, durationPerPath, interval, preset)` — animate multiple paths sequentially
 
 **DiagramReveal props**:
+
 - `nodes`: `{ id, label, x, y, icon?, width?, height? }[]` — positioned boxes in SVG viewBox
 - `edges`: `{ from, to, label?, style? }[]` — connections between nodes (`"curve"` | `"straight"` | `"elbow"`)
 
@@ -309,7 +319,7 @@ Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock
 `AudioWaveform` renders a real-time frequency visualization synced to the TTS narration audio. Makes the video feel alive rather than a slideshow with voiceover.
 
 | Prop | Default | Description |
-|------|---------|-------------|
+| ------ | --------- | ------------- |
 | `mode` | `"bars"` | `"bars"` (spectrum bars), `"wave"` (filled waveform), `"dots"` (pulsing dots) |
 | `position` | `"bottom"` | `"bottom"`, `"top"` (absolute positioned), or `"inline"` (flow layout) |
 | `barCount` | `32` | Number of frequency bars/samples |
@@ -323,7 +333,7 @@ Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock
 `LottieAnimation` loads and plays After Effects animations exported as Lottie JSON. Unlocks the [LottieFiles](https://lottiefiles.com/) ecosystem (100,000+ free animations).
 
 | Prop | Default | Description |
-|------|---------|-------------|
+| ------ | --------- | ------------- |
 | `src` | — | Path to JSON in `--public-dir` (via `staticFile`) or full CORS-enabled URL |
 | `animationData` | — | Pre-loaded JSON data (takes precedence over `src`) |
 | `loop` | `false` | Whether to loop the animation |
@@ -338,7 +348,7 @@ Plus existing components: `ComparisonCard`, `Timeline`, `CodeBlock`, `QuoteBlock
 The agent MUST vary layouts across sections. Follow these rules to prevent visual monotony:
 
 | Rule | Requirement |
-|------|-------------|
+| ------ | ------------- |
 | **No repeat** | Never use the same layout preset for consecutive sections |
 | **Alternate density** | Follow a high-density section (grid/cards) with a low-density one (showcase/stat) |
 | **Background variety** | Consecutive sections must use different background layers |
@@ -363,6 +373,7 @@ The agent MUST vary layouts across sections. Follow these rules to prevent visua
 ### Use continuous animations for visual life
 
 Every section should have at least subtle continuous motion:
+
 - Background: `MovingGradient` or `FloatingShapes` (always present)
 - Decorative: `GlowOrb` with `usePulse` (for emphasis sections)
 - Content: stagger entrance delays (6-10 frames between items)
@@ -370,6 +381,7 @@ Every section should have at least subtle continuous motion:
 ### Text reveal for key statements
 
 Use `useTextReveal` or `useCharReveal` for:
+
 - Hero title (character reveal, 2 frames/char)
 - Key statistics or conclusions (word reveal, 4 frames/word)
 - NOT for body text or descriptions (too slow, use regular entrance)
@@ -377,7 +389,7 @@ Use `useTextReveal` or `useCharReveal` for:
 ### Animation timing guidelines
 
 | Element | Entrance | Stagger | Exit |
-|---------|----------|---------|------|
+| --------- | ---------- | --------- | ------ |
 | Title | 0 delay, "snappy" preset | — | — |
 | Subtitle | 8 frame delay | — | — |
 | Cards/items | 6-10 frame stagger | `staggerDelay(i, 8)` | — |

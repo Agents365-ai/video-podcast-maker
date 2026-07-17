@@ -70,7 +70,6 @@ concat_list.txt
 
 # Internal docs (not for users)
 docs/
-AGENTS.md
 
 # Runtime Remotion source (copies of templates + per-video compositions)
 src/

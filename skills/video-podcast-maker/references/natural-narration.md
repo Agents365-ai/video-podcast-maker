@@ -2,6 +2,8 @@
 
 > **When to load:** During Step 4 (write narration script), and whenever you edit `podcast.txt`. Load before writing the first section.
 >
+> **Pair with [script-polish.md](script-polish.md)** — natural-narration is the pre-write checklist (kill list, structural tells, pre-delivery checklist); script-polish is the post-write editing toolkit (deep patterns with before/after examples, evidence boundaries, per-language quality rubrics). Load natural-narration before writing, script-polish after the draft exists.
+>
 > **Why:** A narration script is heard, not read. AI-generated prose has predictable "tells" that survive into narration and make it sound like a machine reading a press release. This guide removes those tells. It is distilled for **spoken narration** from two anti-slop guides — `op7418/Humanizer-zh` (24 Chinese AI-writing patterns, from Wikipedia's "Signs of AI writing") and `hardikpandya/stop-slop` — keeping only what transfers to the ear and dropping written-only rules (bold, emoji, curly quotes, inline headers, markdown, title case).
 >
 > This operationalizes the standing preferences "natural narration", "no metaphors", "no clickbait/rhetorical hooks", and "no middle-dot separators". If `user_prefs` conflicts, user_prefs wins.
@@ -21,6 +23,7 @@
 ## Kill list — words & phrases (spoken)
 
 ### zh-CN — AI vocabulary to avoid (rewrite or delete)
+
 赋能、打造、深入探讨、值得一提的是、值得注意的是、不难发现、众所周知、总的来说、
 综上所述、此外、然而（作连接拐杖时）、与此同时、在……的加持下、在……的浪潮下、
 不断演变的格局、焦点、里程碑、标志着、见证了、是……的体现/证明/缩影、
@@ -29,12 +32,14 @@
 从而彰显了……、进一步凸显了……、为……注入了新的活力。
 
 ### en-US — AI vocabulary to avoid
+
 moreover, furthermore, it's worth noting, it's important to note, in today's
 landscape, ever-evolving, delve into, leverage, seamless, robust, cutting-edge,
 game-changer, revolutionize, unlock, empower, testament to, stands as, plays a
 crucial/pivotal role, at the heart of, in the realm of, when it comes to.
 
 ### Filler → plain (both languages)
+
 - "为了实现这一目标" → "为了这一点" / drop it
 - "在这个时间点上" → "现在"
 - "值得注意的是，数据显示" → "数据显示"
@@ -47,7 +52,7 @@ crucial/pivotal role, at the heart of, in the realm of, when it comes to.
 ## Structural tells to break
 
 | Tell | Sounds like | Fix |
-|------|-------------|-----|
+| ------ | ------------- | ----- |
 | **Rule of three** | "更快、更强、更智能" every beat | Use two items, or four, or one specific one |
 | **Negative parallelism** | "这不仅是X，更是Y" / "不是……而是……" | State Y directly |
 | **Rhetorical teaser** | "但事情没那么简单" / "接下来才是重点" / "你绝对想不到" | Just say the next thing |
@@ -118,7 +123,7 @@ Usage rules:
 ## Quality scoring (optional, 1-10 each, /50)
 
 | Dimension | Question |
-|-----------|----------|
+| ----------- | ---------- |
 | Directness | States facts, or announces them with fanfare? |
 | Rhythm | Sentence lengths varied, or metronomic? |
 | Trust | Respects the listener, or over-explains? |
@@ -132,9 +137,10 @@ Below 35/50 → revise before TTS.
 ## Source & credit
 
 Distilled and adapted for spoken narration from:
-- `op7418/Humanizer-zh` (翻译自 blader/humanizer；based on
-  [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)).
-- `hardikpandya/stop-slop`.
 
-Both target written prose; this file keeps only the patterns that survive into
-spoken narration and drops the written-only ones.
+- `blader/humanizer` — 33 AI-writing patterns from [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
+- `op7418/Humanizer-zh` — Chinese adaptation with language-specific patterns
+- `hardikpandya/stop-slop` — EN prose anti-slop with core rules and structural patterns
+- `stop-slop-zh` — ZH scenario-gated editing with evidence boundaries and de-nominalization
+
+These target written prose; this file keeps only the patterns that survive into spoken narration and drops the written-only ones (bold, emoji, curly quotes, title case, markdown). For the full pattern catalog with before/after examples, see [script-polish.md](script-polish.md).

@@ -6,8 +6,41 @@
 >
 > **Next phase:** See `workflow-assets.md` for Step 5 (asset plan & resolve), then `workflow-production.md` for Steps 6-11 (publish info, TTS, Remotion, render, BGM).
 
+## Execution Modes
+
+Detect at workflow start:
+
+- "Make a video about..." / no special instructions → **Auto Mode** (default)
+- "I want to control each step" / "interactive" → **Interactive Mode**
+
+### Auto Mode defaults
+
+Full pipeline with sensible defaults. **Mandatory stop at Step 9** (Studio review); Step 10 (4K render) only fires when the user says "render 4K" / "render final".
+
+| Step | Decision | Auto Default |
+| ------ | ---------- | ------------- |
+| 3 | Title position | top-center |
+| 5 | Assets | Free sources auto-resolve; paid generation needs confirmation |
+| 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
+| 9 | Outro animation | Pre-made MP4 (white/black by theme) |
+| 12 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
+| 14 | Cleanup | Auto-clean temp files |
+
+Override any default in the initial request:
+
+- "make a video about AI, burn subtitles" → auto + subtitles on
+- "use dark theme, AI thumbnails" → auto + dark + imagenCN
+- "need screenshots" → auto + media collection enabled
+
+### Interactive Mode
+
+Prompts at each decision point.
+
+---
+
 ## Contents
 
+- [Execution Modes](#execution-modes)
 - [Pre-workflow: Design Reference (Optional)](#pre-workflow-design-reference-optional)
 - [Startup: Load User Preferences](#startup-load-user-preferences)
 - [Step 1: Define Topic Direction](#step-1-define-topic-direction)
@@ -82,6 +115,7 @@ Say 'show preferences' to see all details."
 **Auto mode:** Infer all decisions from the user's topic description. Use sensible defaults (audience: general, style: educational intro, tone: professional-casual, duration: medium 3-7min). Save directly to `videos/{name}/topic_definition.md`.
 
 **Interactive mode:** Confirm each item (use `brainstorming` skill if available, otherwise ask directly):
+
 1. **Target audience**: developers / general / students / professionals
 2. **Video style**: educational intro / deep analysis / news brief / hands-on tutorial
 3. **Content scope**: background / technical principles / usage / comparison
@@ -101,6 +135,7 @@ Use your agent's web search and fetch capabilities. Save to `videos/{name}/topic
 ## Step 3: Design Video Sections
 
 Design 5-7 sections:
+
 - Hero/Intro (15-25s)
 - Core concepts (30-45s each)
 - Demo/Examples (30-60s)
@@ -112,7 +147,7 @@ Design 5-7 sections:
 Assign each section a density tier:
 
 | Tier | Items | Best For |
-|------|-------|----------|
+| ------ | ------- | ---------- |
 | **Impact** | 1 | Hook, hero, CTA, brand moment — largest text |
 | **Standard** | 2-3 | Features, comparison, demo |
 | **Compact** | 4-6 | Feature grid, ecosystem |
@@ -120,7 +155,7 @@ Assign each section a density tier:
 
 ### Topic Type Detection
 
-> **Planned feature.** Currently, topic-specific styles are applied manually via `user_prefs.json` under `topic_patterns`. Auto-detection from keywords is not yet implemented.
+Topic-specific styles are applied via `user_prefs.json` under `topic_patterns`.
 
 ### Title Position
 
@@ -134,8 +169,11 @@ Assign each section a density tier:
 ## Step 4: Write Narration Script
 
 > **MUST load before writing the first section:** [references/natural-narration.md](natural-narration.md) — anti-slop rules for spoken scripts (kill list, structural tells, pre-delivery checklist). A narration script that reads like AI prose survives into the audio and sounds like a machine reading a press release. Apply its checklist to every `podcast.txt` before running the dry-run.
+>
+> **After the first draft exists, load [references/script-polish.md](script-polish.md)** for the deep editing pass — 24 EN+ZH before/after patterns, evidence boundaries for factual claims, and per-language quality scoring rubrics. Run its editing workflow before TTS.
 
 **Preference application:** Adjust script style from `user_prefs.content`:
+
 - `tone: professional` → formal language
 - `tone: casual` → conversational, interjections ok
 - `verbosity: concise` → 50-80 chars per paragraph
@@ -174,7 +212,7 @@ Write numbers the way you'd naturally type them in a chat message — `2025年`,
 **✅ Keep as digits** (TTS reads naturally — do NOT convert to Chinese):
 
 | Type | Example | Read as |
-|------|---------|---------|
+| ------ | --------- | --------- |
 | Year | `2025年`, `1998年` | 二零二五年 / 一九九八年 |
 | Date | `2025年1月15日`, `1月15日` | 二零二五年一月十五日 / 一月十五日 |
 | Duration with unit | `18个月`, `3年`, `45天`, `2小时` | 十八个月 / 三年 / 四十五天 / 两小时 |
@@ -187,7 +225,7 @@ Write numbers the way you'd naturally type them in a chat message — `2025年`,
 **⚠ Must spell out in Chinese** (TTS reads ambiguously or wrong):
 
 | Type | Wrong | Correct |
-|------|-------|---------|
+| ------ | ------- | --------- |
 | ISO date with dashes | `2025-01-15` | 2025年1月15日 (or 二零二五年一月十五日) |
 | Multi-dot version | `v1.2.3` | v一点二点三 |
 | Phone / ID string | `400-123-4567` | 四零零 一二三 四五六七 |
@@ -196,6 +234,7 @@ Write numbers the way you'd naturally type them in a chat message — `2025年`,
 **Rule of thumb:** prefer digits. Years, dates with `年/月/日`, and any number followed by a Chinese unit (`年`/`月`/`日`/`个月`/`天`/`小时`/`万`/`亿`/`%`/`GB`/`块`…) should stay as digits — Azure/Edge/Doubao all read them correctly. Only spell out in Chinese when the form is genuinely ambiguous (dash-separated dates, dotted version numbers, phone/ID digit-by-digit, or unitless 7+ digit integers).
 
 **Section notes**:
+
 - **hero**: MUST start with `content.heroOpening` if set in user_prefs, followed by the topic hook
 - **summary**: Pure content summary, no interaction prompts
 - **references** (optional): One sentence about sources
@@ -205,13 +244,14 @@ Write numbers the way you'd naturally type them in a chat message — `2025年`,
 ### Script Template Selection
 
 Copy the script template based on `language`:
+
 - `zh-CN` → `${SKILL_DIR}/templates/podcast_zh.txt`
 - `en-US` → `${SKILL_DIR}/templates/podcast_en.txt`
 
 ### Outro Text by Platform + Language
 
 | Platform | zh-CN | en-US |
-|----------|-------|-------|
+| ---------- | ------- | ------- |
 | bilibili | "一键三连！评论区留言，下期再见！" | "Like, coin, and favorite! Leave a comment, see you next time!" |
 | youtube | "点赞订阅转发！评论区留言，下期再见！" | "Like, subscribe, and share! Leave a comment, see you next time!" |
 | xiaohongshu | "点赞收藏加关注，评论区见！" | "Like, save & follow! See you in comments!" |
@@ -237,6 +277,7 @@ Report estimated duration. If >12min or <3min, suggest adjustments.
 **Why an LLM step, not code:** Polyphone disambiguation needs sentence-level context (`一行` → `háng` for "a line", `xíng` for "execute"). A regex or static dict can't substitute for reading the script. The `phonemes.json` system is the output channel; *choosing* entries is the LLM's job.
 
 ### Inputs
+
 1. `videos/{name}/podcast.txt` — the script just written
 2. `${SKILL_DIR}/phonemes.json` — global dict (already-covered words; do NOT duplicate). Auto-created from `${SKILL_DIR}/phonemes.template.json` on the first run of `scripts/generate_tts.py`, so it always exists by the time TTS executes. To pre-create before the first TTS call: `cp "${SKILL_DIR}/phonemes.template.json" "${SKILL_DIR}/phonemes.json"`.
 3. `videos/{name}/phonemes.json` — project dict (create if missing; takes precedence over global)
@@ -250,11 +291,13 @@ Read podcast.txt sentence by sentence. For every Chinese polyphone risk, pick th
 ### Pass 2 — English term review
 
 On the azure platform, ttsCN auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but the wrapping has known gaps:
+
 - **Hyphenated names**: `tldraw-cli` → only `cli` may get wrapped; `tldraw` reads through the voice's default Chinese pronunciation of letters.
 - **Initialisms**: `API`, `URL`, `MCP` are wrapped as words. If you intend letter-by-letter reading, add an **inline marker** in podcast.txt: `配置 API[ei pi ai] 后...`
 - **Versioned names**: `GPT-4`, `Claude 4.6` — verify the digit reads as digit and the dash reads as space.
 
 For each risky term, prefer editing `podcast.txt`:
+
 - Inline marker form: `tldraw-cli[tldraw c l i]` or rewrite as `tldraw 命令行工具`
 - Multi-word phrases already covered by allowlist: `Claude Code`, `Final Cut Pro`, `Visual Studio Code`, `VS Code`, `Google Chrome`, `Open AI`, `OpenAI`, `GPT 4`, `GPT-4`
 
@@ -272,6 +315,7 @@ Add to `videos/{name}/phonemes.json` (or global if it's a stable choice):
 ```
 
 **Decision rule:**
+
 - Has a widely-recognized Chinese name **and** the script says it in a Chinese-language sentence → add phoneme entry to read it in Chinese.
 - Is a code identifier, paper title term, or quoted English brand → leave it as English (don't add).
 - Examples to **leave alone**: `Claude`, `Gemini`, `Llama`, `Mistral`, `OpenAI`, `Anthropic`, `GitHub`, `Docker`, `Python` — these are read in English in Chinese tech speech.
