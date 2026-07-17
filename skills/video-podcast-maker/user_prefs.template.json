@@ -1,5 +1,5 @@
 {
-  "version": "1.6",
+  "version": "1.7",
   "updated_at": null,
   "global": {
     "platform": "bilibili",
@@ -83,28 +83,41 @@
       "chapters": true,
       "heroOpening": null,
       "outroClosing": null
+    },
+    "visual_taste": {
+      "mode": null,
+      "dials": {
+        "variance": null,
+        "motion": null,
+        "density": null
+      }
     }
   },
   "topic_patterns": {
     "tech": {
       "visual": { "primaryColor": "#4f6ef7", "theme": "light" },
-      "content": { "tone": "professional" }
+      "content": { "tone": "professional" },
+      "visual_taste": { "mode": "dark-tech", "dials": { "variance": 6, "motion": 6, "density": 5 } }
     },
     "finance": {
       "visual": { "primaryColor": "#1a1a2e", "theme": "dark" },
-      "content": { "tone": "professional" }
+      "content": { "tone": "professional" },
+      "visual_taste": { "mode": "minimalist", "dials": { "variance": 4, "motion": 4, "density": 6 } }
     },
     "education": {
       "visual": { "primaryColor": "#22c55e", "theme": "light" },
-      "content": { "tone": "casual" }
+      "content": { "tone": "casual" },
+      "visual_taste": { "mode": "minimalist", "dials": { "variance": 4, "motion": 4, "density": 4 } }
     },
     "lifestyle": {
       "visual": { "primaryColor": "#FF6B6B", "theme": "light" },
-      "content": { "tone": "casual" }
+      "content": { "tone": "casual" },
+      "visual_taste": { "mode": "soft-premium", "dials": { "variance": 7, "motion": 6, "density": 3 } }
     },
     "news": {
       "visual": { "primaryColor": "#dc2626", "theme": "light" },
-      "content": { "tone": "professional", "verbosity": "concise" }
+      "content": { "tone": "professional", "verbosity": "concise" },
+      "visual_taste": { "mode": "minimalist", "dials": { "variance": 3, "motion": 3, "density": 5 } }
     }
   },
   "style_profiles": {},

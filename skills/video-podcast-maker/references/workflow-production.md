@@ -218,7 +218,12 @@ cp ${SKILL_DIR}/templates/Video.tsx src/remotion/{PascalCaseName}Video.tsx
 
 Register in `Root.tsx`. Each video gets its own composition file.
 
-> **Localization required.** `templates/Video.tsx` is a zh-CN starter — every visible literal (titles, subtitles, "总结", "感谢观看", outro CTA "点赞 / 收藏 / 关注 / 下期再见！", placeholder bullets) is Chinese. When `user_prefs.global.language != "zh-CN"`, replace every literal in the copied composition file with the target-language equivalent before the Studio preview. Use the platform/language outro table from `workflow-script.md` Step 4 for the CTA text.
+> **Localization required.** `templates/Video.tsx` is a zh-CN starter — every visible literal (titles, subtitles, "总结", "感谢观看", outro CTA "点赞 / 收藏 / 关注 / 下期再见！", placeholder bullets) is Chinese. When `user_prefs.global.language != "zh-CN"`, you have two options:
+>
+> 1. **Copy `templates/Video.en.tsx`** instead — it is pre-localized to English. Use for `en-US` videos directly.
+> 2. **Copy `templates/Video.tsx`** and replace every literal with the target-language equivalent.
+>
+> Use the platform/language outro table from `workflow-script.md` Step 4 for the CTA text.
 
 **Naming convention:**
 

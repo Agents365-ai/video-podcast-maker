@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.2.6">
+  <diagram name="skills">
+    <mxGraphModel dx="800" dy="500" grid="1" gridSize="10" page="1" pageWidth="800" pageHeight="500">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Component Skills" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Required section -->
+        <mxCell id="req_label" value="REQUIRED" style="text;html=1;align=left;fontSize=11;fontColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ttscn" value="🎙️ ttsCN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="95" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ttscn_desc" value="TTS engine — 11 backends (Edge, Azure, Doubao, CosyVoice, MiniMax, ...)&#xa;Set TTS_BACKEND=* to switch · Edge is free, no API key needed" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="55" y="155" width="310" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Optional - Free section -->
+        <mxCell id="free_label" value="OPTIONAL — Free" style="text;html=1;align=left;fontSize=11;fontColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="70" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="seeker" value="🔎 assetSeeker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="95" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="seeker_desc" value="License-vetted stock photos, video clips, BGM, SFX, icons&#xa;Pexels / Pixabay / Iconify — no API key needed" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="435" y="155" width="310" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="hyper" value="🌈 hyperframes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="200" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="hyper_desc" value="HTML/GSAP → transparent WebM VP9 overlay animations&#xa;For data charts, infographics beyond the component library" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="435" y="260" width="310" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- User files -->
+        <mxCell id="user" value="📁 User Files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="305" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="user_desc" value="Your own images, screenshots, video clips, BGM tracks&#xa;Copied + registered via assets add --file" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="435" y="365" width="310" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Optional - Paid section -->
+        <mxCell id="paid_label" value="OPTIONAL — Paid (cost confirmation required)" style="text;html=1;align=left;fontSize=11;fontColor=#d6b656;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="210" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="imagen" value="💰 imagenCN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="235" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="imagen_desc" value="AI still images + thumbnails · ~0.02-0.2 RMB/image&#xa;qwen-image-2.0-pro renders legible Chinese text" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="55" y="295" width="310" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="videogen" value="💰 videogenCN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="340" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="videogen_desc" value="AI video B-roll clips · per-second billing&#xa;5-15s clips recommended · i2v chain: imagenCN keyframe → animate" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="55" y="400" width="310" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Footer -->
+        <mxCell id="footer" value="All component skills are plug-in modules resolved at runtime. Missing skills degrade gracefully — text-only videos still work." style="text;html=1;align=center;fontSize=10;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="100" y="460" width="600" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

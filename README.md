@@ -95,7 +95,9 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 ![Pipeline](images/pipeline.png)
 
-![Asset Engine](images/assets.png)
+![Component Skills](images/skills.png)
+
+![Asset Flow](images/assets.png)
 
 ## ⚠️ For the human reading this (not the AI): manually polish `podcast.txt`, repeatedly
 

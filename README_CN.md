@@ -94,7 +94,9 @@
 
 ![流程](images/pipeline-cn.png)
 
-![素材引擎](images/assets-cn.png)
+![组件技能](images/skills-cn.png)
+
+![素材流程](images/assets-cn.png)
 
 ## ⚠️ 给读到这里的你（不是给 AI 看的）：`podcast.txt` 必须人工反复打磨
 
