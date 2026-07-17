@@ -117,8 +117,8 @@ The legacy `ttscn` alias still works and picks its platform from
 `TTSCN_PLATFORM` (default `edge`). ttsCN renders expressiveness markers
 (`[PAUSE:x]`, sound tags) and applies phonemes per platform. Word
 boundaries: native per-word timings for platforms that report them (edge,
-azure); chunk-level estimation otherwise — both feed the same SRT/timing
-pipeline.
+azure, doubao, minimax, cosyvoice); chunk-level estimation otherwise — both
+feed the same SRT/timing pipeline.
 
 ### Voice Selection by Language
 

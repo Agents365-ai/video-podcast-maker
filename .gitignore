@@ -80,7 +80,3 @@ src/
 logs/
 public/
 CLAUDE.md
-
-# Local dev (pytest path setup, not needed by end users)
-conftest.py
-tests/

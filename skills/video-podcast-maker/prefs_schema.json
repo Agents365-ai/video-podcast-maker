@@ -93,6 +93,16 @@
               "maximum": 5,
               "default": 2,
               "description": "Outline thickness in pixels"
+            },
+            "alignment": {
+              "type": "number",
+              "default": 2,
+              "description": "ASS alignment (numpad layout; 2 = bottom-center)"
+            },
+            "marginV": {
+              "type": "number",
+              "default": 6,
+              "description": "ASS vertical margin in PlayResY units (default 288), not video pixels"
             }
           }
         },
