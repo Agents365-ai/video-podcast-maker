@@ -8,6 +8,12 @@ category: Content Creation
 version: 4.1.0
 created: 2025-01-27
 updated: 2026-07-17
+permissions:
+  - env
+  - file_read
+  - file_write
+  - network
+  - shell
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
 dependencies:

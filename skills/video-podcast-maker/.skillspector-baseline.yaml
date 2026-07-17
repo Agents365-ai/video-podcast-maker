@@ -1,0 +1,305 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules: []
+fingerprints:
+- hash: sha256:acd58b0cc4f98ceb
+  rule_id: AST4
+  file: scripts/align_timing_from_srt.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:f8b633b97b805a32
+  rule_id: AST7
+  file: scripts/assets.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:11ed275b1e535d94
+  rule_id: AST7
+  file: scripts/cli.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:679db5f9445ecdf8
+  rule_id: AST4
+  file: scripts/cli.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:27bc3a996183e505
+  rule_id: AST4
+  file: scripts/components.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:d8f3f22894e97eb9
+  rule_id: AST4
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:dcc6226fdc2d725c
+  rule_id: AST4
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:f68259da4e877b90
+  rule_id: AST4
+  file: scripts/generate_tts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:051746e622e8a528
+  rule_id: AST4
+  file: scripts/learn_design.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:5e2701d1dd69f8e4
+  rule_id: AST4
+  file: scripts/learn_design.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:65658befbd9a0c03
+  rule_id: AST4
+  file: scripts/learn_design.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:b76a75faee3ff4c6
+  rule_id: AST4
+  file: scripts/tts/backends/base.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:1ea114d099ed29d8
+  rule_id: AST4
+  file: scripts/tts/backends/ttscn.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:f3d3d8af7e99d522
+  rule_id: AST4
+  file: scripts/tts/backends/ttscn.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:be485c4de85b8eb2
+  rule_id: AST4
+  file: scripts/tts/srt.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:49d4a94aa568d2ea
+  rule_id: AST4
+  file: scripts/verify_output.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:85e8f218121211f4
+  rule_id: AST4
+  file: scripts/verify_output.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:beefb344faf03a61
+  rule_id: RP1
+  file: SKILL.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:eb19de88638c713a
+  rule_id: RP1
+  file: references/hyperframes-overlays.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:6446a4939743be20
+  rule_id: RP1
+  file: references/hyperframes-overlays.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:264c054fae519fad
+  rule_id: RP1
+  file: references/hyperframes-overlays.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:28444360df70016a
+  rule_id: RP1
+  file: references/hyperframes-overlays.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:d2c9b93feca68541
+  rule_id: RP1
+  file: references/project-layout.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:e85e7726493bbed2
+  rule_id: RP1
+  file: references/project-layout.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:cfd5d53b3f4bc4b4
+  rule_id: RP1
+  file: references/project-layout.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:9ebb418638ec09b8
+  rule_id: RP1
+  file: references/troubleshooting.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:5a89e34a641dc3c6
+  rule_id: RP1
+  file: references/troubleshooting.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:e817de27c407e5de
+  rule_id: RP1
+  file: references/troubleshooting.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:6d8a619a1aa4ad03
+  rule_id: RP1
+  file: references/troubleshooting.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:e7e72dd039d5ef70
+  rule_id: RP1
+  file: references/troubleshooting.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:5e6e3d511c4a6700
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:df0976fc1ac2d7e7
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:fd96715830773bf1
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:b9121e27549d0f3e
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:34982bb8d26bd10b
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:8557f60ffe93fa96
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:bf47a067890ea71f
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:3d455669e378d762
+  rule_id: RP1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:2bab9c9ba7b67cea
+  rule_id: RP1
+  file: references/workflow-publish.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:d8d63d18b323b352
+  rule_id: RP1
+  file: scripts/components.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:9b05964e122dec31
+  rule_id: RP1
+  file: scripts/components.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:97f3e2a32e13ef93
+  rule_id: RP1
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:62a7aee8584773de
+  rule_id: RP1
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:2eb64de633e02ecc
+  rule_id: RP1
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:5f1093600a1bdd41
+  rule_id: E2
+  file: scripts/tts/backends/ttscn.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:100c1eda2712770f
+  rule_id: EA2
+  file: scripts/migrate_prefs.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:eccc87ca3d169144
+  rule_id: MP2
+  file: scripts/align_timing_from_srt.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:fafbcc187b47d2e3
+  rule_id: OH1
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:491b85dae618b5e8
+  rule_id: OH1
+  file: scripts/generate_shorts.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:eab95f07450ee624
+  rule_id: OH1
+  file: scripts/learn_design.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:965ba097033179af
+  rule_id: OH1
+  file: scripts/learn_design.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:4c93003827c1d2ea
+  rule_id: OH1
+  file: scripts/learn_design.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:cb4869a25856436b
+  rule_id: OH1
+  file: scripts/tts/backends/base.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:946c19259d7d7290
+  rule_id: OH1
+  file: scripts/tts/backends/ttscn.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:11f919ab08861f6a
+  rule_id: OH1
+  file: scripts/tts/backends/ttscn.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:f79a4a3868c51ca9
+  rule_id: OH1
+  file: scripts/tts/srt.py
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:254b1eb55d2a1e48
+  rule_id: PE3
+  file: references/troubleshooting.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:1d101ed953bc2a43
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:65e79734765726a5
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:f6c7a4a688df29f7
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:7621cbb69f901732
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:242de0064c46e446
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:c724795422d7e282
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:6206ad797afb56f3
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:acddee55ce94b1ff
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:ec6317178de10dec
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:ff0b5e7d65868db1
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:8762bb67263c7632
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:33a71f689f47f424
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:3d8cd09fe8a4571d
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:a3d270f67334f643
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:dedb55a07a794a40
+  rule_id: SC1
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:d08e5512a74a033e
+  rule_id: TM1
+  file: references/workflow-assets.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:5527bc60178ba4c4
+  rule_id: TM1
+  file: references/workflow-production.md
+  reason: Accepted finding (auto-generated baseline)
+- hash: sha256:8685dbbc9b9ee872
+  rule_id: YR4
+  file: package.json
+  reason: Accepted finding (auto-generated baseline)
