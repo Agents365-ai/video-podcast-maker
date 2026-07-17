@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.2.6">
+  <diagram name="pipeline">
+    <mxGraphModel dx="1200" dy="500" grid="1" gridSize="10" page="1" pageWidth="1200" pageHeight="480">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Planning -->
+        <mxCell id="plan" value="📋 规划" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="50" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="🎯 选题" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="plan">
+          <mxGeometry x="20" y="55" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="🔍 调研" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="plan">
+          <mxGeometry x="20" y="120" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="📐 章节设计" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="plan">
+          <mxGeometry x="20" y="185" width="160" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Content -->
+        <mxCell id="content" value="✍️ 内容" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="50" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="📝 撰写文案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="55" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s4b" value="🔊 发音修正" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="120" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="🏷️ 发布信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="185" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="🖼️ 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="250" width="160" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Production -->
+        <mxCell id="prod" value="🎬 制作" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="50" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" value="🎙️ TTS 配音" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="55" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s9a" value="⚛️ 合成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="120" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s9b" value="⏸ Studio 审片" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="185" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s10" value="🎞️ 渲染 4K" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
+          <mxGeometry x="20" y="250" width="160" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Post -->
+        <mxCell id="post" value="🎛️ 后期" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="50" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="s11" value="🎵 混音 BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="55" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s12" value="📜 字幕" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="120" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s13" value="📖 章节时间戳" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="185" width="160" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Output -->
+        <mxCell id="out" value="📦 输出" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="50" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="s14" value="✅ 验证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#82b366;strokeWidth=2;fontStyle=1;" vertex="1" parent="out">
+          <mxGeometry x="20" y="55" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s14b" value="🎉 最终 MP4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="out">
+          <mxGeometry x="20" y="120" width="160" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s15" value="📱 竖版短视频" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;dashed=1;" vertex="1" parent="out">
+          <mxGeometry x="20" y="185" width="160" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- Stage arrows -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="plan" target="content">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="content" target="prod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="prod" target="post">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="post" target="out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Footer note -->
+        <mxCell id="note" value="⏸ = 必须审片节点 · Step 4.5（发音修正）非中文可跳过 · Step 15（短视频）为可选项" style="text;html=1;align=center;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="760" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

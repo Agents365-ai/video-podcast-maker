@@ -92,7 +92,9 @@
 
 ## 工作流程
 
-![工作流程](images/workflow-cn.png)
+![流程](images/pipeline-cn.png)
+
+![素材引擎](images/assets-cn.png)
 
 ## ⚠️ 给读到这里的你（不是给 AI 看的）：`podcast.txt` 必须人工反复打磨
 

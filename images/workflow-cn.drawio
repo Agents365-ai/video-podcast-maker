@@ -8,7 +8,7 @@
 
         <!-- ===== Stage containers (top row) ===== -->
         <mxCell id="plan" value="📋 规划" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="40" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_topic" value="🎯 选题" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="plan">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
@@ -21,20 +21,23 @@
         </mxCell>
 
         <mxCell id="content" value="✍️ 内容" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="300" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="300" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_script" value="📝 撰写文案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="n_pubinfo" value="🏷️ 发布信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+        <mxCell id="n_phonemes" value="🔊 发音修正" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
           <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="n_thumb" value="🖼️ 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+        <mxCell id="n_pubinfo" value="🏷️ 发布信息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
           <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_thumb" value="🖼️ 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="230" width="160" height="40" as="geometry" />
         </mxCell>
 
         <mxCell id="prod" value="🎬 制作" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="560" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="560" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_tts" value="🎙️ TTS 配音" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
@@ -50,23 +53,29 @@
         </mxCell>
 
         <mxCell id="post" value="🎛️ 后期" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="820" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="820" y="40" width="200" height="340" as="geometry" />
         </mxCell>
-        <mxCell id="n_bgm" value="🎵 混合 BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+        <mxCell id="n_bgm" value="🎵 混音 BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="n_subs" value="📜 字幕" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
           <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="n_chapters" value="📖 章节时间戳" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
 
         <mxCell id="out" value="📦 输出" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="1080" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="1080" y="40" width="200" height="340" as="geometry" />
         </mxCell>
-        <mxCell id="n_verify" value="✅ 验收" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="out">
+        <mxCell id="n_verify" value="✅ 验证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="out">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="n_mp4" value="🎉 成品 MP4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="out">
+        <mxCell id="n_mp4" value="🎉 最终 MP4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="out">
           <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_shorts" value="📱 竖版短视频" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="out">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
         </mxCell>
 
         <!-- Stage-to-stage flow -->
@@ -83,14 +92,14 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- ===== Asset Layer (v3.0) ===== -->
-        <mxCell id="assets" value="🧩 资产层（v3.0 新增）" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+        <!-- ===== Asset Layer ===== -->
+        <mxCell id="assets" value="🧩 素材层" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
           <mxGeometry x="280" y="390" width="720" height="180" as="geometry" />
         </mxCell>
         <mxCell id="p_user" value="📁 用户文件" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="assets">
           <mxGeometry x="30" y="80" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="n_manifest" value="🗂️ assets/manifest.json&#xa;角色 · 来源 · 许可 · 状态" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;boundedLbl=1;" vertex="1" parent="assets">
+        <mxCell id="n_manifest" value="🗂️ assets/manifest.json&#xa;role · source · license · status" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;boundedLbl=1;" vertex="1" parent="assets">
           <mxGeometry x="390" y="60" width="300" height="80" as="geometry" />
         </mxCell>
 
@@ -100,7 +109,7 @@
         </mxCell>
 
         <!-- manifest → consumers (fan-out, one corridor each) -->
-        <mxCell id="e_manifest" value="经 --public-dir 注入合成" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=0.35;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;fontColor=#82b366;labelBackgroundColor=#ffffff;fontSize=11;" edge="1" parent="1" source="n_manifest" target="n_remotion">
+        <mxCell id="e_manifest" value="素材 via --public-dir" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=0.35;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;fontColor=#82b366;labelBackgroundColor=#ffffff;fontSize=11;" edge="1" parent="1" source="n_manifest" target="n_remotion">
           <mxGeometry x="-0.45" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="755" y="345" />
@@ -127,30 +136,30 @@
           </mxGeometry>
         </mxCell>
 
-        <!-- ===== Component Skills (plug-in) — v4.0 ===== -->
-        <mxCell id="comp_skills" value="🧩 组件技能（插件式）" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fcf4f0;strokeColor=#9673a6;fontStyle=1;pointerEvents=0;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+        <!-- ===== Component Skills ===== -->
+        <mxCell id="comp_skills" value="🧩 Component Skills (plug-in)" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fcf4f0;strokeColor=#9673a6;fontStyle=1;pointerEvents=0;dashed=1;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="40" y="630" width="1240" height="140" as="geometry" />
         </mxCell>
 
         <!-- Optional modules (dashed border) -->
-        <mxCell id="c_seeker" value="🔎 assetSeeker&#xa;素材检索（图库/BGM）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;dashed=1;" vertex="1" parent="comp_skills">
+        <mxCell id="c_seeker" value="🔎 assetSeeker&#xa;素材照片/视频/BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;dashed=1;" vertex="1" parent="comp_skills">
           <mxGeometry x="260" y="50" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="c_imagen" value="💰 imagenCN&#xa;AI 图像/封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="comp_skills">
+        <mxCell id="c_imagen" value="💰 imagenCN&#xa;AI 配图/封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="comp_skills">
           <mxGeometry x="500" y="50" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="c_videogen" value="💰 videogenCN&#xa;AI 视频片段" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="comp_skills">
+        <mxCell id="c_videogen" value="💰 videogenCN&#xa;AI 视频片段 (B-roll)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="comp_skills">
           <mxGeometry x="740" y="50" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="c_hyper" value="🌈 hyperframes&#xa;透明叠加动画" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;dashed=1;" vertex="1" parent="comp_skills">
+        <mxCell id="c_hyper" value="🌈 hyperframes&#xa;透明叠加层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;dashed=1;" vertex="1" parent="comp_skills">
           <mxGeometry x="980" y="50" width="200" height="40" as="geometry" />
         </mxCell>
 
         <!-- Required module (solid border) -->
-        <mxCell id="c_ttscn" value="🎙️ ttsCN&#xa;TTS 引擎，11 平台" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;" vertex="1" parent="comp_skills">
+        <mxCell id="c_ttscn" value="🎙️ ttsCN&#xa;TTS 引擎, 11 个平台" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;" vertex="1" parent="comp_skills">
           <mxGeometry x="20" y="50" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="c_ttscn_note" value="必装" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#d79b00;fontStyle=1;" vertex="1" parent="comp_skills">
+        <mxCell id="c_ttscn_note" value="必需" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#d79b00;fontStyle=1;" vertex="1" parent="comp_skills">
           <mxGeometry x="20" y="98" width="200" height="16" as="geometry" />
         </mxCell>
 
@@ -200,10 +209,10 @@
         </mxCell>
 
         <!-- Notes -->
-        <mxCell id="note1" value="💰 付费 — 需成本确认 &amp;nbsp;·&amp;nbsp; ⏸ 渲染 4K 前强制 Studio 审片 &amp;nbsp;·&amp;nbsp; 组件缺失时优雅降级（纯文字视频仍可产出）" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+        <mxCell id="note1" value="💰 付费 — 需确认费用 &amp;nbsp;·&amp;nbsp; ⏸ 4K 渲染前必须审片 &amp;nbsp;·&amp;nbsp; 组件技能缺失时降级运行（纯文字仍可生成）" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="240" y="782" width="840" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="note2" value="🧩 组件技能为运行时解析的插件模块 — 实线 = 必装，虚线 = 可选（可降级跳过）" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="note2" value="🧩 组件技能为运行时插件模块 — 实线=必需, 虚线=可选（降级运行）" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="240" y="812" width="840" height="24" as="geometry" />
         </mxCell>
       </root>

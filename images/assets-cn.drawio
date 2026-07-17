@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="30.2.6">
+  <diagram name="assets">
+    <mxGraphModel dx="900" dy="550" grid="1" gridSize="10" page="1" pageWidth="900" pageHeight="550">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Producers (left) -->
+        <mxCell id="producers" value="🧩 组件技能" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="30" y="40" width="240" height="420" as="geometry" />
+        </mxCell>
+
+        <!-- ttsCN (REQUIRED, solid) -->
+        <mxCell id="p_ttscn" value="🎙️ ttsCN&#xa;TTS 引擎，11 个平台" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;" vertex="1" parent="producers">
+          <mxGeometry x="20" y="50" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p_ttscn_tag" value="必需" style="text;html=1;align=center;fontSize=10;fontColor=#d79b00;fontStyle=1;" vertex="1" parent="producers">
+          <mxGeometry x="20" y="105" width="200" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Optional producers -->
+        <mxCell id="p_seeker" value="🔎 assetSeeker&#xa;素材照片 / 视频 / BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;dashed=1;" vertex="1" parent="producers">
+          <mxGeometry x="20" y="145" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p_imagen" value="💰 imagenCN&#xa;AI 配图 / 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="producers">
+          <mxGeometry x="20" y="215" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p_videogen" value="💰 videogenCN&#xa;AI 视频片段 (B-roll)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="producers">
+          <mxGeometry x="20" y="285" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p_hyper" value="🌈 hyperframes&#xa;透明叠加层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;dashed=1;" vertex="1" parent="producers">
+          <mxGeometry x="20" y="355" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Also user files -->
+        <mxCell id="p_user" value="📁 用户文件" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="50" y="480" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Manifest (center) -->
+        <mxCell id="manifest" value="🗂️ assets/manifest.json&#xa;角色 · 来源 · 许可 · 状态" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;boundedLbl=1;fontStyle=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="360" y="190" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Consumers (right) -->
+        <mxCell id="consumers" value="🎬 消费者" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="190" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="c_remotion" value="⚛️ Remotion Comp&#xa;（via --public-dir）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="consumers">
+          <mxGeometry x="15" y="60" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c_thumb" value="🖼️ 封面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="consumers">
+          <mxGeometry x="15" y="135" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bgm" value="🎵 BGM 混音" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="consumers">
+          <mxGeometry x="15" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Producer → manifest arrows (fan-in) -->
+        <mxCell id="ea_seeker" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.35;dashed=1;strokeColor=#666666;" edge="1" parent="1" source="p_seeker" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_imagen" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;dashed=1;strokeColor=#d6b656;" edge="1" parent="1" source="p_imagen" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_videogen" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.65;dashed=1;strokeColor=#d6b656;" edge="1" parent="1" source="p_videogen" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_hyper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0.5;entryY=1;dashed=1;strokeColor=#666666;" edge="1" parent="1" source="p_hyper" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_user" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=1;strokeColor=#666666;" edge="1" parent="1" source="p_user" target="manifest">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="500" />
+              <mxPoint x="310" y="520" />
+              <mxPoint x="480" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Manifest → consumer arrows (fan-out) -->
+        <mxCell id="ec_remotion" value="--public-dir" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.25;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#82b366;fontColor=#82b366;labelBackgroundColor=#ffffff;fontSize=10;" edge="1" parent="1" source="manifest" target="c_remotion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ec_thumb" value="封面素材" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#d6b656;fontColor=#d6b656;labelBackgroundColor=#ffffff;fontSize=10;" edge="1" parent="1" source="manifest" target="c_thumb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ec_bgm" value="BGM 来源" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.75;entryX=0;entryY=0.5;strokeColor=#9673a6;fontColor=#9673a6;labelBackgroundColor=#ffffff;fontSize=10;" edge="1" parent="1" source="manifest" target="c_bgm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ttsCN bypass -->
+        <mxCell id="e_ttscn" value="TTS_BACKEND=*" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;dashed=1;strokeColor=#d79b00;strokeWidth=2;fontColor=#d79b00;labelBackgroundColor=#ffffff;fontSize=10;fontStyle=1;" edge="1" parent="1" source="p_ttscn" target="manifest">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="115" />
+              <mxPoint x="310" y="115" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Footer -->
+        <mxCell id="note1" value="💰 💰 付费生成 — 使用前需确认费用" style="text;html=1;align=center;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="520" width="500" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

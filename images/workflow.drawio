@@ -8,7 +8,7 @@
 
         <!-- ===== Stage containers (top row) ===== -->
         <mxCell id="plan" value="📋 Planning" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="40" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_topic" value="🎯 Topic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="plan">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
@@ -21,20 +21,23 @@
         </mxCell>
 
         <mxCell id="content" value="✍️ Content" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="300" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="300" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_script" value="📝 Write Script" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="n_pubinfo" value="🏷️ Publish Info" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+        <mxCell id="n_phonemes" value="🔊 Pronunciation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
           <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="n_thumb" value="🖼️ Thumbnail" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+        <mxCell id="n_pubinfo" value="🏷️ Publish Info" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
           <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_thumb" value="🖼️ Thumbnail" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="content">
+          <mxGeometry x="20" y="230" width="160" height="40" as="geometry" />
         </mxCell>
 
         <mxCell id="prod" value="🎬 Production" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="560" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="560" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_tts" value="🎙️ TTS Audio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;" vertex="1" parent="prod">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
@@ -50,7 +53,7 @@
         </mxCell>
 
         <mxCell id="post" value="🎛️ Post" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="820" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="820" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_bgm" value="🎵 Mix BGM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
@@ -58,15 +61,21 @@
         <mxCell id="n_subs" value="📜 Subtitles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
           <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="n_chapters" value="📖 Chapters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;" vertex="1" parent="post">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
+        </mxCell>
 
         <mxCell id="out" value="📦 Output" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
-          <mxGeometry x="1080" y="40" width="200" height="280" as="geometry" />
+          <mxGeometry x="1080" y="40" width="200" height="340" as="geometry" />
         </mxCell>
         <mxCell id="n_verify" value="✅ Verify" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="out">
           <mxGeometry x="20" y="50" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="n_mp4" value="🎉 Final MP4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="out">
           <mxGeometry x="20" y="110" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_shorts" value="📱 Vertical Shorts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="out">
+          <mxGeometry x="20" y="170" width="160" height="40" as="geometry" />
         </mxCell>
 
         <!-- Stage-to-stage flow -->
@@ -83,8 +92,8 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- ===== Asset Layer (v3.0) ===== -->
-        <mxCell id="assets" value="🧩 Asset Layer (new in v3.0)" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
+        <!-- ===== Asset Layer ===== -->
+        <mxCell id="assets" value="🧩 Asset Layer" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;pointerEvents=0;" vertex="1" parent="1">
           <mxGeometry x="280" y="390" width="720" height="180" as="geometry" />
         </mxCell>
         <mxCell id="p_user" value="📁 User Files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="assets">
@@ -127,7 +136,7 @@
           </mxGeometry>
         </mxCell>
 
-        <!-- ===== Component Skills (plug-in) — v4.0 ===== -->
+        <!-- ===== Component Skills ===== -->
         <mxCell id="comp_skills" value="🧩 Component Skills (plug-in)" style="swimlane;startSize=30;html=1;rounded=1;fillColor=#fcf4f0;strokeColor=#9673a6;fontStyle=1;pointerEvents=0;dashed=1;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="40" y="630" width="1240" height="140" as="geometry" />
         </mxCell>

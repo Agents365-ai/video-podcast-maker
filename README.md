@@ -56,6 +56,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 ### Platform Optimizations
 
 **Bilibili:**
+
 - **Script Structure** - Welcome intro + call-to-action outro (一键三连)
 - **Chapter Timestamps** - Auto-generated `MM:SS` format for B站 chapters
 - **Thumbnail Generation** - AI (imagenCN) or Remotion, auto-generates 16:9 + 4:3 versions
@@ -63,11 +64,13 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Publish Info** - Title formulas, tag strategies, description templates
 
 **YouTube:**
+
 - **SEO Optimization** - Title <70 chars, keyword-rich description, tags and hashtags
 - **Chapters** - Auto-generated YouTube chapter timestamps (first line at 0:00)
 - **CTA** - "Like, Subscribe & Share" text animation or custom
 
 **Xiaohongshu (小红书):**
+
 - **Title** - Max 20 chars, punchy and emoji-friendly
 - **Description** - 200-500 chars, 种草/knowledge-sharing style with emoji
 - **Hashtags** - `#话题#` format (double hash), 5-10 tags
@@ -75,12 +78,14 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **CTA** - "点赞收藏加关注" text animation
 
 **Douyin (抖音):**
+
 - **Format** - Vertical shorts only (9:16), no horizontal long-form
 - **Description** - 100-200 chars, casual and conversational with emoji
 - **Hashtags** - `#话题` format (single hash), 3-8 tags
 - **CTA** - "点赞关注" text only (no animation)
 
 **WeChat Channels (微信视频号):**
+
 - **Format** - Vertical shorts only (9:16), no horizontal long-form
 - **Description** - 100-300 chars, knowledge-sharing style for forwarding
 - **Hashtags** - `#话题` format (single hash), 3-8 tags
@@ -88,7 +93,9 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 ## Workflow
 
-![Workflow](images/workflow.png)
+![Pipeline](images/pipeline.png)
+
+![Asset Engine](images/assets.png)
 
 ## ⚠️ For the human reading this (not the AI): manually polish `podcast.txt`, repeatedly
 
@@ -120,13 +127,12 @@ This skill depends on **remotion-best-practices** and works alongside other opti
 - **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
 - **ffmpeg** - Advanced audio/video processing (optional)
 
-
 ## Requirements
 
 ### System Requirements
 
 | Software | Version | Purpose |
-|----------|---------|---------|
+| ---------- | --------- | --------- |
 | **macOS / Linux** | - | Tested on macOS, Linux compatible |
 | **Python** | 3.8+ | TTS script, automation |
 | **Node.js** | 18+ | Remotion video rendering |
@@ -185,7 +191,7 @@ npm install remotion @remotion/cli @remotion/player zod
 All 11 TTS platforms are synthesized by the **required** [ttsCN](https://github.com/Agents365-ai/ttsCN) component skill — install it under `~/.claude/skills/ttsCN` (or point `TTSCN_HOME` at its root). Set `TTS_BACKEND` to any platform id; only the active platform's env vars are needed:
 
 | `TTS_BACKEND` | Provider | Required env vars | Get Key |
-|---------------|----------|-------------------|---------|
+| --------------- | ---------- | ------------------- | --------- |
 | `edge` (default) | Microsoft Edge TTS | *(none — free)* | — |
 | `azure` | Microsoft Azure Speech | `AZURE_SPEECH_KEY` (+ `AZURE_SPEECH_REGION`) | [Azure Portal](https://portal.azure.com/) |
 | `cosyvoice` | Aliyun CosyVoice | `DASHSCOPE_API_KEY` | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
@@ -256,6 +262,7 @@ npx remotion studio src/remotion/index.ts
 ```
 
 This opens a browser-based editor where you can:
+
 - **Visual Style Editing** - Adjust colors, fonts, and sizes in the right panel
 - Scrub through the timeline frame-by-frame
 - See live updates as you edit components
@@ -264,20 +271,19 @@ This opens a browser-based editor where you can:
 #### Editable Properties
 
 | Category | Properties |
-|----------|-----------|
+| ---------- | ----------- |
 | **Colors** | Primary color, background, text color, accent |
 | **Typography** | Title size (72-120), subtitle size, body size |
 | **Progress Bar** | Show/hide, height, font size, active color |
 | **Audio** | BGM volume (0-0.3) |
 | **Animation** | Enable/disable entrance animations |
 
-
 ## Configuration Files
 
 All paths below are relative to the skill root (`skills/video-podcast-maker/` in this repo, or `${SKILL_DIR}` when installed via the marketplace):
 
 | File | Scope | Purpose |
-|------|-------|---------|
+| ------ | ------- | --------- |
 | `phonemes.json` | Global | Chinese polyphone dictionary shared across all projects. Auto-created from `phonemes.template.json` on first run. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
 | `user_prefs.template.json` | Global | Default preferences template. Copied to `user_prefs.json` on first run, which auto-evolves as the skill learns your style |
 | `prefs_schema.json` | Global | JSON Schema for preference validation. Do not edit manually |
@@ -305,9 +311,9 @@ videos/{video-name}/
 ## Background Music
 
 Included tracks in `skills/video-podcast-maker/assets/`:
+
 - `perfect-beauty-191271.mp3` - Upbeat, positive
 - `snow-stevekaldes-piano-397491.mp3` - Calm piano
-
 
 ## Roadmap
 
@@ -363,8 +369,8 @@ If this project helps you, consider supporting the author:
 
 **Agents365-ai**
 
-- Bilibili: https://space.bilibili.com/441831884
-- GitHub: https://github.com/Agents365-ai
+- Bilibili: <https://space.bilibili.com/441831884>
+- GitHub: <https://github.com/Agents365-ai>
 
 ## 📄 License
 
