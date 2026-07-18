@@ -7,6 +7,21 @@ which applies it per platform (azure SSML <phoneme>, minimax pinyin).
 import os
 import re
 import json
+import tempfile
+
+
+def _atomic_write_json(data, path):
+    """Write JSON via a unique temp file + os.replace so concurrent
+    sessions never read a truncated/interleaved file."""
+    fd, tmp_path = tempfile.mkstemp(
+        dir=os.path.dirname(os.path.abspath(path)), suffix='.tmp')
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        os.replace(tmp_path, path)
+    except BaseException:
+        os.unlink(tmp_path)
+        raise
 
 
 def load_phoneme_dicts(input_file, phoneme_file=None):
@@ -25,11 +40,12 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
     template_path = os.path.join(SKILL_DIR, 'phonemes.template.json')
     project_path = os.path.join(os.path.dirname(os.path.abspath(input_file)), 'phonemes.json')
 
-    # Auto-create or merge phonemes.json from template
+    # Auto-create or merge phonemes.json from template (atomic writes so a
+    # concurrent session in another project never reads a partial file)
     if os.path.exists(template_path):
         if not os.path.exists(global_path):
-            import shutil
-            shutil.copy2(template_path, global_path)
+            with open(template_path, 'r', encoding='utf-8') as f:
+                _atomic_write_json(json.load(f), global_path)
             print(f"✓ Created phonemes.json from template")
         else:
             with open(template_path, 'r', encoding='utf-8') as f:
@@ -40,8 +56,7 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
             new_entries = {k: v for k, v in template_data.items() if k not in user_entries}
             if new_entries:
                 user_data.update(new_entries)
-                with open(global_path, 'w', encoding='utf-8') as f:
-                    json.dump(user_data, f, ensure_ascii=False, indent=4)
+                _atomic_write_json(user_data, global_path)
                 print(f"✓ Merged {len(new_entries)} new entries from template into phonemes.json")
 
     merged = {}

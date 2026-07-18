@@ -5,6 +5,7 @@ out-of-scope; these tests cover the parts that mutate user state:
 reference-index/style-profile bookkeeping, delete preview, and ID gen.
 """
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -145,8 +146,28 @@ def test_cleanup_orphaned_references_drops_missing_dirs(tmp_path):
         },
     }
     (tmp_path / "kept").mkdir()
-    cleanup_orphaned_references(prefs, str(tmp_path))
+    orphans = cleanup_orphaned_references(prefs, str(tmp_path))
     assert list(prefs["design_references"].keys()) == ["kept"]
+    assert orphans == ["gone"]
+
+
+# --- save_prefs / concurrency safety --------------------------------------
+
+def test_save_prefs_atomic_and_no_temp_leftover(tmp_path):
+    import learn_design
+    path = tmp_path / "user_prefs.json"
+    learn_design.save_prefs({"a": 1}, str(path))
+    assert json.loads(path.read_text())["a"] == 1
+    # No stray temp files left next to the prefs file
+    assert [p.name for p in tmp_path.iterdir()] == ["user_prefs.json"]
+
+
+def test_output_dir_default_anchored_to_skill_dir():
+    import learn_design
+    parser = learn_design._build_parser()
+    default = parser.get_default("output_dir")
+    assert os.path.isabs(default)
+    assert default == os.path.join(learn_design.SKILL_DIR, "design_references")
 
 
 # --- _compute_delete_preview ----------------------------------------------

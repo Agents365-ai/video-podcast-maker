@@ -27,7 +27,11 @@ python3 scripts/learn_design.py ./reference.mp4 --profile "tech-minimal" --tags 
 
 ## Reference Library Commands
 
-All reference-library management goes through `learn_design.py`:
+All reference-library management goes through `learn_design.py`. The library
+lives at `${SKILL_DIR}/design_references/` (next to `user_prefs.json`) so it is
+shared across projects and independent of the invoking directory; pass
+`--output-dir` only to override. If you have an old project-local
+`design_references/` directory, move its contents into the skill-root one.
 
 ```bash
 python3 scripts/learn_design.py --list                  # List all stored references (auto-cleans orphaned entries)

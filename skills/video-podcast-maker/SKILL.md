@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 4.1.3
+version: 4.2.0
 created: 2025-01-27
-updated: 2026-07-17
+updated: 2026-07-18
 permissions:
   - env
   - file_read

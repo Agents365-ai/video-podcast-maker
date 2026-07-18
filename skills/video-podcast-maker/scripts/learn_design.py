@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 
@@ -21,12 +22,17 @@ import cli_envelope  # noqa: E402
 
 # ============ Constants ============
 
+# Skill root (one level above scripts/). Prefs and the design reference
+# library both live here so the index and its data stay consistent no
+# matter which project directory the CLI is invoked from.
+SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 SUPPORTED_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 SUPPORTED_VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv"}
 MAX_FRAMES = 8
 MAX_VIDEO_SIZE_BYTES = 2 * 1024 * 1024 * 1024  # 2 GB
 
-PREFS_VERSION = "1.6"
+PREFS_VERSION = "1.7"  # must match "version" in user_prefs.template.json
 
 
 # ============ Input Detection ============
@@ -335,10 +341,21 @@ def load_prefs(prefs_path):
 
 
 def save_prefs(prefs, prefs_path):
-    """Save prefs to disk, stamping updated_at with UTC ISO timestamp."""
+    """Save prefs to disk, stamping updated_at with UTC ISO timestamp.
+
+    Atomic (unique temp file + os.replace) so concurrent sessions never
+    observe a truncated/interleaved user_prefs.json.
+    """
     prefs["updated_at"] = datetime.now(timezone.utc).isoformat()
-    with open(prefs_path, "w", encoding="utf-8") as f:
-        json.dump(prefs, f, ensure_ascii=False, indent=2)
+    fd, tmp_path = tempfile.mkstemp(
+        dir=os.path.dirname(os.path.abspath(prefs_path)), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(prefs, f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, prefs_path)
+    except BaseException:
+        os.unlink(tmp_path)
+        raise
 
 
 # ============ Reference Index Management ============
@@ -421,7 +438,10 @@ def remove_reference(prefs, ref_id, design_refs_base):
 
 
 def cleanup_orphaned_references(prefs, design_refs_base):
-    """Remove entries from design_references whose directories no longer exist."""
+    """Remove entries from design_references whose directories no longer exist.
+
+    Returns the list of removed ref ids so callers know whether to persist.
+    """
     design_refs = prefs.get("design_references", {})
     orphans = [
         ref_id for ref_id in list(design_refs.keys())
@@ -429,6 +449,7 @@ def cleanup_orphaned_references(prefs, design_refs_base):
     ]
     for ref_id in orphans:
         design_refs.pop(ref_id, None)
+    return orphans
 
 
 # ============ CLI Display Helpers ============
@@ -468,8 +489,9 @@ def _build_parser():
     )
     parser.add_argument(
         "--output-dir",
-        default="design_references",
-        help="Directory to store reference data (default: design_references)",
+        default=os.path.join(SKILL_DIR, "design_references"),
+        help="Directory to store reference data "
+             "(default: <skill root>/design_references, shared across projects)",
     )
     parser.add_argument(
         "--list",
@@ -577,13 +599,16 @@ def main():
 
 
 def _run(parser, args, started_at):
-    # Locate prefs file at skill root (one level above scripts/)
-    prefs_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "user_prefs.json")
+    prefs_path = os.path.join(SKILL_DIR, "user_prefs.json")
     prefs = load_prefs(prefs_path)
     output_dir = args.output_dir
 
     # -- List mode --
     if args.list:
+        orphans = cleanup_orphaned_references(prefs, output_dir)
+        if orphans:
+            save_prefs(prefs, prefs_path)
+            print(f"Cleaned {len(orphans)} orphaned reference(s): {', '.join(orphans)}")
         _list_references(prefs, output_dir)
         records = _compute_references_index(prefs, output_dir)
         sys.exit(cli_envelope.emit_success(args, {
