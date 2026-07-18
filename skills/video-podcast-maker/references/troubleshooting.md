@@ -169,6 +169,44 @@ sudo apt install fonts-noto-cjk
 
 ---
 
+### Remotion: Chrome Headless Shell Re-Downloads Every Run
+
+**Symptoms**: `npx remotion still ...` or `npx remotion render` takes 30s+ before starting, downloads a 90 MB Chrome zip every invocation.
+
+**Cause**: The headless browser cache (`node_modules/.remotion/`) is missing the `VERSION` file, so Remotion thinks the browser isn't installed. This happens when the zip extraction was interrupted (e.g., by a session exit mid-download).
+
+**Solution**: Copy the working browser cache from an existing project:
+
+```bash
+cp -r ~/path/to/existing-project/node_modules/.remotion/mac-arm64 \
+     node_modules/.remotion/
+```
+
+Or delete the cache and let it download once cleanly:
+
+```bash
+rm -rf node_modules/.remotion
+npx remotion still src/remotion/index.ts MyVideo videos/test.png --public-dir videos/test/ --frame 0
+```
+
+---
+
+### TTS: Section Timing Mismatch (Word Boundaries)
+
+**Symptoms**: `timing.json` shows wrong durations for some sections (e.g., a short paragraph gets 52s, a long one gets 31s). Console shows `⚠ 估算, 未找到:` warnings.
+
+**Cause**: The section matcher tries to find each section's first text in the word-boundary stream. Some TTS backends return word boundaries in spoken form (e.g., MiniMax returns "三十七" for "37"), which won't match the written form in `podcast.txt`. The matcher falls back to estimation, which can be inaccurate.
+
+**Solution**: After TTS, always verify section timing alignment:
+
+```bash
+python3 -c "import json; t=json.load(open('videos/{name}/timing.json')); [print(f\"{s['name']:20s} {s['duration']:.1f}s\") for s in t['sections']]"
+```
+
+If durations don't match paragraph lengths, re-run with a different backend or accept estimation (the total duration is always correct). For the current run, the SRT and audio are still valid — only `timing.json` section boundaries may need manual adjustment in the composition.
+
+---
+
 ### Edge TTS: No Audio Output
 
 **Symptoms**: Empty or zero-length WAV file, no error message

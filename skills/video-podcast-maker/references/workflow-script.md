@@ -66,6 +66,8 @@ When the user provides a reference video/image with their video creation request
 
 ## Startup: Load User Preferences
 
+**Before Step 1 — project setup.** The user needs a Remotion project to work in. Prefer reusing an existing one (`node_modules/` already installed saves ~2.2 GB download + 90 MB Chrome headless shell). If the user has a project from a previous video, use it. If a fresh project is needed, run `npm install` in the background during Steps 1-4 (topic research and script writing).
+
 **Agent behavior:** Run the migrator before Step 1. It creates `user_prefs.json` from the template if absent, deep-merges any new template fields into existing prefs, and applies structural rewrites for old versions. Idempotent (no-op when already current).
 
 ```bash

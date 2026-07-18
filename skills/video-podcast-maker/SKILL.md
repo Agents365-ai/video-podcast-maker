@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 4.1.2
+version: 4.1.3
 created: 2025-01-27
 updated: 2026-07-17
 permissions:
@@ -77,6 +77,10 @@ python3 "${SKILL_DIR}/scripts/check_prereqs.py"
 Updates flow through the plugin marketplace (`/plugin update`); direct git-clone installs use `git pull` per the README. This skill performs no update checks.
 
 **Prereqs failures** — see README.md for setup. The check is backend-aware (resolves `TTS_BACKEND` env → `user_prefs.json` `global.tts.backend` → `edge` default), so only env vars required by the active backend are validated.
+
+**First video in a new project?** Prefer reusing an existing Remotion project with `node_modules/` already installed — creating a fresh project downloads ~2.2 GB of npm packages plus a 90 MB Chrome headless shell (one-time per project). If the user has a project from a previous video, use it. If a fresh project is necessary, run `npm install` in the background while you do Steps 1-4 (topic research and script writing).
+
+**All rendering goes into `videos/{name}/`** — every `output.mp4`, `final_video.mp4`, and `thumbnail_*.png` lands directly in the per-video directory. Never render to an `out/` or `dist/` directory; the `--public-dir videos/{name}/` convention keeps everything self-contained.
 
 **TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`, plus the legacy `ttscn` alias) synthesize through the **ttsCN component skill**, which is **required**: install it under `~/.claude/skills/ttsCN` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
 
@@ -153,7 +157,7 @@ Flags beats that drift > 1.5s from narration. Especially important for kinetic-t
 | **Audio Sync** | Audio (`podcast_audio.wav` + `podcast_audio.srt`) is the master clock. `timing.json` MUST be generated from the real TTS output, never hand-estimated. Before rendering, final video duration must match audio within ±0.5s. See [references/audio-sync.md](references/audio-sync.md). |
 | **Thumbnail** | MUST generate both 16:9 (1920×1080) AND 4:3 (1200×900) — see [design-guide.md](references/design-guide.md) |
 | **Studio Before Render** | MUST launch `remotion studio` for review. NEVER render 4K until user explicitly confirms. Adjustment feedback ≠ confirmation — apply, hot-reload, ask again. |
-| **`--public-dir`** | Every Remotion command uses `--public-dir videos/{name}/` |
+| **`--public-dir`** | Every Remotion command uses `--public-dir videos/{name}/`. All output files (output.mp4, final_video.mp4, thumbnails) go directly into `videos/{name}/` — never an `out/` or `dist/` dir. |
 
 Visual minimums (text sizes, content width, safe zones, animation safety) live in [references/design-guide.md](references/design-guide.md). **MUST load before Step 9.**
 
