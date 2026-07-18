@@ -178,7 +178,7 @@ If the drift is ≥ 0.5s, re-run TTS or run `python3 ${SKILL_DIR}/scripts/align_
 
 ## Step 9: Create Remotion Composition + Studio Preview
 
-**The agent MUST read `references/design-guide.md` before this step.**
+**The agent MUST read `references/design-guide.md` AND `references/visual-taste.md` before this step** — design-guide owns the hard floors (px minimums, animation safety), visual-taste owns the judgment calls above them (dials, anti-default rules, section rhythm).
 
 **Preference application:** From `user_prefs.visual` override `defaultVideoProps`:
 

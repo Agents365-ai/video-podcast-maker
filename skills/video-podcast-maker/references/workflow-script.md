@@ -173,6 +173,8 @@ Topic-specific styles are applied via `user_prefs.json` under `topic_patterns`.
 > **MUST load before writing the first section:** [references/natural-narration.md](natural-narration.md) — anti-slop rules for spoken scripts (kill list, structural tells, pre-delivery checklist). A narration script that reads like AI prose survives into the audio and sounds like a machine reading a press release. Apply its checklist to every `podcast.txt` before running the dry-run.
 >
 > **After the first draft exists, load [references/script-polish.md](script-polish.md)** for the deep editing pass — 24 EN+ZH before/after patterns, evidence boundaries for factual claims, and per-language quality scoring rubrics. Run its editing workflow before TTS.
+>
+> **Then show the user the polish scorecard** — the per-dimension /50 score from script-polish's rubric plus a 2-3 line summary of what the editing pass changed. Do not block on a reply (Auto Mode continues to the dry-run); the user can request another polish pass at any point before Step 8 (TTS).
 
 **Preference application:** Adjust script style from `user_prefs.content`:
 
