@@ -20,6 +20,7 @@ Exit codes:
         (was 'always 0' historically; SKILL.md only reads stdout so the
         change is additive — orchestrators can now use && chaining)
 """
+
 import argparse
 import os
 import shutil
@@ -65,6 +66,7 @@ def check_prereqs(env=None):
     missing_components = []
     if backend_known:
         import components
+
         if components.find_component("ttsCN")[1] is None:
             missing_components.append("ttsCN")
 
@@ -108,27 +110,37 @@ def main():
             f"Known backends: {', '.join(known)}."
         )
         if cli_envelope.use_json(args):
-            sys.exit(cli_envelope.emit_error(
-                args, "validation_failed", message,
-                extra={
-                    "backend": backend,
-                    "backend_source": state["backend_source"],
-                    "known_backends": known,
-                },
-                started_at=started_at,
-            ))
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "validation_failed",
+                    message,
+                    extra={
+                        "backend": backend,
+                        "backend_source": state["backend_source"],
+                        "known_backends": known,
+                    },
+                    started_at=started_at,
+                )
+            )
         # stdout, like ALL_OK / MISSING — the prose contract is grepped there.
         print(f"UNKNOWN_BACKEND:{backend} (known: {','.join(known)})")
         sys.exit(2)
 
     if not missing_bins and not missing_env_vars and not missing_components:
         if cli_envelope.use_json(args):
-            sys.exit(cli_envelope.emit_success(args, {
-                "backend": backend,
-                "backend_source": state["backend_source"],
-                "required_bins": state["required_bins"],
-                "required_env_vars": state["required_env_vars"],
-            }, started_at=started_at))
+            sys.exit(
+                cli_envelope.emit_success(
+                    args,
+                    {
+                        "backend": backend,
+                        "backend_source": state["backend_source"],
+                        "required_bins": state["required_bins"],
+                        "required_env_vars": state["required_env_vars"],
+                    },
+                    started_at=started_at,
+                )
+            )
         print(f"ALL_OK (backend={backend})")
         sys.exit(0)
 
@@ -137,28 +149,36 @@ def main():
     # cli_envelope.ERROR_CODES so the orchestrator-side routing is the same,
     # but the code field tells the agent what kind of fix to suggest.
     code = "tool_missing" if missing_bins or missing_components else "auth_missing_env"
-    all_missing = missing_bins + missing_env_vars + \
-        [f"{c}(component)" for c in missing_components]
+    all_missing = (
+        missing_bins
+        + missing_env_vars
+        + [f"{c}(component)" for c in missing_components]
+    )
 
     hint = ""
     if missing_components:
-        hint = (" The ttsCN component skill is required for all TTS backends — "
-                "install it under ~/.claude/skills/ttsCN or set TTSCN_HOME "
-                "(https://github.com/Agents365-ai/ttsCN).")
+        hint = (
+            " The ttsCN component skill is required for all TTS backends — "
+            "install it next to this skill or under ~/.claude/skills/ttsCN, "
+            "or set TTSCN_HOME (https://github.com/Agents365-ai/ttsCN)."
+        )
 
     if cli_envelope.use_json(args):
-        sys.exit(cli_envelope.emit_error(
-            args, code,
-            f"{len(all_missing)} prereq(s) missing for backend '{backend}'.{hint}",
-            extra={
-                "backend": backend,
-                "backend_source": state["backend_source"],
-                "missing_bins": missing_bins,
-                "missing_env_vars": missing_env_vars,
-                "missing_components": missing_components,
-            },
-            started_at=started_at,
-        ))
+        sys.exit(
+            cli_envelope.emit_error(
+                args,
+                code,
+                f"{len(all_missing)} prereq(s) missing for backend '{backend}'.{hint}",
+                extra={
+                    "backend": backend,
+                    "backend_source": state["backend_source"],
+                    "missing_bins": missing_bins,
+                    "missing_env_vars": missing_env_vars,
+                    "missing_components": missing_components,
+                },
+                started_at=started_at,
+            )
+        )
     print(f"MISSING:{' '.join(all_missing)} (backend={backend})")
     if hint:
         print(hint.strip(), file=sys.stderr)

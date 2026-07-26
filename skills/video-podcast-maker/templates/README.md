@@ -11,8 +11,8 @@ These files split into two groups with different copy semantics — read both ru
 
 ```bash
 # Resolve the skill directory first.
-# Example: export SKILL_DIR=/path/to/video-podcast-maker
-# If your agent provides a built-in skill path variable such as ${CLAUDE_SKILL_DIR}:
+# Pi: the agent sets SKILL_DIR from the loaded skill path before running commands.
+# Claude Code: ${CLAUDE_SKILL_DIR} is auto-populated.
 export SKILL_DIR="${SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 
 # --- First time only (per project) ---
@@ -39,7 +39,7 @@ cp "${SKILL_DIR}"/templates/Video.tsx      src/remotion/{PascalCase}Video.tsx
 ## Files
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `podcast.txt` | Script template with `[SECTION:xxx]` markers |
 | `Video.tsx` | Main video composition (imports from components/) |
 | `Root.tsx` | Remotion root with Composition and Still registrations |
@@ -55,7 +55,7 @@ import { ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar }
 ```
 
 | Component | Purpose |
-|-----------|---------|
+| ----------- | --------- |
 | `ComparisonCard` | Two-column VS layout for product/feature comparisons |
 | `Timeline` | Vertical timeline with connected nodes for history/steps |
 | `CodeBlock` | Dark terminal-style code display with title bar |

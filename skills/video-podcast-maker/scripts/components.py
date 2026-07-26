@@ -18,6 +18,7 @@ marketplace repo layout (skills/<dirname>/scripts/...); both are handled.
 Usage:
     components.py probe [--format auto|json|prose]
 """
+
 import argparse
 import os
 import re
@@ -36,30 +37,51 @@ COMPONENTS = {
     "assetSeeker": {
         "entry": "scripts/seek_assets.py",
         "env_any": [],
-        "env_optional": ["PEXELS_API_KEY", "UNSPLASH_ACCESS_KEY", "PIXABAY_API_KEY",
-                         "FREESOUND_API_KEY", "GOOGLE_FONTS_API_KEY"],
+        "env_optional": [
+            "PEXELS_API_KEY",
+            "UNSPLASH_ACCESS_KEY",
+            "PIXABAY_API_KEY",
+            "FREESOUND_API_KEY",
+            "GOOGLE_FONTS_API_KEY",
+        ],
         "provides": "stock photos/video/BGM/SFX/icons/fonts (Iconify needs no key)",
     },
     "imagenCN": {
         "entry": "scripts/generate_image.py",
-        "env_any": ["DASHSCOPE_API_KEY", "ARK_API_KEY", "HUNYUAN_API_KEY",
-                    "ZHIPUAI_API_KEY", "STEP_API_KEY", "GEMINI_API_KEY"],
+        "env_any": [
+            "DASHSCOPE_API_KEY",
+            "ARK_API_KEY",
+            "HUNYUAN_API_KEY",
+            "ZHIPUAI_API_KEY",
+            "STEP_API_KEY",
+            "GEMINI_API_KEY",
+        ],
         "env_optional": [],
         "provides": "AI stills (scene illustrations, thumbnails)",
     },
     "videogenCN": {
         "entry": "scripts/generate_video.py",
-        "env_any": ["DASHSCOPE_API_KEY", "ARK_API_KEY", "MINIMAX_API_KEY",
-                    "HUNYUAN_API_KEY"],
+        "env_any": [
+            "DASHSCOPE_API_KEY",
+            "ARK_API_KEY",
+            "MINIMAX_API_KEY",
+            "HUNYUAN_API_KEY",
+        ],
         "env_optional": [],
         "provides": "AI video clips (B-roll, i2v)",
     },
     "ttsCN": {
         "entry": "scripts/tts.py",
         "env_any": [],
-        "env_optional": ["VOLCENGINE_APPID", "DASHSCOPE_API_KEY", "AZURE_SPEECH_KEY",
-                         "TENCENT_SECRET_ID", "BAIDU_APP_ID", "MINIMAX_API_KEY",
-                         "XUNFEI_APP_ID"],
+        "env_optional": [
+            "VOLCENGINE_APPID",
+            "DASHSCOPE_API_KEY",
+            "AZURE_SPEECH_KEY",
+            "TENCENT_SECRET_ID",
+            "BAIDU_APP_ID",
+            "MINIMAX_API_KEY",
+            "XUNFEI_APP_ID",
+        ],
         "provides": "TTS engine — required for Step 8 (Edge platform works with no key)",
     },
 }
@@ -73,6 +95,12 @@ def _candidate_roots(name):
     for parent in os.environ.get("VPM_COMPONENT_ROOTS", "").split(":"):
         if parent:
             yield Path(parent).expanduser() / name
+    # Sibling of this skill's install location (Pi / Codex / agent skill dirs)
+    try:
+        sibling = Path(__file__).resolve().parent.parent.parent / name
+        yield sibling
+    except OSError:
+        pass
     yield Path.home() / ".claude" / "skills" / name
 
 
@@ -138,8 +166,10 @@ def probe():
         usable = script is not None and env_ready
         hint = None
         if script is None:
-            hint = (f"not installed — set {name.upper()}_HOME or install under "
-                    f"~/.claude/skills/{name}")
+            hint = (
+                f"not installed — set {name.upper()}_HOME or install under "
+                f"~/.claude/skills/{name}"
+            )
         elif not env_ready:
             hint = f"installed but no API key — set one of: {', '.join(env_any)}"
         report[name] = {
@@ -159,7 +189,8 @@ def main():
     started_at = time.time()
     parser = argparse.ArgumentParser(
         prog="components.py",
-        description="Probe optional component skills (installed? credentialed?).")
+        description="Probe optional component skills (installed? credentialed?).",
+    )
     sub = parser.add_subparsers(dest="command", required=True, metavar="<command>")
     sp = sub.add_parser("probe", help="Report the component availability matrix")
     cli_envelope.add_format_arg(sp)
@@ -175,11 +206,19 @@ def main():
             elif r["env_present"]:
                 print(f"      keys: {', '.join(r['env_present'])}")
         usable = [n for n, r in report.items() if r["usable"]]
-        print(f"{len(usable)}/{len(report)} components usable: {', '.join(usable) or '-'}")
-    sys.exit(cli_envelope.emit_success(args, {
-        "components": report,
-        "usable": [n for n, r in report.items() if r["usable"]],
-    }, started_at=started_at))
+        print(
+            f"{len(usable)}/{len(report)} components usable: {', '.join(usable) or '-'}"
+        )
+    sys.exit(
+        cli_envelope.emit_success(
+            args,
+            {
+                "components": report,
+                "usable": [n for n, r in report.items() if r["usable"]],
+            },
+            started_at=started_at,
+        )
+    )
 
 
 if __name__ == "__main__":

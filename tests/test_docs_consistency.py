@@ -4,6 +4,7 @@ Each test targets a drift class actually hit in the v4.0.2 review:
 stale .env.example backend lists, stale native-boundary platform lists,
 and version numbers diverging between SKILL.md and package.json.
 """
+
 import json
 import re
 from pathlib import Path
@@ -37,7 +38,8 @@ def test_env_example_lists_every_backend():
         line for line in env_example.splitlines() if line.startswith("TTS_BACKEND=")
     )
     missing = [
-        backend for backend in BACKENDS
+        backend
+        for backend in BACKENDS
         if backend != "ttscn" and backend not in options_line  # legacy alias excluded
     ]
     assert not missing, f".env.example TTS_BACKEND options line missing: {missing}"
@@ -47,7 +49,9 @@ def test_env_example_covers_required_env_vars():
     """Every env var the routing table validates must appear in .env.example."""
     env_example = (SKILL_ROOT / ".env.example").read_text(encoding="utf-8")
     missing = sorted(
-        var for entry in BACKENDS.values() for var in entry["env"]
+        var
+        for entry in BACKENDS.values()
+        for var in entry["env"]
         if var not in env_example
     )
     assert not missing, f".env.example missing env vars: {missing}"
@@ -78,4 +82,33 @@ def test_skill_and_package_versions_match():
     )["version"]
     assert skill_version == package_version, (
         f"SKILL.md version {skill_version} != package.json version {package_version}"
+    )
+
+
+def test_all_markdown_references_resolve():
+    """Every references/*.md link in docs/templates must resolve to an existing file."""
+    ref_pattern = re.compile(
+        r"\]\(references/([a-z0-9_-]+\.md)(?:#[a-z0-9_-]+)?\)",
+        re.IGNORECASE,
+    )
+    doc_files = (
+        [SKILL_ROOT / "SKILL.md"]
+        + list(SKILL_ROOT.glob("references/*.md"))
+        + list(SKILL_ROOT.glob("templates/**/*.md"))
+        + list(SKILL_ROOT.glob("templates/**/*.tsx"))
+        + list(SKILL_ROOT.glob("templates/**/*.json"))
+    )
+    existing_refs = {p.name for p in (SKILL_ROOT / "references").glob("*.md")}
+    missing = []
+    for doc in doc_files:
+        if not doc.exists():
+            continue
+        text = doc.read_text(encoding="utf-8")
+        for match in ref_pattern.finditer(text):
+            ref_file = match.group(1)
+            if ref_file not in existing_refs:
+                missing.append(f"{doc.relative_to(REPO_ROOT)} → references/{ref_file}")
+    assert not missing, (
+        f"{len(missing)} stale reference(s) to deleted files:\n"
+        + "\n".join(sorted(missing))
     )

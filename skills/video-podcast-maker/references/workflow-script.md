@@ -71,7 +71,7 @@ When the user provides a reference video/image with their video creation request
 **Agent behavior:** Run the migrator before Step 1. It creates `user_prefs.json` from the template if absent, deep-merges any new template fields into existing prefs, and applies structural rewrites for old versions. Idempotent (no-op when already current).
 
 ```bash
-SKILL_DIR="${SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
+SKILL_DIR="${SKILL_DIR:-${CLAUDE_SKILL_DIR}}"  # Pi: agent sets SKILL_DIR; Claude Code: auto-populated
 python3 "${SKILL_DIR}/scripts/migrate_prefs.py"
 ```
 
