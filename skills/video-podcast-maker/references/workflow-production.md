@@ -94,7 +94,7 @@ Remotion thumbnails too when generating both; verify accepts either naming.
 
 ## Step 8: Generate TTS Audio
 
-> **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[azure-tts-pitfalls.md](azure-tts-pitfalls.md)** before picking a voice or style — covers Multilingual-variant phoneme behavior, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio. Worth ~30 seconds of reading time and saves a re-render.
+> **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[troubleshooting.md → Azure TTS Deep-Dive](troubleshooting.md#azure-tts-deep-dive)** before picking a voice or style — covers voice selection, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio.
 
 **Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
 

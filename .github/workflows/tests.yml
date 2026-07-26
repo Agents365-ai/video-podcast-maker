@@ -34,3 +34,29 @@ jobs:
           node-version: "20"
       - run: npm install --no-package-lock
       - run: npx tsc -p tsconfig.templates.json
+
+  smoke-render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Remotion
+        run: |
+          cd skills/video-podcast-maker
+          npm install --no-package-lock
+      - name: Render 2-frame smoke test
+        run: |
+          cd skills/video-podcast-maker
+          cp templates/remotion.config.ts .
+          mkdir -p src/remotion
+          cp ../../tests/fixtures/smoke-render/Root.tsx src/remotion/
+          cp ../../tests/fixtures/smoke-render/timing.json public/
+          echo -n > public/podcast_audio.wav
+          echo -n > public/podcast_audio.srt
+          rm -f src/remotion/index.ts
+          echo 'import { RemotionRoot } from "./Root";' > src/remotion/index.ts
+          echo 'export default RemotionRoot;' >> src/remotion/index.ts
+          npx remotion render src/remotion/index.ts SmokeTest \
+            out/smoke.mp4 --frames=0-1 --scale=0.25

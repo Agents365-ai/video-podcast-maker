@@ -77,31 +77,31 @@ fingerprints:
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:eb19de88638c713a
   rule_id: RP1
-  file: references/hyperframes-overlays.md
+  file: references/workflow-assets.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:6446a4939743be20
   rule_id: RP1
-  file: references/hyperframes-overlays.md
+  file: references/workflow-assets.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:264c054fae519fad
   rule_id: RP1
-  file: references/hyperframes-overlays.md
+  file: references/workflow-assets.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:28444360df70016a
   rule_id: RP1
-  file: references/hyperframes-overlays.md
+  file: references/workflow-assets.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:d2c9b93feca68541
   rule_id: RP1
-  file: references/project-layout.md
+  file: SKILL.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:e85e7726493bbed2
   rule_id: RP1
-  file: references/project-layout.md
+  file: SKILL.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:cfd5d53b3f4bc4b4
   rule_id: RP1
-  file: references/project-layout.md
+  file: SKILL.md
   reason: Accepted finding (auto-generated baseline)
 - hash: sha256:9ebb418638ec09b8
   rule_id: RP1
