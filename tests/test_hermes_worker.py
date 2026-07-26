@@ -1,0 +1,216 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+
+SCRIPT = (
+    Path(__file__).parents[1]
+    / "skills"
+    / "video-podcast-maker"
+    / "scripts"
+    / "hermes_worker.py"
+)
+
+
+def load_worker():
+    spec = importlib.util.spec_from_file_location("hermes_worker", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_capabilities_are_local_only_and_never_publish() -> None:
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT), "--project-root", ".", "--capabilities"],
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    payload = json.loads(completed.stdout)
+    assert payload["local_only"] is True
+    assert payload["publication"] is False
+    assert "publish" not in payload["stages"]
+    assert payload["image_gen"] == "comfyui-bridge-local"
+    assert payload["render"] == "windows-native-remotion"
+
+
+def test_artifact_root_must_stay_under_configured_base(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    worker = load_worker()
+    allowed = tmp_path / "allowed"
+    monkeypatch.setenv("HERMES_VIDEO_ARTIFACT_BASE", str(allowed))
+    request = {
+        "artifact_root": str(tmp_path / "escape"),
+    }
+    with pytest.raises(worker.WorkerFailure, match="escapes"):
+        worker.allowed_artifact_root(request)
+
+    valid = allowed / "vp_1" / "youtube_long_16x9"
+    request["artifact_root"] = str(valid)
+    assert worker.allowed_artifact_root(request) == valid.resolve()
+    assert valid.is_dir()
+
+
+def test_parse_sections_and_sentence_cues_are_deterministic() -> None:
+    worker = load_worker()
+    text = (
+        "[SECTION:hook|開場]行銷正在工程化嗎？\n\n"
+        "[SECTION:takeaway|結論]不要先學工具，先設計系統。"
+    )
+    sections = worker.parse_sections(text)
+    assert sections == [
+        {"name": "hook", "label": "開場", "text": "行銷正在工程化嗎？"},
+        {
+            "name": "takeaway",
+            "label": "結論",
+            "text": "不要先學工具，先設計系統。",
+        },
+    ]
+    cleaned = worker.clean_script(text)
+    assert "SECTION" not in cleaned
+    normalized = worker.normalize_script_for_pipeline(text)
+    assert normalized.startswith("[SECTION:hook]\n")
+    assert "[SECTION:takeaway]\n" in normalized
+    assert "|開場" not in normalized
+    cues = worker.sentence_cues(cleaned, 12.0, max_chars=12)
+    assert cues[0]["start_time"] == 0.0
+    assert cues[-1]["end_time"] == 12.0
+    assert all(cue["text"] for cue in cues)
+    assert cues == worker.sentence_cues(worker.clean_script(text), 12.0, max_chars=12)
+
+
+def test_outputs_include_only_existing_files_and_hashes(tmp_path: Path) -> None:
+    worker = load_worker()
+    (tmp_path / "a.txt").write_text("alpha", encoding="utf-8")
+    (tmp_path / "nested").mkdir()
+    (tmp_path / "nested/b.txt").write_text("beta", encoding="utf-8")
+    outputs = worker.outputs_for(
+        tmp_path,
+        ["a.txt", "nested/b.txt", "missing.txt"],
+        marker=True,
+    )
+    assert outputs["marker"] is True
+    assert set(outputs["artifact_paths"]) == {"a.txt", "nested_b.txt"}
+    assert set(outputs["artifact_hashes"]) == {"a.txt", "nested_b.txt"}
+    assert all(len(value) == 64 for value in outputs["artifact_hashes"].values())
+
+
+def test_image_generation_uses_local_bridge_and_copies_output(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    worker = load_worker()
+    root = tmp_path / "artifacts"
+    root.mkdir()
+    plan = {
+        "schema_version": "cloudsea35-video-scene-plan-v1",
+        "scenes": [{"id": "s1", "title": "開場", "component": "BrandIntro"}],
+    }
+    (root / "scene-plan.json").write_text(
+        json.dumps(plan, ensure_ascii=False), encoding="utf-8"
+    )
+    generated = tmp_path / "generated.png"
+    generated.write_bytes(b"\x89PNG\r\n\x1a\n" + b"image-data")
+    captured: dict = {}
+
+    def fake_bridge(payload, timeout=1200):
+        captured.update(payload)
+        assert timeout == 1200
+        return {
+            "status": "success",
+            "output_path": str(generated),
+            "prompt_id": "prompt-1",
+        }
+
+    monkeypatch.setattr(worker, "bridge_generate", fake_bridge)
+    request = {
+        "production_id": "vp_test",
+        "deliverable_id": "vd_test",
+        "run_id": "vr_test",
+        "stage": "image_gen",
+        "artifact_root": str(root),
+        "inputs": {"source_text": "Hermes 影片開場"},
+    }
+    outputs = worker.stage_image_gen(request, root, tmp_path)
+    assert captured["width"] == 1536
+    assert captured["height"] == 864
+    assert captured["preset"] == "official"
+    assert Path(outputs["artifact_paths"]["assets_primary_visual.png"]).is_file()
+    updated = json.loads((root / "scene-plan.json").read_text(encoding="utf-8"))
+    assert updated["primary_visual"] == "assets/primary_visual.png"
+    assert updated["primary_visual_request_id"].startswith("vr_test")
+
+
+def test_qa_requires_visual_publishability_and_zero_blockers(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    worker = load_worker()
+    project = tmp_path / "project"
+    root = tmp_path / "artifacts"
+    (project / "scripts").mkdir(parents=True)
+    (project / "scripts/verify.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    root.mkdir()
+    (root / "final-video.mp4").write_bytes(b"video")
+    (root / "branded-output.mp4").write_bytes(b"video")
+    (root / "qa").mkdir()
+
+    monkeypatch.setattr(
+        worker,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, "", ""),
+    )
+    request = {"inputs": {}}
+    (root / "qa/visual-publishability.json").write_text(
+        json.dumps({"visual_publishable": False}), encoding="utf-8"
+    )
+    (root / "qa/audit-report.json").write_text(
+        json.dumps({"blockers": []}), encoding="utf-8"
+    )
+    with pytest.raises(worker.WorkerFailure, match="visual_publishable"):
+        worker.stage_qa(request, root, project)
+
+    (root / "qa/visual-publishability.json").write_text(
+        json.dumps({"visual_publishable": True}), encoding="utf-8"
+    )
+    (root / "qa/audit-report.json").write_text(
+        json.dumps({"blockers": ["black frames"]}), encoding="utf-8"
+    )
+    with pytest.raises(worker.WorkerFailure, match="1 blocker"):
+        worker.stage_qa(request, root, project)
+
+    (root / "qa/audit-report.json").write_text(
+        json.dumps({"blockers": []}), encoding="utf-8"
+    )
+    outputs = worker.stage_qa(request, root, project)
+    assert outputs["visual_publishable"] is True
+    assert outputs["blocker_count"] == 0
+
+
+def test_main_rejects_publish_stage_without_side_effects(tmp_path: Path) -> None:
+    request = {
+        "production_id": "vp_test",
+        "deliverable_id": "vd_test",
+        "stage": "publish",
+        "run_id": "vr_test",
+        "attempt": 1,
+        "artifact_root": str(tmp_path / "artifacts"),
+        "inputs": {},
+    }
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT), "--project-root", str(tmp_path)],
+        input=json.dumps(request),
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    payload = json.loads(completed.stdout)
+    assert payload["status"] == "failed"
+    assert "unsupported stage" in payload["error"]
+    assert not (tmp_path / "artifacts").exists()

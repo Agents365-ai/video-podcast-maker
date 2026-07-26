@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 4.2.1
+version: 4.3.0
 created: 2025-01-27
-updated: 2026-07-18
+updated: 2026-07-26
 permissions:
   - env
   - file_read
@@ -50,6 +50,7 @@ Automated pipeline for **4K Bilibili horizontal knowledge videos** from a topic.
 ## Contents
 
 - [Bootstrap](#bootstrap) — prerequisites (run before Step 1)
+- [Hermes Worker Interface](#hermes-worker-interface) — local-only machine-readable stage execution
 - [Execution Modes](#execution-modes) — Auto vs Interactive → [references/workflow-script.md](references/workflow-script.md)
 - [Regenerating an Existing Video](#regenerating-an-existing-video) — iterate on a finished video
 - [Workflow](#workflow) — the 10 steps + phase-file pointers + mandatory stops
@@ -87,6 +88,42 @@ Updates flow through the plugin marketplace (`/plugin update`); direct git-clone
 **TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`, plus the legacy `ttscn` alias) synthesize through the **ttsCN component skill**, which is **required**: install it under `~/.claude/skills/ttsCN` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
 
 > **Design Learning shortcut**: If the user provides a reference video/image or asks to save/list/delete style profiles, see [references/design-learning.md](references/design-learning.md) instead of running the workflow below.
+
+---
+
+## Hermes Worker Interface
+
+Hermes durable orchestration calls this repository through:
+
+```bash
+python3 "${SKILL_DIR}/scripts/hermes_worker.py" \
+  --project-root /home/user/projects/video-podcast-maker
+```
+
+The Worker reads one `WorkerRequest` JSON object from stdin and writes one JSON result to stdout. Supported stages are:
+
+```text
+tts → scene_plan → image_gen → render → package → qa
+```
+
+The Worker deliberately does **not** implement publication. Production State, stage ordering, retry budgets, Review Snapshots, authorization, and Publication gates belong to the Hermes Production Coordinator.
+
+Hermes mode is local-only:
+
+- Chinese TTS uses Windows System Speech installed on the host.
+- Visual generation uses the local ComfyUI Bridge at `127.0.0.1:8190`.
+- Chinese branded output uses Windows-native Remotion.
+- QA reuses the repository verification scripts.
+- Missing local capabilities return `needs_human`; there is no cloud fallback.
+- Every output path must remain under `HERMES_VIDEO_ARTIFACT_BASE`.
+
+Inspect the advertised capability set without running a stage:
+
+```bash
+python3 "${SKILL_DIR}/scripts/hermes_worker.py" \
+  --project-root /home/user/projects/video-podcast-maker \
+  --capabilities
+```
 
 ---
 
