@@ -365,6 +365,241 @@ def title_from_source(text: str) -> str:
     return "Hermes Video Production"
 
 
+def _scene_text_items(scene: Mapping[str, Any]) -> list[str]:
+    raw_items = scene.get("items")
+    values: list[str] = []
+    if isinstance(raw_items, list):
+        for item in raw_items:
+            if isinstance(item, str):
+                value = item.strip()
+            elif isinstance(item, Mapping):
+                value = str(
+                    item.get("description")
+                    or item.get("title")
+                    or item.get("label")
+                    or ""
+                ).strip()
+            else:
+                value = str(item).strip()
+            if value:
+                values.append(value)
+    if not values:
+        for key in ("key_text", "title", "subtitle"):
+            value = str(scene.get(key) or "").strip()
+            if value and value not in values:
+                values.append(value)
+    return values[:6]
+
+
+def _short_title(value: str, *, limit: int = 18) -> tuple[str, str]:
+    normalized = re.sub(r"\s+", " ", value).strip()
+    for separator in ("：", ":", "—", "－", "，", ","):
+        if separator in normalized:
+            head, tail = normalized.split(separator, 1)
+            if 2 <= len(head.strip()) <= limit:
+                return head.strip(), tail.strip() or normalized
+    if len(normalized) <= limit:
+        return normalized, normalized
+    return normalized[:limit].rstrip(), normalized
+
+
+def _feature_items(scene: Mapping[str, Any]) -> list[dict[str, str]]:
+    icons = ("Workflow", "Database", "Target", "Gauge", "Layers", "CheckCircle")
+    result: list[dict[str, str]] = []
+    for index, value in enumerate(_scene_text_items(scene)):
+        title, description = _short_title(value)
+        result.append(
+            {
+                "icon": icons[index % len(icons)],
+                "title": title,
+                "description": description,
+            }
+        )
+    return result
+
+
+def _timeline_items(scene: Mapping[str, Any]) -> list[dict[str, str]]:
+    return [
+        {"label": f"{index:02d}", "description": value}
+        for index, value in enumerate(_scene_text_items(scene), 1)
+    ]
+
+
+def _visual_design(
+    *, title: str, visual_structure: str, primary: str, duration_frames: int
+) -> dict[str, Any]:
+    duration = max(1, duration_frames)
+    first_end = max(1, duration // 3)
+    second_end = max(first_end + 1, (duration * 2) // 3)
+    return {
+        "visual_goal": f"用{primary}呈現「{title}」的可執行結構",
+        "composition": visual_structure,
+        "focal_point": f"{title} 的核心{primary}",
+        "visual_layers": {
+            "background": "dark_navy_industrial_grid",
+            "primary": primary,
+            "secondary": "supporting_labels",
+            "accent": "highlight_path",
+            "subtitle_zone": "bottom_safe_zone",
+        },
+        "motion_plan": {
+            "entrance": "staggered_reveal",
+            "reveal": "reveal_primary_visual",
+            "emphasis": "highlight_focal_point",
+            "transition_out": "fade_out",
+        },
+        "text_layout": {
+            "title_zone": "top_safe_zone",
+            "body_zone": "center_safe_zone",
+            "max_lines": 4,
+        },
+        "visual_density": "high" if duration >= 900 else "medium",
+        "visual_beats": [
+            {
+                "start_frame": 0,
+                "end_frame": first_end,
+                "visual_event": "建立主要視覺結構",
+            },
+            {
+                "start_frame": first_end,
+                "end_frame": second_end,
+                "visual_event": "依序揭示關鍵節點",
+            },
+            {
+                "start_frame": second_end,
+                "end_frame": duration,
+                "visual_event": "聚焦結論與下一步",
+            },
+        ],
+    }
+
+
+def repair_scene_plan(plan: Mapping[str, Any], timing: Mapping[str, Any]) -> dict[str, Any]:
+    """Repair shallow generator output into a monotonic publishable scene plan."""
+    repaired = json.loads(json.dumps(plan, ensure_ascii=False))
+    scenes = repaired.get("scenes")
+    timing_sections = timing.get("sections")
+    if not isinstance(scenes, list) or not isinstance(timing_sections, list):
+        raise WorkerFailure("scene plan and timing must both contain section lists")
+    if len(scenes) != len(timing_sections):
+        raise WorkerFailure(
+            "scene/timing count mismatch: "
+            f"{len(scenes)} scenes != {len(timing_sections)} timing sections"
+        )
+
+    framework_index = 0
+    for index, (scene, timing_section) in enumerate(
+        zip(scenes, timing_sections, strict=True)
+    ):
+        if not isinstance(scene, dict) or not isinstance(timing_section, dict):
+            raise WorkerFailure(f"scene {index} or timing section is not an object")
+        section = str(timing_section.get("name") or scene.get("section") or "").lower()
+        start_frame = int(timing_section.get("start_frame", 0))
+        duration_frames = int(timing_section.get("duration_frames", 0))
+        if duration_frames <= 0:
+            raise WorkerFailure(f"scene {index} has non-positive duration")
+        scene["section"] = section
+        scene["start_frame"] = start_frame
+        scene["duration_frames"] = duration_frames
+        scene["end_frame"] = start_frame + duration_frames
+        title = str(scene.get("title") or scene.get("key_text") or section).strip()
+
+        if section == "hook":
+            component, structure, primary = "QuoteBlock", "single_statement", "quote_block"
+        elif section in {"problem", "case"}:
+            component = "FeatureGrid"
+            structure = "case_flow" if section == "case" else "checklist"
+            primary = "card_grid"
+        elif section == "takeaway":
+            component, structure, primary = "QuoteBlock", "single_statement", "quote_block"
+        elif section == "framework":
+            framework_index += 1
+            if framework_index <= 2:
+                structure = "timeline" if framework_index == 1 else "roadmap"
+                component, primary = "Timeline", "timeline"
+            else:
+                component, structure, primary = "FeatureGrid", "checklist", "card_grid"
+        elif section == "cta":
+            component, structure, primary = "DailyInsight", "cta", "checklist"
+            if title.strip().lower() in {
+                "下集見",
+                "下期見",
+                "謝謝觀看",
+                "thanks for watching",
+            }:
+                title = "你會先工程化哪個流程？"
+                scene["title"] = title
+            text_items = _scene_text_items(scene)
+            scene["detail"] = " ".join(text_items[:2])
+            scene["category"] = "行銷工程化"
+        else:
+            component = str(scene.get("component") or "FeatureGrid")
+            if component == "Timeline":
+                structure, primary = "timeline", "timeline"
+            elif component == "QuoteBlock":
+                structure, primary = "single_statement", "quote_block"
+            elif component == "DailyInsight":
+                structure, primary = "cta", "checklist"
+            else:
+                component, structure, primary = "FeatureGrid", "checklist", "card_grid"
+
+        scene["component"] = component
+        scene["visual_structure"] = structure
+        if component == "FeatureGrid":
+            scene["items"] = _feature_items(scene)
+        elif component == "Timeline":
+            scene["items"] = _timeline_items(scene)
+        scene["visual_design"] = _visual_design(
+            title=title,
+            visual_structure=structure,
+            primary=primary,
+            duration_frames=duration_frames,
+        )
+        scene["visual_beats"] = scene["visual_design"]["visual_beats"]
+
+    expected_start = 0
+    for index, scene in enumerate(scenes):
+        if int(scene["start_frame"]) != expected_start:
+            raise WorkerFailure(
+                f"scene {index} timing is not contiguous: "
+                f"expected {expected_start}, got {scene['start_frame']}"
+            )
+        expected_start = int(scene["end_frame"])
+    total_frames = int(timing.get("total_frames", expected_start))
+    if expected_start != total_frames:
+        raise WorkerFailure(
+            f"scene plan ends at {expected_start}, timing ends at {total_frames}"
+        )
+    repaired["repair_contract"] = "hermes-scene-plan-repair-v1"
+    repaired["total_frames"] = total_frames
+    return repaired
+
+
+def persist_design_audit(root: Path, raw_json: str) -> dict[str, Any]:
+    try:
+        audit_result = json.loads(raw_json)
+    except json.JSONDecodeError as exc:
+        raise WorkerFailure(f"design audit returned invalid JSON: {exc}") from exc
+    if not isinstance(audit_result, dict):
+        raise WorkerFailure("design audit result must be an object")
+    qa_dir = root / "qa"
+    qa_dir.mkdir(exist_ok=True)
+    audit_path = qa_dir / "audit-report.json"
+    audit_path.write_text(
+        json.dumps(audit_result, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    blockers = [
+        issue
+        for issue in audit_result.get("issues", [])
+        if isinstance(issue, Mapping) and issue.get("type") == "BLOCKER"
+    ]
+    if blockers:
+        messages = [str(issue.get("message", "design blocker")) for issue in blockers]
+        raise WorkerFailure("design_audit_blocked: " + " | ".join(messages))
+    return audit_result
+
+
 def stage_scene_plan(request: Mapping[str, Any], root: Path, project_root: Path) -> dict[str, Any]:
     inputs = request["inputs"]
     prepare = tool(
@@ -391,6 +626,18 @@ def stage_scene_plan(request: Mapping[str, Any], root: Path, project_root: Path)
         cwd=project_root,
         timeout=600,
     )
+    required = root / "scene-plan.json"
+    timing_path = root / "timing.json"
+    if not required.is_file() or not timing_path.is_file():
+        raise WorkerFailure("scene-plan.json and timing.json must be produced")
+    plan = json.loads(required.read_text(encoding="utf-8"))
+    timing = json.loads(timing_path.read_text(encoding="utf-8"))
+    repaired = repair_scene_plan(plan, timing)
+    required.write_text(
+        json.dumps(repaired, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
     storyboard = None
     try:
         storyboard = tool(
@@ -406,9 +653,18 @@ def stage_scene_plan(request: Mapping[str, Any], root: Path, project_root: Path)
             cwd=project_root,
             timeout=180,
         )
-    required = root / "scene-plan.json"
-    if not required.is_file():
-        raise WorkerFailure("scene-plan.json was not produced")
+
+    design_audit = tool(
+        project_root,
+        "design_audit.py",
+        "skills/video-podcast-maker/scripts/design_audit.py",
+    )
+    audit_completed = run(
+        [sys.executable, str(design_audit), str(root), "--json"],
+        cwd=project_root,
+        timeout=180,
+    )
+    persist_design_audit(root, audit_completed.stdout)
     return outputs_for(
         root,
         [
@@ -417,7 +673,9 @@ def stage_scene_plan(request: Mapping[str, Any], root: Path, project_root: Path)
             "subtitles.json",
             "timing.json",
             "podcast_audio.srt",
+            "qa/audit-report.json",
         ],
+        scene_plan_repair_contract="hermes-scene-plan-repair-v1",
     )
 
 

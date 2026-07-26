@@ -103,6 +103,142 @@ def test_outputs_include_only_existing_files_and_hashes(tmp_path: Path) -> None:
     assert all(len(value) == 64 for value in outputs["artifact_hashes"].values())
 
 
+def test_scene_plan_repair_uses_positional_timing_and_deep_components() -> None:
+    worker = load_worker()
+    sections = [
+        "hook",
+        "problem",
+        "framework",
+        "case",
+        "framework",
+        "framework",
+        "takeaway",
+        "cta",
+    ]
+    scenes = [
+        {
+            "id": f"scene-{index}",
+            "section": section,
+            "component": "ChapterCard" if section in {"case", "takeaway"} else "Timeline",
+            "title": "下集見" if section == "cta" else f"{section} title",
+            "key_text": f"{section} key text",
+            "items": [
+                f"{section} point one",
+                f"{section} point two with a concrete explanation",
+                f"{section} point three",
+            ],
+            "start_frame": 9999,
+            "end_frame": 10000,
+        }
+        for index, section in enumerate(sections)
+    ]
+    cursor = 0
+    timing_sections = []
+    for index, section in enumerate(sections):
+        duration = 300 + index * 10
+        timing_sections.append(
+            {
+                "name": section,
+                "start_frame": cursor,
+                "duration_frames": duration,
+            }
+        )
+        cursor += duration
+    repaired = worker.repair_scene_plan(
+        {"schema_version": "cloudsea35-video-scene-plan-v1", "scenes": scenes},
+        {"total_frames": cursor, "sections": timing_sections},
+    )
+
+    assert repaired["repair_contract"] == "hermes-scene-plan-repair-v1"
+    assert repaired["total_frames"] == cursor
+    repaired_scenes = repaired["scenes"]
+    assert [scene["component"] for scene in repaired_scenes] == [
+        "QuoteBlock",
+        "FeatureGrid",
+        "Timeline",
+        "FeatureGrid",
+        "Timeline",
+        "FeatureGrid",
+        "QuoteBlock",
+        "DailyInsight",
+    ]
+    assert [scene["start_frame"] for scene in repaired_scenes] == [
+        section["start_frame"] for section in timing_sections
+    ]
+    assert [scene["end_frame"] for scene in repaired_scenes] == [
+        section["start_frame"] + section["duration_frames"]
+        for section in timing_sections
+    ]
+    for scene in repaired_scenes:
+        assert scene["visual_design"]["focal_point"]
+        assert scene["visual_design"]["visual_layers"]["primary"]
+        assert len(scene["visual_beats"]) == 3
+    for index in (1, 3, 5):
+        assert repaired_scenes[index]["items"]
+        assert set(repaired_scenes[index]["items"][0]) == {
+            "icon",
+            "title",
+            "description",
+        }
+    for index in (2, 4):
+        assert set(repaired_scenes[index]["items"][0]) == {
+            "label",
+            "description",
+        }
+    assert repaired_scenes[-1]["title"] == "你會先工程化哪個流程？"
+    assert repaired_scenes[-1]["visual_structure"] == "cta"
+
+
+def test_scene_plan_repair_rejects_ambiguous_timing() -> None:
+    worker = load_worker()
+    with pytest.raises(worker.WorkerFailure, match="count mismatch"):
+        worker.repair_scene_plan(
+            {"scenes": [{"section": "hook"}, {"section": "cta"}]},
+            {
+                "total_frames": 30,
+                "sections": [
+                    {"name": "hook", "start_frame": 0, "duration_frames": 30}
+                ],
+            },
+        )
+
+
+def test_design_audit_json_is_persisted_and_blockers_fail(tmp_path: Path) -> None:
+    worker = load_worker()
+    passed = {
+        "score": 92,
+        "issues": [],
+        "warnings": [{"type": "WARNING", "message": "review this"}],
+    }
+    result = worker.persist_design_audit(
+        tmp_path, json.dumps(passed, ensure_ascii=False)
+    )
+    assert result == passed
+    persisted = json.loads(
+        (tmp_path / "qa/audit-report.json").read_text(encoding="utf-8")
+    )
+    assert persisted == passed
+
+    blocked = {
+        "score": 70,
+        "issues": [
+            {
+                "type": "BLOCKER",
+                "check": "chapter_card_duration",
+                "message": "ChapterCard is too long",
+            }
+        ],
+    }
+    with pytest.raises(worker.WorkerFailure, match="ChapterCard is too long"):
+        worker.persist_design_audit(
+            tmp_path, json.dumps(blocked, ensure_ascii=False)
+        )
+    persisted_blocked = json.loads(
+        (tmp_path / "qa/audit-report.json").read_text(encoding="utf-8")
+    )
+    assert persisted_blocked == blocked
+
+
 def test_image_generation_uses_local_bridge_and_copies_output(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
