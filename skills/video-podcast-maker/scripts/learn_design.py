@@ -4,6 +4,7 @@ Design Reference Learner for Video Podcast Maker
 Extracts frames from videos or copies images for coding-agent image analysis.
 Manages a design_references/ library and user preference profiles.
 """
+
 import argparse
 import hashlib
 import json
@@ -22,10 +23,10 @@ import cli_envelope  # noqa: E402
 
 # ============ Constants ============
 
-# Skill root (one level above scripts/). Prefs and the design reference
-# library both live here so the index and its data stay consistent no
-# matter which project directory the CLI is invoked from.
+# Skill root (one level above scripts/).
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+from _state import resolve_state_file
 
 SUPPORTED_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 SUPPORTED_VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv"}
@@ -36,6 +37,7 @@ PREFS_VERSION = "1.7"  # must match "version" in user_prefs.template.json
 
 
 # ============ Input Detection ============
+
 
 def detect_input_type(path):
     """Classify a path or URL as 'url', 'local_video', 'image', 'unsupported', or 'not_found'.
@@ -66,6 +68,7 @@ def detect_orientation(width, height):
 
 
 # ============ Reference ID Generation ============
+
 
 def _id_from_url(url):
     """Extract a short, stable ID from a video URL.
@@ -108,7 +111,9 @@ def generate_reference_id(source, name=None, existing_ids=None):
 
     if source and (source.startswith("http://") or source.startswith("https://")):
         base = _id_from_url(source)
-    elif source and os.path.splitext(source)[1].lower() in (SUPPORTED_VIDEO_EXTS | SUPPORTED_IMAGE_EXTS):
+    elif source and os.path.splitext(source)[1].lower() in (
+        SUPPORTED_VIDEO_EXTS | SUPPORTED_IMAGE_EXTS
+    ):
         # Treat any path with a known extension as a local file reference,
         # whether or not the file exists yet (allows ID generation before copy).
         stem = os.path.splitext(os.path.basename(source))[0]
@@ -133,6 +138,7 @@ def generate_reference_id(source, name=None, existing_ids=None):
 
 # ============ Directory Management ============
 
+
 def create_reference_dir(base_dir, ref_id):
     """Create {base_dir}/{ref_id}/frames/ and return the ref directory path."""
     ref_dir = os.path.join(base_dir, ref_id)
@@ -142,6 +148,7 @@ def create_reference_dir(base_dir, ref_id):
 
 
 # ============ Image Handling ============
+
 
 def copy_images(image_paths, ref_dir):
     """Copy up to MAX_FRAMES images into ref_dir/frames/.
@@ -170,14 +177,19 @@ def copy_images(image_paths, ref_dir):
 
 # ============ Video Utilities ============
 
+
 def get_video_duration(video_path):
     """Return duration in seconds via ffprobe. Returns None on failure."""
     try:
         result = subprocess.run(
             [
-                "ffprobe", "-v", "error",
-                "-show_entries", "format=duration",
-                "-of", "default=noprint_wrappers=1:nokey=1",
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
                 video_path,
             ],
             capture_output=True,
@@ -194,10 +206,15 @@ def get_video_dimensions(video_path):
     try:
         result = subprocess.run(
             [
-                "ffprobe", "-v", "error",
-                "-select_streams", "v:0",
-                "-show_entries", "stream=width,height",
-                "-of", "json",
+                "ffprobe",
+                "-v",
+                "error",
+                "-select_streams",
+                "v:0",
+                "-show_entries",
+                "stream=width,height",
+                "-of",
+                "json",
                 video_path,
             ],
             capture_output=True,
@@ -207,7 +224,13 @@ def get_video_dimensions(video_path):
         data = json.loads(result.stdout)
         stream = data["streams"][0]
         return int(stream["width"]), int(stream["height"])
-    except (subprocess.CalledProcessError, KeyError, IndexError, json.JSONDecodeError, FileNotFoundError):
+    except (
+        subprocess.CalledProcessError,
+        KeyError,
+        IndexError,
+        json.JSONDecodeError,
+        FileNotFoundError,
+    ):
         return None, None
 
 
@@ -225,7 +248,10 @@ def extract_video_frames(video_path, ref_dir):
     # Guard: file size
     size = os.path.getsize(video_path)
     if size > MAX_VIDEO_SIZE_BYTES:
-        print(f"Warning: video exceeds 2 GB limit ({size} bytes), skipping frame extraction", file=sys.stderr)
+        print(
+            f"Warning: video exceeds 2 GB limit ({size} bytes), skipping frame extraction",
+            file=sys.stderr,
+        )
         return []
 
     duration = get_video_duration(video_path)
@@ -241,18 +267,26 @@ def extract_video_frames(video_path, ref_dir):
     output_pattern = os.path.join(frames_dir, "frame_%04d.jpg")
 
     cmd = [
-        "ffmpeg", "-y",
-        "-i", video_path,
-        "-vf", f"fps=1/{interval:.2f},scale=-1:1080",
-        "-frames:v", str(MAX_FRAMES),
-        "-q:v", "2",
+        "ffmpeg",
+        "-y",
+        "-i",
+        video_path,
+        "-vf",
+        f"fps=1/{interval:.2f},scale=-1:1080",
+        "-frames:v",
+        str(MAX_FRAMES),
+        "-q:v",
+        "2",
         output_pattern,
     ]
 
     try:
         subprocess.run(cmd, capture_output=True, text=True, check=True)
     except FileNotFoundError:
-        print("Error: ffmpeg not found. Install ffmpeg to enable video frame extraction.", file=sys.stderr)
+        print(
+            "Error: ffmpeg not found. Install ffmpeg to enable video frame extraction.",
+            file=sys.stderr,
+        )
         return []
     except subprocess.CalledProcessError as e:
         print(f"Error: ffmpeg failed: {e.stderr}", file=sys.stderr)
@@ -274,6 +308,7 @@ def extract_video_frames(video_path, ref_dir):
 
 # ============ Report I/O ============
 
+
 def save_report(report, ref_dir):
     """Write report.json to ref_dir."""
     report_path = os.path.join(ref_dir, "report.json")
@@ -290,9 +325,13 @@ def load_report(ref_dir):
 
 # ============ Preferences I/O ============
 
+
 def _load_template():
     """Load user_prefs.template.json as default structure."""
-    template_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "user_prefs.template.json")
+    template_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "user_prefs.template.json",
+    )
     if os.path.exists(template_path):
         with open(template_path, encoding="utf-8") as f:
             return json.load(f)
@@ -348,7 +387,8 @@ def save_prefs(prefs, prefs_path):
     """
     prefs["updated_at"] = datetime.now(timezone.utc).isoformat()
     fd, tmp_path = tempfile.mkstemp(
-        dir=os.path.dirname(os.path.abspath(prefs_path)), suffix=".tmp")
+        dir=os.path.dirname(os.path.abspath(prefs_path)), suffix=".tmp"
+    )
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(prefs, f, ensure_ascii=False, indent=2)
@@ -359,6 +399,7 @@ def save_prefs(prefs, prefs_path):
 
 
 # ============ Reference Index Management ============
+
 
 def add_reference_index(prefs, ref_id, title, source_url, tags):
     """Add or update an entry in prefs["design_references"]."""
@@ -372,9 +413,17 @@ def add_reference_index(prefs, ref_id, title, source_url, tags):
     }
 
 
-def add_style_profile(prefs, name, description, props_override, preferred_layouts=None,
-                      preferred_backgrounds=None, animation_feel=None, density=None,
-                      references=None):
+def add_style_profile(
+    prefs,
+    name,
+    description,
+    props_override,
+    preferred_layouts=None,
+    preferred_backgrounds=None,
+    animation_feel=None,
+    density=None,
+    references=None,
+):
     """Create a new style profile or update an existing one.
 
     When updating: layouts are unioned, props are merged (new wins), other scalar
@@ -388,9 +437,14 @@ def add_style_profile(prefs, name, description, props_override, preferred_layout
         # Union preferred_layouts
         old_layouts = existing.get("preferred_layouts") or []
         new_layouts = preferred_layouts or []
-        merged_layouts = list(dict.fromkeys(old_layouts + new_layouts))  # preserve order, dedupe
+        merged_layouts = list(
+            dict.fromkeys(old_layouts + new_layouts)
+        )  # preserve order, dedupe
         # Merge props_override (new values win)
-        merged_props = {**(existing.get("props_override") or {}), **(props_override or {})}
+        merged_props = {
+            **(existing.get("props_override") or {}),
+            **(props_override or {}),
+        }
         existing["description"] = description
         existing["props_override"] = merged_props
         existing["preferred_layouts"] = merged_layouts
@@ -444,7 +498,8 @@ def cleanup_orphaned_references(prefs, design_refs_base):
     """
     design_refs = prefs.get("design_references", {})
     orphans = [
-        ref_id for ref_id in list(design_refs.keys())
+        ref_id
+        for ref_id in list(design_refs.keys())
         if not os.path.isdir(os.path.join(design_refs_base, ref_id))
     ]
     for ref_id in orphans:
@@ -453,6 +508,7 @@ def cleanup_orphaned_references(prefs, design_refs_base):
 
 
 # ============ CLI Display Helpers ============
+
 
 def _list_references(prefs, design_refs_base):
     """Print all design references with size and summary."""
@@ -474,6 +530,7 @@ def _list_references(prefs, design_refs_base):
 
 # ============ CLI Entry Point ============
 
+
 def _build_parser():
     parser = argparse.ArgumentParser(
         description="Extract design reference frames for coding-agent image analysis."
@@ -491,7 +548,7 @@ def _build_parser():
         "--output-dir",
         default=os.path.join(SKILL_DIR, "design_references"),
         help="Directory to store reference data "
-             "(default: <skill root>/design_references, shared across projects)",
+        "(default: <skill root>/design_references, shared across projects)",
     )
     parser.add_argument(
         "--list",
@@ -512,7 +569,7 @@ def _build_parser():
         "--yes",
         action="store_true",
         help="Confirm destructive operations (currently: --delete). Without --yes, "
-             "destructive flags print a preview of what would change and exit 3.",
+        "destructive flags print a preview of what would change and exit 3.",
     )
     parser.add_argument(
         "--profile",
@@ -528,6 +585,7 @@ def _build_parser():
 
 # ============ Structured-data helpers (envelope) ============
 
+
 def _compute_references_index(prefs, design_refs_base):
     """Return a list of structured records for every design reference.
 
@@ -539,16 +597,18 @@ def _compute_references_index(prefs, design_refs_base):
         ref_dir = os.path.join(design_refs_base, ref_id)
         frames_dir = os.path.join(ref_dir, "frames")
         frame_count = len(os.listdir(frames_dir)) if os.path.isdir(frames_dir) else 0
-        records.append({
-            "ref_id": ref_id,
-            "title": meta.get("title", ""),
-            "analyzed_at": meta.get("analyzed_at"),
-            "frame_count": frame_count,
-            "tags": meta.get("tags", []),
-            "path": meta.get("path", f"design_references/{ref_id}"),
-            "source_url": meta.get("source_url"),
-            "on_disk": os.path.isdir(ref_dir),
-        })
+        records.append(
+            {
+                "ref_id": ref_id,
+                "title": meta.get("title", ""),
+                "analyzed_at": meta.get("analyzed_at"),
+                "frame_count": frame_count,
+                "tags": meta.get("tags", []),
+                "path": meta.get("path", f"design_references/{ref_id}"),
+                "source_url": meta.get("source_url"),
+                "on_disk": os.path.isdir(ref_dir),
+            }
+        )
     return records
 
 
@@ -561,8 +621,11 @@ def _compute_delete_preview(prefs, ref_id, ref_dir):
     meta = prefs.get("design_references", {}).get(ref_id, {})
     frames_dir = os.path.join(ref_dir, "frames")
     frame_count = len(os.listdir(frames_dir)) if os.path.isdir(frames_dir) else 0
-    used_by = [name for name, profile in prefs.get("style_profiles", {}).items()
-               if ref_id in profile.get("references", [])]
+    used_by = [
+        name
+        for name, profile in prefs.get("style_profiles", {}).items()
+        if ref_id in profile.get("references", [])
+    ]
     return {
         "ref_id": ref_id,
         "path": ref_dir,
@@ -584,22 +647,34 @@ def main():
     try:
         return _run(parser, args, started_at)
     except json.JSONDecodeError as exc:
-        sys.exit(cli_envelope.emit_error(
-            args, "input_invalid", f"malformed JSON: {exc}",
-            started_at=started_at,
-        ))
+        sys.exit(
+            cli_envelope.emit_error(
+                args,
+                "input_invalid",
+                f"malformed JSON: {exc}",
+                started_at=started_at,
+            )
+        )
     except Exception as exc:
         # An agent must always get an envelope, never a bare traceback.
-        sys.exit(cli_envelope.emit_error(
-            args, "internal_error", f"{type(exc).__name__}: {exc}",
-            started_at=started_at,
-        ))
+        sys.exit(
+            cli_envelope.emit_error(
+                args,
+                "internal_error",
+                f"{type(exc).__name__}: {exc}",
+                started_at=started_at,
+            )
+        )
     finally:
         sys.stdout = sys.__stdout__
 
 
 def _run(parser, args, started_at):
-    prefs_path = os.path.join(SKILL_DIR, "user_prefs.json")
+    prefs_path = str(
+        resolve_state_file(
+            "user_prefs.json", template_filename="user_prefs.template.json"
+        )
+    )
     prefs = load_prefs(prefs_path)
     output_dir = args.output_dir
 
@@ -611,12 +686,18 @@ def _run(parser, args, started_at):
             print(f"Cleaned {len(orphans)} orphaned reference(s): {', '.join(orphans)}")
         _list_references(prefs, output_dir)
         records = _compute_references_index(prefs, output_dir)
-        sys.exit(cli_envelope.emit_success(args, {
-            "mode": "list",
-            "output_dir": output_dir,
-            "references": records,
-            "count": len(records),
-        }, started_at=started_at))
+        sys.exit(
+            cli_envelope.emit_success(
+                args,
+                {
+                    "mode": "list",
+                    "output_dir": output_dir,
+                    "references": records,
+                    "count": len(records),
+                },
+                started_at=started_at,
+            )
+        )
 
     # -- Show mode --
     if args.show:
@@ -625,20 +706,31 @@ def _run(parser, args, started_at):
         try:
             report = load_report(ref_dir)
         except FileNotFoundError:
-            sys.exit(cli_envelope.emit_error(
-                args, "input_not_found",
-                f"no report found for '{ref_id}'",
-                field="show",
-                extra={"ref_id": ref_id,
-                       "expected_path": os.path.join(ref_dir, "report.json")},
-                started_at=started_at,
-            ))
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "input_not_found",
+                    f"no report found for '{ref_id}'",
+                    field="show",
+                    extra={
+                        "ref_id": ref_id,
+                        "expected_path": os.path.join(ref_dir, "report.json"),
+                    },
+                    started_at=started_at,
+                )
+            )
         print(json.dumps(report, ensure_ascii=False, indent=2))
-        sys.exit(cli_envelope.emit_success(args, {
-            "mode": "show",
-            "ref_id": ref_id,
-            "report": report,
-        }, started_at=started_at))
+        sys.exit(
+            cli_envelope.emit_success(
+                args,
+                {
+                    "mode": "show",
+                    "ref_id": ref_id,
+                    "report": report,
+                },
+                started_at=started_at,
+            )
+        )
 
     # -- Delete mode (gated by --yes) --
     if args.delete:
@@ -647,60 +739,90 @@ def _run(parser, args, started_at):
         in_prefs = ref_id in prefs.get("design_references", {})
         on_disk = os.path.isdir(ref_dir)
         if not in_prefs and not on_disk:
-            print(f"Error: reference '{ref_id}' not found in prefs and no directory exists.",
-                  file=sys.stderr)
-            sys.exit(cli_envelope.emit_error(
-                args, "input_not_found",
-                f"reference '{ref_id}' not found in prefs and no directory exists",
-                field="delete", extra={"ref_id": ref_id},
-                started_at=started_at,
-            ))
+            print(
+                f"Error: reference '{ref_id}' not found in prefs and no directory exists.",
+                file=sys.stderr,
+            )
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "input_not_found",
+                    f"reference '{ref_id}' not found in prefs and no directory exists",
+                    field="delete",
+                    extra={"ref_id": ref_id},
+                    started_at=started_at,
+                )
+            )
 
         preview = _compute_delete_preview(prefs, ref_id, ref_dir)
 
         if not args.yes:
             # Existing prose preview to stderr (preserves the format users see today).
             print(f"Would delete reference: {ref_id}", file=sys.stderr)
-            print(f"  path:    {ref_dir}{'' if on_disk else '  (not on disk)'}", file=sys.stderr)
-            if preview['title']:
+            print(
+                f"  path:    {ref_dir}{'' if on_disk else '  (not on disk)'}",
+                file=sys.stderr,
+            )
+            if preview["title"]:
                 print(f"  title:   {preview['title']}", file=sys.stderr)
             print(f"  frames:  {preview['frame_count']} file(s)", file=sys.stderr)
-            if preview['used_by_profiles']:
-                print(f"  used by: {len(preview['used_by_profiles'])} style profile(s) — "
-                      f"{', '.join(preview['used_by_profiles'])}", file=sys.stderr)
-                print(f"           (will be removed from each profile's references list)",
-                      file=sys.stderr)
+            if preview["used_by_profiles"]:
+                print(
+                    f"  used by: {len(preview['used_by_profiles'])} style profile(s) — "
+                    f"{', '.join(preview['used_by_profiles'])}",
+                    file=sys.stderr,
+                )
+                print(
+                    "           (will be removed from each profile's references list)",
+                    file=sys.stderr,
+                )
             else:
-                print(f"  used by: (no style profiles)", file=sys.stderr)
-            print(f"\nRe-run with --yes to confirm deletion.", file=sys.stderr)
-            sys.exit(cli_envelope.emit_error(
-                args, "confirmation_required",
-                f"Add --yes to delete reference '{ref_id}'",
-                field="delete",
-                extra={"would_delete": preview,
-                       "next": [f"python3 scripts/learn_design.py --delete {ref_id} --yes"]},
-                started_at=started_at,
-            ))
+                print("  used by: (no style profiles)", file=sys.stderr)
+            print("\nRe-run with --yes to confirm deletion.", file=sys.stderr)
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "confirmation_required",
+                    f"Add --yes to delete reference '{ref_id}'",
+                    field="delete",
+                    extra={
+                        "would_delete": preview,
+                        "next": [
+                            f"python3 scripts/learn_design.py --delete {ref_id} --yes"
+                        ],
+                    },
+                    started_at=started_at,
+                )
+            )
 
         remove_reference(prefs, ref_id, output_dir)
         save_prefs(prefs, prefs_path)
         print(f"Deleted reference: {ref_id}")
-        sys.exit(cli_envelope.emit_success(args, {
-            "mode": "delete",
-            "ref_id": ref_id,
-            "deleted": preview,
-            "prefs_path": prefs_path,
-        }, started_at=started_at))
+        sys.exit(
+            cli_envelope.emit_success(
+                args,
+                {
+                    "mode": "delete",
+                    "ref_id": ref_id,
+                    "deleted": preview,
+                    "prefs_path": prefs_path,
+                },
+                started_at=started_at,
+            )
+        )
 
     # -- Process inputs (add mode) --
     if not args.inputs:
         if cli_envelope.use_json(args):
-            sys.exit(cli_envelope.emit_error(
-                args, "input_invalid",
-                "No action specified. Use --list, --show REF_ID, --delete REF_ID, "
-                "or pass one or more positional inputs (URLs, videos, images).",
-                started_at=started_at,
-            ))
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "input_invalid",
+                    "No action specified. Use --list, --show REF_ID, --delete REF_ID, "
+                    "or pass one or more positional inputs (URLs, videos, images).",
+                    started_at=started_at,
+                )
+            )
         parser.print_help()
         return
 
@@ -726,17 +848,22 @@ def _run(parser, args, started_at):
             print(f"Warning: not found — skipping: {input_path}", file=sys.stderr)
             skipped.append({"input": input_path, "reason": "not_found"})
         else:
-            print(f"Warning: unsupported file type — skipping: {input_path}", file=sys.stderr)
+            print(
+                f"Warning: unsupported file type — skipping: {input_path}",
+                file=sys.stderr,
+            )
             skipped.append({"input": input_path, "reason": "unsupported"})
 
     if not images and not videos and not urls:
-        sys.exit(cli_envelope.emit_error(
-            args, "input_invalid",
-            "No valid inputs provided",
-            extra={"skipped": skipped,
-                   "input_count": len(args.inputs)},
-            started_at=started_at,
-        ))
+        sys.exit(
+            cli_envelope.emit_error(
+                args,
+                "input_invalid",
+                "No valid inputs provided",
+                extra={"skipped": skipped, "input_count": len(args.inputs)},
+                started_at=started_at,
+            )
+        )
 
     result = {
         "mode": "add",
@@ -753,7 +880,9 @@ def _run(parser, args, started_at):
     # Multiple images → group into one reference
     if images:
         source = "images" if len(images) > 1 or (not videos and not urls) else images[0]
-        ref_id = generate_reference_id(source, name=args.name, existing_ids=existing_ids)
+        ref_id = generate_reference_id(
+            source, name=args.name, existing_ids=existing_ids
+        )
         existing_ids.add(ref_id)
         ref_dir = create_reference_dir(output_dir, ref_id)
 
@@ -773,17 +902,29 @@ def _run(parser, args, started_at):
             "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
         save_report(report, ref_dir)
-        add_reference_index(prefs, ref_id=ref_id, title=args.name or "Image set", source_url=None, tags=tags_list)
+        add_reference_index(
+            prefs,
+            ref_id=ref_id,
+            title=args.name or "Image set",
+            source_url=None,
+            tags=tags_list,
+        )
         newly_added_ids.append(ref_id)
         print(f"  Extracted {len(frames)} frames")
-        result['images'].append({
-            "ref_id": ref_id, "source": images, "frame_count": len(frames),
-            "ref_dir": ref_dir,
-        })
+        result["images"].append(
+            {
+                "ref_id": ref_id,
+                "source": images,
+                "frame_count": len(frames),
+                "ref_dir": ref_dir,
+            }
+        )
 
     # Each video → separate reference
     for video_path in videos:
-        ref_id = generate_reference_id(video_path, name=args.name, existing_ids=existing_ids)
+        ref_id = generate_reference_id(
+            video_path, name=args.name, existing_ids=existing_ids
+        )
         existing_ids.add(ref_id)
         ref_dir = create_reference_dir(output_dir, ref_id)
 
@@ -809,14 +950,27 @@ def _run(parser, args, started_at):
             "height": h,
         }
         save_report(report, ref_dir)
-        add_reference_index(prefs, ref_id=ref_id, title=os.path.basename(video_path), source_url=None, tags=tags_list)
+        add_reference_index(
+            prefs,
+            ref_id=ref_id,
+            title=os.path.basename(video_path),
+            source_url=None,
+            tags=tags_list,
+        )
         newly_added_ids.append(ref_id)
         print(f"  Extracted {len(frames)} frames")
-        result['videos'].append({
-            "ref_id": ref_id, "source": video_path, "frame_count": len(frames),
-            "duration_seconds": duration, "orientation": orientation,
-            "width": w, "height": h, "ref_dir": ref_dir,
-        })
+        result["videos"].append(
+            {
+                "ref_id": ref_id,
+                "source": video_path,
+                "frame_count": len(frames),
+                "duration_seconds": duration,
+                "orientation": orientation,
+                "width": w,
+                "height": h,
+                "ref_dir": ref_dir,
+            }
+        )
 
     # URLs → placeholder. URL screenshot extraction is NOT implemented (no
     # Playwright integration ships with this skill). The placeholder reserves
@@ -831,8 +985,12 @@ def _run(parser, args, started_at):
         print(f"\nURL: {url}")
         print(f"  Reference ID: {ref_id}")
         print(f"  Output: {ref_dir}")
-        print(f"  ⚠ URL capture is not implemented in this skill. Empty placeholder created.")
-        print(f"    Drop screenshots into {ref_dir}/frames/ manually, then re-run --show {ref_id}.")
+        print(
+            "  ⚠ URL capture is not implemented in this skill. Empty placeholder created."
+        )
+        print(
+            f"    Drop screenshots into {ref_dir}/frames/ manually, then re-run --show {ref_id}."
+        )
 
         report = {
             "ref_id": ref_id,
@@ -845,24 +1003,36 @@ def _run(parser, args, started_at):
             "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
         save_report(report, ref_dir)
-        add_reference_index(prefs, ref_id=ref_id, title=url, source_url=url, tags=tags_list)
+        add_reference_index(
+            prefs, ref_id=ref_id, title=url, source_url=url, tags=tags_list
+        )
         newly_added_ids.append(ref_id)
-        result['urls'].append({
-            "ref_id": ref_id, "source": url, "needs_manual_frames": True, "ref_dir": ref_dir,
-        })
+        result["urls"].append(
+            {
+                "ref_id": ref_id,
+                "source": url,
+                "needs_manual_frames": True,
+                "ref_dir": ref_dir,
+            }
+        )
 
     # Attach to style profile if --profile was passed. We use the existing
     # add_style_profile() helper with empty visual fields so the call is
     # idempotent for already-existing profiles (it unions references in).
     if profile_name and newly_added_ids:
         existing_profile = prefs.get("style_profiles", {}).get(profile_name, {})
-        merged_refs = list(dict.fromkeys(
-            (existing_profile.get("references") or []) + newly_added_ids,
-        ))
+        merged_refs = list(
+            dict.fromkeys(
+                (existing_profile.get("references") or []) + newly_added_ids,
+            )
+        )
         add_style_profile(
             prefs,
             name=profile_name,
-            description=existing_profile.get("description", f"Profile '{profile_name}' (auto-created from learn_design)"),
+            description=existing_profile.get(
+                "description",
+                f"Profile '{profile_name}' (auto-created from learn_design)",
+            ),
             props_override=existing_profile.get("props_override") or {},
             preferred_layouts=existing_profile.get("preferred_layouts") or [],
             preferred_backgrounds=existing_profile.get("preferred_backgrounds"),
@@ -870,12 +1040,16 @@ def _run(parser, args, started_at):
             density=existing_profile.get("density"),
             references=merged_refs,
         )
-        print(f"\nAttached {len(newly_added_ids)} reference(s) to style profile '{profile_name}'")
-        result['profile_attached'] = profile_name
-        result['profile_references'] = merged_refs
+        print(
+            f"\nAttached {len(newly_added_ids)} reference(s) to style profile '{profile_name}'"
+        )
+        result["profile_attached"] = profile_name
+        result["profile_references"] = merged_refs
 
     save_prefs(prefs, prefs_path)
-    print("\nDone. Pass the frames/ directory to your coding agent for design analysis.")
+    print(
+        "\nDone. Pass the frames/ directory to your coding agent for design analysis."
+    )
     sys.exit(cli_envelope.emit_success(args, result, started_at=started_at))
 
 

@@ -12,8 +12,11 @@ side). max_chars is a flat 400 for all platforms: word-boundary estimation
 error is bounded by chunk length, and ttsCN sub-chunks internally per
 provider limit.
 """
+
 import json
 import os
+
+from _state import resolve_state_file
 
 
 class BackendError(Exception):
@@ -22,6 +25,7 @@ class BackendError(Exception):
     Carries a `code` matching cli_envelope.ERROR_CODES so the CLI layer can
     route the failure through emit_error() without inventing new codes inline.
     """
+
     code = "internal_error"
 
 
@@ -47,11 +51,11 @@ class MissingEnvVarError(BackendError):
 
 
 def user_prefs_get(*keys):
-    """Read nested key from user_prefs.json. Returns None if missing/unreadable."""
-    # __file__ = scripts/tts/backends/__init__.py → skill root is four levels up
-    skill_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    prefs_path = os.path.join(skill_dir, 'user_prefs.json')
-    if not os.path.exists(prefs_path):
+    """Read nested key from user_prefs.json in shared state dir."""
+    prefs_path = resolve_state_file(
+        "user_prefs.json", template_filename="user_prefs.template.json"
+    )
+    if not prefs_path.exists():
         return None
     try:
         with open(prefs_path) as f:
@@ -70,13 +74,13 @@ def resolve_backend():
 
     Returns (name, source) where source is 'env', 'user_prefs', or 'default'.
     """
-    env = os.environ.get('TTS_BACKEND')
+    env = os.environ.get("TTS_BACKEND")
     if env:
-        return env, 'env'
-    pref = user_prefs_get('global', 'tts', 'backend')
+        return env, "env"
+    pref = user_prefs_get("global", "tts", "backend")
     if pref:
-        return pref, 'user_prefs'
-    return 'edge', 'default'
+        return pref, "user_prefs"
+    return "edge", "default"
 
 
 def resolve_speech_rate():
@@ -84,31 +88,31 @@ def resolve_speech_rate():
 
     Returns (rate, source) where source is 'env', 'user_prefs', or 'default'.
     """
-    env = os.environ.get('TTS_RATE')
+    env = os.environ.get("TTS_RATE")
     if env:
-        return env, 'env'
-    pref = user_prefs_get('global', 'tts', 'rate')
+        return env, "env"
+    pref = user_prefs_get("global", "tts", "rate")
     if pref:
-        return pref, 'user_prefs'
-    return '+5%', 'default'
+        return pref, "user_prefs"
+    return "+5%", "default"
 
 
 # Routing table: each backend id maps 1:1 to the ttsCN platform of the same
 # name, except the legacy 'ttscn' alias whose platform comes from the
 # TTSCN_PLATFORM env var (default 'edge'), exactly as before v4.0.0.
 BACKENDS = {
-    'edge':       {'env': []},
-    'azure':      {'env': ['AZURE_SPEECH_KEY']},
-    'cosyvoice':  {'env': ['DASHSCOPE_API_KEY']},
-    'doubao':     {'env': ['VOLCENGINE_APPID', 'VOLCENGINE_ACCESS_TOKEN']},
-    'tencent':    {'env': ['TENCENT_SECRET_ID', 'TENCENT_SECRET_KEY']},
-    'baidu':      {'env': ['BAIDU_APP_ID', 'BAIDU_API_KEY', 'BAIDU_SECRET_KEY']},
-    'minimax':    {'env': ['MINIMAX_API_KEY']},
-    'xunfei':     {'env': ['XUNFEI_APP_ID', 'XUNFEI_API_KEY', 'XUNFEI_API_SECRET']},
-    'elevenlabs': {'env': ['ELEVENLABS_API_KEY']},
-    'openai':     {'env': ['OPENAI_API_KEY']},
-    'google':     {'env': ['GOOGLE_TTS_API_KEY']},
-    'ttscn':      {'env': []},
+    "edge": {"env": []},
+    "azure": {"env": ["AZURE_SPEECH_KEY"]},
+    "cosyvoice": {"env": ["DASHSCOPE_API_KEY"]},
+    "doubao": {"env": ["VOLCENGINE_APPID", "VOLCENGINE_ACCESS_TOKEN"]},
+    "tencent": {"env": ["TENCENT_SECRET_ID", "TENCENT_SECRET_KEY"]},
+    "baidu": {"env": ["BAIDU_APP_ID", "BAIDU_API_KEY", "BAIDU_SECRET_KEY"]},
+    "minimax": {"env": ["MINIMAX_API_KEY"]},
+    "xunfei": {"env": ["XUNFEI_APP_ID", "XUNFEI_API_KEY", "XUNFEI_API_SECRET"]},
+    "elevenlabs": {"env": ["ELEVENLABS_API_KEY"]},
+    "openai": {"env": ["OPENAI_API_KEY"]},
+    "google": {"env": ["GOOGLE_TTS_API_KEY"]},
+    "ttscn": {"env": []},
 }
 
 MAX_CHARS = 400
@@ -116,13 +120,13 @@ MAX_CHARS = 400
 # Legacy per-backend voice env vars (pre-4.0) — kept so existing setups keep
 # working. The generic TTS_VOICE covers every id, including the new ones.
 _VOICE_ENV = {
-    'azure': 'AZURE_TTS_VOICE',
-    'edge': 'EDGE_TTS_VOICE',
-    'doubao': 'VOLCENGINE_VOICE_TYPE',
-    'elevenlabs': 'ELEVENLABS_VOICE_ID',
-    'openai': 'OPENAI_TTS_VOICE',
-    'google': 'GOOGLE_TTS_VOICE',
-    'ttscn': 'TTSCN_VOICE',
+    "azure": "AZURE_TTS_VOICE",
+    "edge": "EDGE_TTS_VOICE",
+    "doubao": "VOLCENGINE_VOICE_TYPE",
+    "elevenlabs": "ELEVENLABS_VOICE_ID",
+    "openai": "OPENAI_TTS_VOICE",
+    "google": "GOOGLE_TTS_VOICE",
+    "ttscn": "TTSCN_VOICE",
 }
 
 
@@ -133,9 +137,11 @@ def _resolve_voice(name):
     ttsCN resolves its own per-platform default (no default-voice table is
     duplicated here).
     """
-    return (os.environ.get('TTS_VOICE')
-            or os.environ.get(_VOICE_ENV.get(name, ''), '')
-            or user_prefs_get('global', 'tts', 'voices', name))
+    return (
+        os.environ.get("TTS_VOICE")
+        or os.environ.get(_VOICE_ENV.get(name, ""), "")
+        or user_prefs_get("global", "tts", "voices", name)
+    )
 
 
 def init_backend(name):
@@ -155,39 +161,42 @@ def init_backend(name):
         )
 
     import components
-    _, entry = components.find_component('ttsCN')
+
+    _, entry = components.find_component("ttsCN")
     if entry is None:
         raise MissingPackageError(
             "ttsCN component skill not found (required for all TTS backends) "
             "— set TTSCN_HOME or install under ~/.claude/skills/ttsCN "
             "(https://github.com/Agents365-ai/ttsCN)",
-            package='ttsCN', install_cmd='export TTSCN_HOME=<skill root>',
+            package="ttsCN",
+            install_cmd="export TTSCN_HOME=<skill root>",
         )
 
-    for var in BACKENDS[name]['env']:
+    for var in BACKENDS[name]["env"]:
         if not os.environ.get(var):
             raise MissingEnvVarError(f"{var} not set", var=var)
 
-    platform = name if name != 'ttscn' else os.environ.get('TTSCN_PLATFORM', 'edge')
+    platform = name if name != "ttscn" else os.environ.get("TTSCN_PLATFORM", "edge")
     voice = _resolve_voice(name)
     print(f"  ttsCN engine: platform={platform} entry={entry}")
     print(f"  Voice: {voice or f'(ttsCN default for {platform})'}")
-    config = {'entry': str(entry), 'platform': platform, 'voice': voice}
-    if platform == 'azure':
+    config = {"entry": str(entry), "platform": platform, "voice": voice}
+    if platform == "azure":
         # ttsCN's azure adapter reads TTS_STYLE from env (mstts:express-as).
         # Preserve the pre-4.0 default: env TTS_STYLE > user_prefs > 'gentle',
         # where "" explicitly disables the wrapper.
-        style = os.environ.get('TTS_STYLE')
+        style = os.environ.get("TTS_STYLE")
         if style is None:
-            pref = user_prefs_get('global', 'tts', 'style')
-            style = pref if pref is not None else 'gentle'
-        config['style'] = style
+            pref = user_prefs_get("global", "tts", "style")
+            style = pref if pref is not None else "gentle"
+        config["style"] = style
     return config
 
 
 def get_synthesize_func(name):
     """Return the synthesize function — always the ttsCN bridge."""
     from . import ttscn
+
     return ttscn.synthesize
 
 

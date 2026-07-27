@@ -280,7 +280,7 @@ All scripts are reachable through one dispatcher — start with `python3 ${SKILL
 
 ## User Preferences
 
-Preferences are stored in `user_prefs.json`. Run "show preferences" to view, or "set X Y" to change. Full commands: [references/troubleshooting.md](references/troubleshooting.md).
+Mutable state (`user_prefs.json`, `phonemes.json`) lives in `~/.video-podcast-maker/` — safe from skill updates. Auto-migrated from the skill directory on first run. Run "show preferences" to view, or "set X Y" to change. Full commands: [references/troubleshooting.md](references/troubleshooting.md).
 
 ---
 
