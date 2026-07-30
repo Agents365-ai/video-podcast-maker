@@ -19,7 +19,7 @@ consumed in Remotion through `useAssets()` / `<AssetImage>` / `<AssetVideo>`
 ## Contents
 
 - [5a. Plan](#5a-plan) — decide role + source per section
-- [5b. Resolve](#5b-resolve) — user files, assetSeeker stock, generated (P2/P3)
+- [5b. Resolve](#5b-resolve) — user files, assetseeker stock, generated (P2/P3)
 - [5c. Validate & consume](#5c-validate--consume)
 - [Hard rules](#hard-rules)
 
@@ -41,10 +41,10 @@ plan directly as manifest entries.
 **Auto mode policy** (replaces the old "skip media" default):
 
 1. Assets the user explicitly supplied or requested → always plan them.
-2. Free sources (user files, assetSeeker stock, Iconify icons) → plan and
+2. Free sources (user files, assetseeker stock, Iconify icons) → plan and
    resolve without asking. 2–4 well-placed assets beat wall-to-wall media;
    text-only sections remain perfectly valid.
-3. Paid generation (imagenCN / videogenCN) → register as `planned` /
+3. Paid generation (imagencn / videogencn) → register as `planned` /
    `pending_confirmation` with a `--cost-estimate`; present the cost sheet and
    generate **only after the user confirms** (P2).
 4. No component skill installed, no user files → proceed text-only. The
@@ -59,7 +59,7 @@ Before resolving, probe which producers are actually available:
 
 ```bash
 python3 ${SKILL_DIR}/scripts/cli.py capabilities
-# JSON: data.usable = ["assetSeeker", ...]; per-component entry paths + hints
+# JSON: data.usable = ["assetseeker", ...]; per-component entry paths + hints
 ```
 
 Components are discovered via `<NAME>_HOME` env vars, `VPM_COMPONENT_ROOTS`
@@ -84,14 +84,14 @@ python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
 Choose the role deliberately: a screenshot the narration talks about is
 `inline`; a mood photo behind a title is `background`.
 
-### Stock assets via assetSeeker (free, license-vetted)
+### Stock assets via assetseeker (free, license-vetted)
 
-If the assetSeeker skill is installed (look for its `scripts/seek_assets.py`
-under the agent's skill directories, e.g. `~/.claude/skills/assetSeeker/`),
+If the assetseeker skill is installed (look for its `scripts/seek_assets.py`
+under the agent's skill directories, e.g. `~/.claude/skills/assetseeker/`),
 use it for photos / clips / icons; results carry license + attribution:
 
 ```bash
-SEEK=~/.claude/skills/assetSeeker/scripts/seek_assets.py
+SEEK=~/.claude/skills/assetseeker/scripts/seek_assets.py
 python3 "$SEEK" sources --type photo            # which providers have keys
 python3 "$SEEK" search photo "city skyline dusk" --orientation landscape --max 5
 python3 "$SEEK" download "<download_url>" --output videos/{name}/assets/city.jpg
@@ -102,10 +102,10 @@ python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
 ```
 
 Notes: Iconify icons need no API key; Pexels allows 200 req/hr — batch your
-searches. If assetSeeker is missing or has no keys, skip stock assets
+searches. If assetseeker is missing or has no keys, skip stock assets
 silently.
 
-### AI stills via imagenCN (paid — confirm before generating)
+### AI stills via imagencn (paid — confirm before generating)
 
 Use for scene illustrations and backgrounds that stock search can't provide
 (specific concepts, consistent style, Chinese typography). Cost is low
@@ -113,7 +113,7 @@ Use for scene illustrations and backgrounds that stock search can't provide
 
 1. Write the full detailed prompt yourself (subject, style, composition,
    colors matching `props.primaryColor`, "no text" unless text is wanted).
-   Skip imagenCN's interactive 3-variant refinement — that is for standalone
+   Skip imagencn's interactive 3-variant refinement — that is for standalone
    use.
 2. Register the plan, present the cost sheet, wait for user confirmation:
 
@@ -126,7 +126,7 @@ python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
 1. After the user confirms, generate and flip the entry to resolved:
 
 ```bash
-IMAGEN=<entry path from capabilities>   # .../imagenCN/scripts/generate_image.py
+IMAGEN=<entry path from capabilities>   # .../imagencn/scripts/generate_image.py
 python3 "$IMAGEN" "<detailed prompt>" videos/{name}/assets/hero_art.png --size 16:9
 python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
   --id hero_art --section hero --type image --role background \
@@ -138,12 +138,12 @@ Default model (`qwen-image-2.0-pro`) renders 16:9 at 2688×1536 — fine for
 `background`/`inline` roles (Remotion scales). Record the actual model from
 the JSON envelope (`data.model`) in the license string.
 
-### AI B-roll via videogenCN (most expensive — hard gate)
+### AI B-roll via videogencn (most expensive — hard gate)
 
 Per-second billing. The `--dry-run` quote is MANDATORY before asking:
 
 ```bash
-VIDEOGEN=<entry path from capabilities>   # .../videogenCN/scripts/generate_video.py
+VIDEOGEN=<entry path from capabilities>   # .../videogencn/scripts/generate_video.py
 python3 "$VIDEOGEN" "<中文提示词>" videos/{name}/assets/city_broll.mp4 \
   -d 5 -r 1080P --ratio 16:9 --dry-run          # prints request + cost estimate
 python3 ${SKILL_DIR}/scripts/cli.py assets add videos/{name}/ \
@@ -160,7 +160,7 @@ assets/city_broll.mp4 --duration-s <n> --license "AI-generated (<model>)"`.
   component's interactive refinement.
 - If the process is interrupted mid-task, resume with
   `--task-id <id> videos/{name}/assets/x.mp4` instead of paying again.
-- **i2v chain**: generate a keyframe with imagenCN first, then animate it —
+- **i2v chain**: generate a keyframe with imagencn first, then animate it —
   `python3 "$VIDEOGEN" "<动作描述>" out.mp4 --image videos/{name}/assets/hero_art.png`.
   Both default platforms share `DASHSCOPE_API_KEY`.
 - Keep clips 5–15s and let narration length drive how many you need; B-roll

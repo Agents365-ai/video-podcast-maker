@@ -12,11 +12,11 @@
 
 [English](README.md)
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，含 ttsCN 桥接）、Remotion 视频渲染和 FFmpeg 音频混音。
+自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，含 ttscn 桥接）、Remotion 视频渲染和 FFmpeg 音频混音。
 
-**v4.0「ttsCN 路由」**：全部 11 个 TTS 后端统一经必装的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能合成——单一桥接适配器，按平台处理表现力标记与多音字，支持原生字级时间戳的平台自动启用。
+**v4.0「ttscn 路由」**：全部 11 个 TTS 后端统一经必装的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能合成——单一桥接适配器，按平台处理表现力标记与多音字，支持原生字级时间戳的平台自动启用。
 
-**v3.0「资产引擎」**：统一的资产层从五种生产者向合成供货——你自己的文件、[assetSeeker](https://github.com/Agents365-ai/assetSeeker) 免费图库、[imagenCN](https://github.com/Agents365-ai/imagenCN) AI 图片、[videogenCN](https://github.com/Agents365-ai/videogenCN) AI 视频片段、[Hyperframes](https://github.com/heygen-com/hyperframes) 透明动画叠层——全部登记进每视频的 manifest 并记录许可来源。免费资源自动解析，付费生成必先确认。所有生产者均为可选：一个不装也能产出精良的纯文字动画视频。
+**v3.0「资产引擎」**：统一的资产层从五种生产者向合成供货——你自己的文件、[assetseeker](https://github.com/Agents365-ai/assetSeeker) 免费图库、[imagencn](https://github.com/Agents365-ai/imagenCN) AI 图片、[videogencn](https://github.com/Agents365-ai/videogenCN) AI 视频片段、[Hyperframes](https://github.com/heygen-com/hyperframes) 透明动画叠层——全部登记进每视频的 manifest 并记录许可来源。免费资源自动解析，付费生成必先确认。所有生产者均为可选：一个不装也能产出精良的纯文字动画视频。
 
 **支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — 任何支持 SKILL.md 的 coding agent
 
@@ -31,10 +31,10 @@
 - **主题研究** - 网络搜索与内容收集
 - **脚本撰写** - 带章节标记的结构化旁白
 - **资产引擎（v3.0）** - 每视频的 `assets/manifest.json` 登记全部图片/视频/叠层/音频资产（角色、来源、许可），Remotion 侧通过 `AssetImage` / `AssetVideo` / `OverlayLayer` 消费
-- **五种资产生产者** - 用户文件、assetSeeker（许可核验的图库/BGM/音效/图标）、imagenCN（AI 图片与封面）、videogenCN（AI B-roll，dry-run 报价）、Hyperframes（透明 WebM VP9 动画叠层）
+- **五种资产生产者** - 用户文件、assetseeker（许可核验的图库/BGM/音效/图标）、imagencn（AI 图片与封面）、videogencn（AI B-roll，dry-run 报价）、Hyperframes（透明 WebM VP9 动画叠层）
 - **成本确认门** - 付费 AI 生成绝不静默执行：报价 → manifest `pending_confirmation` → 明确批准
 - **能力探测** - `cli.py capabilities` 报告各生产者的安装与密钥状态；全链路优雅降级
-- **多 TTS 引擎（11 个平台，经 ttsCN 合成）** - Edge TTS（免费）、Azure Speech、CosyVoice、火山引擎豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、Google Cloud TTS、OpenAI TTS —— 全部由必装的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能合成，`TTS_BACKEND` 可直接填任意平台 id
+- **多 TTS 引擎（11 个平台，经 ttscn 合成）** - Edge TTS（免费）、Azure Speech、CosyVoice、火山引擎豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、Google Cloud TTS、OpenAI TTS —— 全部由必装的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能合成，`TTS_BACKEND` 可直接填任意平台 id
 - **Remotion 视频** - 基于 React 的视频合成与动画
 - **可视化样式编辑** - 在 Remotion Studio 界面调整颜色、字体、布局
 - **实时预览** - Remotion Studio 即时调试，渲染前预览效果
@@ -58,7 +58,7 @@
 
 - **脚本结构** - 欢迎开场 + 一键三连片尾引导
 - **章节时间戳** - 自动生成 `MM:SS` 格式，直接复制到B站
-- **封面生成** - AI (imagenCN) 或 Remotion，自动生成 16:9 + 4:3 双版本
+- **封面生成** - AI (imagencn) 或 Remotion，自动生成 16:9 + 4:3 双版本
 - **视觉风格** - 大字饱满、极少留白、信息密度高
 - **发布信息** - 标题公式、标签策略、简介模板
 
@@ -120,10 +120,10 @@
 本技能依赖 **remotion-best-practices**，并可与其他可选技能配合使用：
 
 - **[remotion-best-practices](https://github.com/remotion-dev/skills)** - Remotion 官方最佳实践（必需，提供核心 Remotion 模式与规范——从 [remotion-dev/skills](https://github.com/remotion-dev/skills) 安装，文档见 [remotion.dev/docs/ai/skills](https://www.remotion.dev/docs/ai/skills)）
-- **[assetSeeker](https://github.com/Agents365-ai/assetSeeker)** - 许可核验的免费图库/视频/BGM/音效/图标/字体（可选资产生产者）
-- **[imagenCN](https://github.com/Agents365-ai/imagenCN)** - AI 图片生成，用于场景插图与封面（可选，付费 API）
-- **[videogenCN](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
-- **[ttsCN](https://github.com/Agents365-ai/ttsCN)** - 全部 11 个 TTS 后端的合成引擎（**必需** —— 安装到 `~/.claude/skills/ttsCN` 或设置 `TTSCN_HOME`）
+- **[assetseeker](https://github.com/Agents365-ai/assetSeeker)** - 许可核验的免费图库/视频/BGM/音效/图标/字体（可选资产生产者）
+- **[imagencn](https://github.com/Agents365-ai/imagenCN)** - AI 图片生成，用于场景插图与封面（可选，付费 API）
+- **[videogencn](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
+- **[ttscn](https://github.com/Agents365-ai/ttsCN)** - 全部 11 个 TTS 后端的合成引擎（**必需** —— 安装到 `~/.claude/skills/ttscn` 或设置 `TTSCN_HOME`）
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→视频渲染器，产出透明动画叠层（可选，Node 22+）
 - **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
 - **ffmpeg** - 高级音视频处理（可选）
@@ -182,9 +182,9 @@ cd your-existing-project
 npm install remotion @remotion/cli @remotion/player zod
 ```
 
-### TTS 后端（全部经 ttsCN 合成）
+### TTS 后端（全部经 ttscn 合成）
 
-全部 11 个 TTS 平台均由**必装**的 [ttsCN](https://github.com/Agents365-ai/ttsCN) 组件技能负责合成 —— 请将其安装到 `~/.claude/skills/ttsCN`（或用 `TTSCN_HOME` 指向其根目录）。`TTS_BACKEND` 直接填平台 id，只需配置当前平台的环境变量：
+全部 11 个 TTS 平台均由**必装**的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能负责合成 —— 请将其安装到 `~/.claude/skills/ttscn`（或用 `TTSCN_HOME` 指向其根目录）。`TTS_BACKEND` 直接填平台 id，只需配置当前平台的环境变量：
 
 | `TTS_BACKEND` | 平台 | 所需环境变量 | 获取密钥 |
 | --------------- | ------ | ------------- | --------- |
@@ -212,10 +212,10 @@ npm install remotion @remotion/cli @remotion/player zod
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-# TTS 后端（见上表；所有合成均经 ttsCN 组件技能完成）
+# TTS 后端（见上表；所有合成均经 ttscn 组件技能完成）
 export TTS_BACKEND="edge"                            # 或 azure / cosyvoice / doubao / tencent / baidu / minimax / xunfei / elevenlabs / openai / google
 
-# 可选：音色覆盖（不设置则使用 ttsCN 的平台默认音色）
+# 可选：音色覆盖（不设置则使用 ttscn 的平台默认音色）
 export TTS_VOICE="zh-CN-XiaoxiaoNeural"
 
 # 可选：语速与 Azure express-as 风格
@@ -315,7 +315,7 @@ videos/{视频名称}/
 - [x] Remotion 转场效果 (@remotion/transitions)，章节间过渡更专业
 - [x] 组件模板库 (ComparisonCard, Timeline, CodeBlock, QuoteBlock, FeatureGrid, DataBar, StatCounter, FlowChart, IconCard)
 - [x] 广播级画质升级（渐变背景、多层阴影、动画计数器、质量检查清单）
-- [x] 多 TTS 引擎支持（11 个平台，经 ttsCN 组件合成：Edge、Azure、CosyVoice、豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、OpenAI、Google Cloud）
+- [x] 多 TTS 引擎支持（11 个平台，经 ttscn 组件合成：Edge、Azure、CosyVoice、豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、OpenAI、Google Cloud）
 - [x] Edge TTS 免费后端（无需 API 密钥）
 - [x] 多平台支持（B站 + YouTube），独立语言配置（zh-CN、en-US）
 - [x] 断点续传（`--resume` 参数）

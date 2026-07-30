@@ -1,4 +1,4 @@
-"""Tests for the ttsCN routing table + bridge (tts/backends/)."""
+"""Tests for the ttscn routing table + bridge (tts/backends/)."""
 import json
 import os
 import textwrap
@@ -13,7 +13,7 @@ from tts.backends.ttscn import synthesize
 
 FAKE_TTSCN = textwrap.dedent("""\
     #!/usr/bin/env python3
-    # Fake ttsCN entry: writes 0.3s of silence, echoes args as an envelope.
+    # Fake ttscn entry: writes 0.3s of silence, echoes args as an envelope.
     # Emits native word_boundaries only for edge/azure (mirrors the contract).
     import json, sys, wave
     args = sys.argv[1:]
@@ -42,8 +42,8 @@ FAKE_TTSCN = textwrap.dedent("""\
 
 @pytest.fixture
 def fake_skill(tmp_path):
-    """A fake ttsCN install (marketplace layout). Returns its entry path."""
-    entry = tmp_path / "ttsCN" / "skills" / "ttsCN" / "scripts" / "tts.py"
+    """A fake ttscn install (marketplace layout). Returns its entry path."""
+    entry = tmp_path / "ttscn" / "skills" / "ttscn" / "scripts" / "tts.py"
     entry.parent.mkdir(parents=True)
     entry.write_text(FAKE_TTSCN)
     return entry
@@ -171,7 +171,7 @@ def test_native_boundaries_shifted_per_chunk(fake_skill, tmp_path):
 
 
 def test_raw_text_passthrough(fake_skill, tmp_path):
-    # ttsCN owns marker rendering — the bridge must send the chunk verbatim,
+    # ttscn owns marker rendering — the bridge must send the chunk verbatim,
     # while estimated boundary text stays marker-free.
     out = tmp_path / "out"
     out.mkdir()

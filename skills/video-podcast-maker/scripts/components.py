@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Capability probe for optional component skills.
 
-video-podcast-maker delegates asset production to sibling skills (assetSeeker,
-imagenCN, videogenCN, ttsCN) by invoking their CLI scripts as subprocesses.
+video-podcast-maker delegates asset production to sibling skills (assetseeker,
+imagencn, videogencn, ttscn) by invoking their CLI scripts as subprocesses.
 This probe reports which components are installed and credentialed BEFORE the
 workflow plans assets, so the agent knows which producers it can use and the
 pipeline can degrade gracefully instead of failing mid-run.
@@ -34,7 +34,7 @@ import cli_envelope  # noqa: E402
 # provider keys of which at least ONE must be set for the component to be
 # usable ([] = usable with no key at all).
 COMPONENTS = {
-    "assetSeeker": {
+    "assetseeker": {
         "entry": "scripts/seek_assets.py",
         "env_any": [],
         "env_optional": [
@@ -46,7 +46,7 @@ COMPONENTS = {
         ],
         "provides": "stock photos/video/BGM/SFX/icons/fonts (Iconify needs no key)",
     },
-    "imagenCN": {
+    "imagencn": {
         "entry": "scripts/generate_image.py",
         "env_any": [
             "DASHSCOPE_API_KEY",
@@ -59,7 +59,7 @@ COMPONENTS = {
         "env_optional": [],
         "provides": "AI stills (scene illustrations, thumbnails)",
     },
-    "videogenCN": {
+    "videogencn": {
         "entry": "scripts/generate_video.py",
         "env_any": [
             "DASHSCOPE_API_KEY",
@@ -70,7 +70,7 @@ COMPONENTS = {
         "env_optional": [],
         "provides": "AI video clips (B-roll, i2v)",
     },
-    "ttsCN": {
+    "ttscn": {
         "entry": "scripts/tts.py",
         "env_any": [],
         "env_optional": [

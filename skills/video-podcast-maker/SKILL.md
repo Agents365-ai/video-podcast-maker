@@ -16,8 +16,16 @@ permissions:
   - shell
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
+# Required component skills. ttscn synthesizes all TTS (Step 7).
 dependencies:
   - remotion-best-practices
+  - ttscn
+# Optional asset producers — probed at runtime by scripts/components.py,
+# the pipeline degrades gracefully when they are absent.
+optional-dependencies:
+  - assetseeker
+  - imagencn
+  - videogencn
 metadata:
   openclaw:
     requires:
@@ -84,7 +92,7 @@ Updates flow through the plugin marketplace (`/plugin update`); direct git-clone
 
 **All rendering goes into `videos/{name}/`** — every `output.mp4`, `final_video.mp4`, and `thumbnail_*.png` lands directly in the per-video directory. Never render to an `out/` or `dist/` directory; the `--public-dir videos/{name}/` convention keeps everything self-contained.
 
-**TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`) synthesize through the **ttsCN component skill**, which is **required**: install it under `~/.claude/skills/ttsCN` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
+**TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`) synthesize through the **ttscn component skill**, which is **required**: install it under `~/.claude/skills/ttscn` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
 
 > **Design Learning shortcut**: If the user provides a reference video/image or asks to save/list/delete style profiles, see [references/design-learning.md](references/design-learning.md) instead of running the workflow below.
 

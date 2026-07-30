@@ -25,7 +25,7 @@ Moved to its own phase file — **load [workflow-assets.md](workflow-assets.md)*
 
 Summary: plan per-section assets (role + source), register everything in
 `videos/{name}/assets/manifest.json` via `cli.py assets …`, resolve free
-sources (user files, assetSeeker stock) automatically, gate paid generation
+sources (user files, assetseeker stock) automatically, gate paid generation
 behind a cost confirmation, and consume in Remotion with `<AssetImage>` /
 `<AssetVideo>`. Playwright web screenshots are still available for
 product-UI captures — save them under `videos/{name}/assets/` and register
@@ -46,7 +46,7 @@ Based on `podcast.txt`, generate `publish_info.md`:
 ## Step 7: Generate Video Thumbnail
 
 **Auto mode:** Generate Remotion thumbnails (16:9 + 4:3).
-**Interactive mode:** Ask user: Remotion-generated / AI (imagenCN) / both.
+**Interactive mode:** Ask user: Remotion-generated / AI (imagencn) / both.
 
 **MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required for horizontal video. (9:16 thumbnail is generated alongside the vertical render in Step 10/15 — not here.)
 
@@ -67,7 +67,7 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 npx remotion still src/remotion/index.ts Thumbnail3x4 videos/{name}/thumbnail_remotion_3x4.png --public-dir videos/{name}/
 ```
 
-**AI thumbnails (imagenCN)** — only when the user asked for AI thumbnails.
+**AI thumbnails (imagencn)** — only when the user asked for AI thumbnails.
 Locate the entry via `cli.py capabilities`; it is paid generation, so quote
 the cost (~0.2 RMB/image) and confirm first. Generate at the model's native
 size, then normalize to the exact spec sizes `verify_output.py` expects
@@ -96,7 +96,7 @@ Remotion thumbnails too when generating both; verify accepts either naming.
 
 > **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[troubleshooting.md → Azure TTS Deep-Dive](troubleshooting.md#azure-tts-deep-dive)** before picking a voice or style — covers voice selection, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio.
 
-**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
+**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttscn's per-platform default. The script logs which source it picked at startup.
 
 ```bash
 # Primary command — backend, rate, and voice all auto-resolved from user_prefs
@@ -111,12 +111,12 @@ python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt -
 
 Override per-run (without editing user_prefs): `TTS_BACKEND=edge TTS_RATE="+10%" python3 ...`. CLI `--backend <name>` also works and takes top priority.
 
-**ttsCN engine (required)** — every backend synthesizes through the ttsCN
+**ttscn engine (required)** — every backend synthesizes through the ttscn
 component skill (`cli.py capabilities` shows the install; `check_prereqs.py`
 fails with an install hint when missing). `TTS_BACKEND` accepts the platform
 id directly: `edge` (default, free), `azure`, `cosyvoice`, `doubao`,
 `tencent`, `baidu`, `minimax`, `xunfei`, `elevenlabs`, `openai`, `google`.
-ttsCN renders expressiveness markers
+ttscn renders expressiveness markers
 (`[PAUSE:x]`, sound tags) and applies phonemes per platform. Word
 boundaries: native per-word timings for platforms that report them (edge,
 azure, doubao, minimax, cosyvoice); chunk-level estimation otherwise — both
@@ -124,7 +124,7 @@ feed the same SRT/timing pipeline.
 
 ### Voice Selection by Language
 
-The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, `--voice` is omitted and ttsCN resolves its own per-platform default. Reference recommendations:
+The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, `--voice` is omitted and ttscn resolves its own per-platform default. Reference recommendations:
 
 | Language | Azure | Edge | Doubao | CosyVoice |
 |----------|-------|------|--------|-----------|
@@ -137,11 +137,11 @@ The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once 
 TTS_VOICE="en-US-JennyNeural" python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 
-Precedence: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
+Precedence: env var > `user_prefs.json` > ttscn's per-platform default. The script logs which source it picked at startup.
 
 ### Phoneme Correction
 
-The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to ttsCN, which applies it where the platform supports it (azure → SSML `<phoneme>`, minimax → pinyin annotations; other platforms ignore it). Three tiers (highest to lowest priority):
+The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to ttscn, which applies it where the platform supports it (azure → SSML `<phoneme>`, minimax → pinyin annotations; other platforms ignore it). Three tiers (highest to lowest priority):
 
 **1. Inline annotation** (highest) — in podcast.txt:
 
@@ -466,7 +466,7 @@ cp /path/to/user-bgm.mp3 videos/{name}/bgm.mp3
 
 **Override (different built-in track)**: edit `user_prefs.bgm.track` to one of the keys in `bgm.tracks` (e.g. `"calm-piano"`, `"perfect-beauty"`). Add new tracks by dropping the mp3 in `${SKILL_DIR}/assets/` and registering it in `bgm.tracks`.
 
-**Fresh BGM via assetSeeker** (when the user asks for new/different music and
+**Fresh BGM via assetseeker** (when the user asks for new/different music and
 the component is usable per `cli.py capabilities`): search license-vetted
 tracks, download, and register in the asset manifest so provenance is kept:
 

@@ -3,7 +3,7 @@
 
 The manifest (videos/<name>/assets/manifest.json) is the single source of
 truth for every visual/audio asset a video uses: user-supplied files, stock
-assets fetched via assetSeeker, AI-generated stills/clips, and Hyperframes
+assets fetched via assetseeker, AI-generated stills/clips, and Hyperframes
 overlay renders. Remotion components read it through --public-dir via the
 useAssets() hook.
 

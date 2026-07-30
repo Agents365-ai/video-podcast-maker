@@ -15,7 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / "skills" / "video-podcast-maker"
 
 # Single source of truth for the test suite; update together with the docs
-# when a platform gains native word-boundary support in ttsCN.
+# when a platform gains native word-boundary support in ttscn.
 NATIVE_BOUNDARY_PLATFORMS = "edge, azure, doubao, minimax, cosyvoice"
 
 # Files that state the native-boundary platform list.

@@ -6,7 +6,7 @@
 
 - **Removed the legacy `ttscn` backend alias and the `TTSCN_PLATFORM` env var.**
   Migration: set `TTS_BACKEND` to the platform id directly (e.g. `edge`,
-  `azure`) — each backend id has routed 1:1 to the ttsCN platform of the same
+  `azure`) — each backend id has routed 1:1 to the ttscn platform of the same
   name since v4.0.
 - **Removed the six legacy per-backend voice env vars** (`AZURE_TTS_VOICE`,
   `EDGE_TTS_VOICE`, `VOLCENGINE_VOICE_TYPE`, `ELEVENLABS_VOICE_ID`,
@@ -14,7 +14,15 @@
   Migration: use the generic `TTS_VOICE` env var, or persist per-backend
   voices in `user_prefs.json` under `global.tts.voices.<backend>`.
   Voice resolution precedence is now: `TTS_VOICE` > `user_prefs.json` >
-  ttsCN's per-platform default.
+  ttscn's per-platform default.
+- **Renamed the four component skills to lowercase** for Pi compatibility
+  (Pi requires lowercase skill names): `ttsCN` → `ttscn`, `imagenCN` →
+  `imagencn`, `videogenCN` → `videogencn`, `assetSeeker` → `assetseeker`.
+  Install/discovery dirs change accordingly (e.g. `~/.claude/skills/ttscn`);
+  discovery looks for the lowercase dir names only. The `*_HOME` env vars
+  (`TTSCN_HOME`, `IMAGENCN_HOME`, `VIDEOGENCN_HOME`, `ASSETSEEKER_HOME`) are
+  unchanged. Linux users with an old capitalized install dir should rename
+  the dir or set the corresponding `*_HOME` env var.
 
 ### Changed
 

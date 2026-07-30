@@ -10,7 +10,7 @@ from check_prereqs import check_prereqs, REQUIRED_BINS  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def ttscn_installed(monkeypatch):
-    """Every backend now requires the ttsCN component — pretend it's
+    """Every backend now requires the ttscn component — pretend it's
     installed so tests don't depend on this machine; tests that exercise
     the missing-component path override this."""
     monkeypatch.setattr(components, "find_component",
@@ -161,7 +161,7 @@ def test_known_backend_flags_backend_known_true():
     assert state['backend_known'] is True
 
 
-# --- ttsCN component check (required for every backend) ------------------
+# --- ttscn component check (required for every backend) ------------------
 
 @pytest.mark.parametrize('backend', ['edge', 'azure'])
 def test_missing_ttscn_component_reported_for_any_backend(monkeypatch, backend):
@@ -169,7 +169,7 @@ def test_missing_ttscn_component_reported_for_any_backend(monkeypatch, backend):
     with patch('check_prereqs.shutil.which', _all_bins_present), \
          patch('check_prereqs.resolve_backend', _make_resolve_backend(backend, 'env')):
         state = check_prereqs(env={})
-    assert state['missing_components'] == ['ttsCN']
+    assert state['missing_components'] == ['ttscn']
 
 
 def test_installed_component_passes():

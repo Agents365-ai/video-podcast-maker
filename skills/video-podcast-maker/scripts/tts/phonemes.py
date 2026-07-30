@@ -1,7 +1,7 @@
 """Chinese phoneme (多音字) dictionary loading for TTS.
 
 vpm only loads/merges phoneme dictionaries and extracts inline annotations;
-the merged dict is written to a file and passed to ttsCN via --phonemes,
+the merged dict is written to a file and passed to ttscn via --phonemes,
 which applies it per platform (azure SSML <phoneme>, minimax pinyin).
 """
 

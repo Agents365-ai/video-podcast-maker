@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TTS Script for Video Podcast Maker — all backends route through the ttsCN component skill.
+TTS Script for Video Podcast Maker — all backends route through the ttscn component skill.
 Generates audio from podcast.txt and creates SRT subtitles + timing.json for Remotion sync
 """
 import json
@@ -22,7 +22,7 @@ from tts.voice_advisor import print_advisory
 def build_parser():
     parser = argparse.ArgumentParser(
         description='Generate TTS audio from podcast script',
-        epilog='Backends (all synthesized by the required ttsCN component skill): edge (default, '
+        epilog='Backends (all synthesized by the required ttscn component skill): edge (default, '
                'free), azure, cosyvoice, doubao, tencent, baidu, minimax, xunfei, elevenlabs, '
                'openai, google. '
                'Env: TTS_BACKEND, TTS_VOICE, TTS_RATE + per-platform API keys (check_prereqs.py '
@@ -32,7 +32,7 @@ def build_parser():
     parser.add_argument('--output-dir', '-o', default='.', help='Output directory (default: current dir)')
     parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file')
     parser.add_argument('--backend', '-b', default=None,
-        help='TTS backend (routed via ttsCN): edge, azure, cosyvoice, doubao, tencent, '
+        help='TTS backend (routed via ttscn): edge, azure, cosyvoice, doubao, tencent, '
              'baidu, minimax, xunfei, elevenlabs, openai, google')
     parser.add_argument('--resume', action='store_true', help='Resume from last breakpoint')
     parser.add_argument('--dry-run', action='store_true',
@@ -244,10 +244,10 @@ def _run(args, started_at):
     phoneme_dict = {**file_phonemes, **inline_phonemes}
     print(f"Phoneme dictionary: {len(phoneme_dict)} entries (file: {len(file_phonemes)} + inline: {len(inline_phonemes)})")
 
-    # Phoneme application happens inside ttsCN (azure -> SSML <phoneme>,
+    # Phoneme application happens inside ttscn (azure -> SSML <phoneme>,
     # minimax -> pinyin annotations; other platforms ignore the file).
     if phoneme_dict:
-        print("Note: phonemes are applied by ttsCN where the platform "
+        print("Note: phonemes are applied by ttscn where the platform "
               "supports them (azure SSML, minimax pinyin annotations).")
 
     # --- Default section ---
@@ -322,13 +322,13 @@ def _run(args, started_at):
     chunks = [restore_pauses(c) for c in chunk_text(protect_pauses(clean_text), MAX_CHARS)]
     print(f"Split into {len(chunks)} chunks")
 
-    # Chunks keep raw [PAUSE:x] / sound-tag markers — ttsCN renders or
+    # Chunks keep raw [PAUSE:x] / sound-tag markers — ttscn renders or
     # strips them per platform.
 
     # --- Synthesize ---
     config['speech_rate'] = SPEECH_RATE
     if phoneme_dict:
-        # ttsCN consumes phonemes as a file — write the merged dict
+        # ttscn consumes phonemes as a file — write the merged dict
         # (global + project + inline) next to the audio parts.
         phonemes_path = os.path.join(args.output_dir, "phonemes_resolved.json")
         with open(phonemes_path, "w", encoding="utf-8") as f:

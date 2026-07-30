@@ -5,7 +5,7 @@ Scripts may contain:
   (chuckle) etc.  — MiniMax sound tags: laughs, chuckle, sighs, breath,
                     inhale, exhale, coughs (speech-2.8 models only)
 
-Markers ride RAW through the ttsCN bridge — ttsCN renders or strips them
+Markers ride RAW through the ttscn bridge — ttscn renders or strips them
 per platform. vpm only needs strip_markers here, for subtitle/boundary
 estimation, section matching, and chunk-length accounting.
 

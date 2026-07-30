@@ -1,6 +1,6 @@
 # No Python packages required by the core pipeline (stdlib only).
 #
-# TTS synthesis is delegated to the ttsCN component skill, which brings its
+# TTS synthesis is delegated to the ttscn component skill, which brings its
 # own per-provider dependencies: https://github.com/Agents365-ai/ttsCN
 
 # Design learning (optional)
