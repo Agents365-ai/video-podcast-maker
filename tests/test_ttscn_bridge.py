@@ -15,15 +15,21 @@ FAKE_TTSCN = textwrap.dedent("""\
     #!/usr/bin/env python3
     # Fake ttscn entry: writes 0.3s of silence, echoes args as an envelope.
     # Emits native word_boundaries only for edge/azure (mirrors the contract).
-    import json, sys, wave
+    # FAKE_SCHEMA_VERSION env var (if set) is echoed as meta.schema_version on
+    # every envelope, like ttscn's meta.setdefault.
+    import json, os, sys, wave
+    def envelope(**kw):
+        if os.environ.get("FAKE_SCHEMA_VERSION"):
+            kw["meta"] = {"schema_version": os.environ["FAKE_SCHEMA_VERSION"]}
+        return json.dumps(kw)
     args = sys.argv[1:]
     text, output = args[0], args[1]
     platform = args[args.index("--platform") + 1]
     if "AUTHFAIL" in text:
-        print(json.dumps({"ok": False, "error": {"code": "auth", "message": "no key"}}))
+        print(envelope(ok=False, error={"code": "auth", "message": "no key"}))
         sys.exit(3)
     if "FAIL" in text:
-        print(json.dumps({"ok": False, "error": {"code": "backend", "message": "boom"}}))
+        print(envelope(ok=False, error={"code": "backend", "message": "boom"}))
         sys.exit(4)
     with wave.open(output, "w") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000)
@@ -36,7 +42,7 @@ FAKE_TTSCN = textwrap.dedent("""\
         data["word_boundaries"] = [
             {"text": c, "offset_sec": i * step, "duration_sec": step}
             for i, c in enumerate(text)]
-    print(json.dumps({"ok": True, "data": data}))
+    print(envelope(ok=True, data=data))
 """)
 
 
@@ -129,6 +135,43 @@ def test_voice_user_prefs_fallback(monkeypatch, fake_skill, no_user_prefs):
     assert init_backend("azure")["voice"] == "zh-CN-YunyangNeural"
     monkeypatch.setenv("TTS_VOICE", "zh-CN-XiaoyiNeural")  # env wins over prefs
     assert init_backend("azure")["voice"] == "zh-CN-XiaoyiNeural"
+
+
+# --- envelope schema contract -----------------------------------------------
+
+def test_schema_version_same_major_accepted(monkeypatch, fake_skill, tmp_path):
+    monkeypatch.setenv("FAKE_SCHEMA_VERSION", "1.9.0")
+    out = tmp_path / "out"
+    out.mkdir()
+    parts, _, duration = synthesize(["你好。"], {"entry": str(fake_skill),
+                                                "platform": "minimax"}, str(out))
+    assert len(parts) == 1
+    assert duration == pytest.approx(0.3, abs=0.01)
+
+
+def test_schema_version_newer_major_rejected(monkeypatch, fake_skill, tmp_path):
+    monkeypatch.setenv("FAKE_SCHEMA_VERSION", "2.0.0")
+    out = tmp_path / "out"
+    out.mkdir()
+    with pytest.raises(RuntimeError, match="schema 2.0.0 is incompatible"):
+        synthesize(["你好。"], {"entry": str(fake_skill)}, str(out))
+
+
+def test_schema_version_malformed_rejected(monkeypatch, fake_skill, tmp_path):
+    monkeypatch.setenv("FAKE_SCHEMA_VERSION", "not-semver")
+    out = tmp_path / "out"
+    out.mkdir()
+    with pytest.raises(RuntimeError, match="not a semver"):
+        synthesize(["你好。"], {"entry": str(fake_skill)}, str(out))
+
+
+def test_schema_version_checked_on_error_envelope(monkeypatch, fake_skill, tmp_path):
+    # An incompatible-schema error envelope can't be trusted either.
+    monkeypatch.setenv("FAKE_SCHEMA_VERSION", "2.0.0")
+    out = tmp_path / "out"
+    out.mkdir()
+    with pytest.raises(RuntimeError, match="incompatible"):
+        synthesize(["FAIL。"], {"entry": str(fake_skill)}, str(out))
 
 
 # --- bridge synthesis -----------------------------------------------------

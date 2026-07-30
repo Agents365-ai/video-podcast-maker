@@ -17,6 +17,14 @@ by distributing the measured chunk duration across visible characters.
 Keep registry max_chars small (400): estimation error is bounded by chunk
 length, and chunk durations themselves are always measured.
 
+Contract: the bridge consumes ttscn's JSON envelope (ok/data/error plus
+meta.schema_version, a semver string; the major bumps on breaking envelope
+changes). A present schema_version must match SUPPORTED_SCHEMA_MAJOR —
+checked on success and error envelopes alike, since an incompatible-schema
+error envelope can't be trusted either. Envelopes without schema_version
+come from pre-contract ttscn releases (the known-good baseline vpm 4.x/5.0
+was written against) and are accepted.
+
 config keys: entry (tts.py path), platform, voice, speech_rate, phonemes_path,
 style (azure only — injected as TTS_STYLE into the subprocess env).
 """
@@ -27,6 +35,38 @@ import sys
 import time
 from .base import check_resume
 from ..markers import strip_markers
+
+SUPPORTED_SCHEMA_MAJOR = 1
+
+
+def _check_schema_version(envelope):
+    """Validate the envelope's meta.schema_version against the supported major.
+
+    Absent schema_version means a pre-contract ttscn release — accepted.
+    A present version must share SUPPORTED_SCHEMA_MAJOR; anything else
+    (including an unparseable string) raises, because an envelope whose
+    schema we don't understand can't be trusted on either path.
+    """
+    if not isinstance(envelope, dict):
+        return
+    meta = envelope.get("meta")
+    version = meta.get("schema_version") if isinstance(meta, dict) else None
+    if version is None:
+        return
+    try:
+        major = int(str(version).split(".")[0])
+    except (ValueError, IndexError):
+        raise RuntimeError(
+            f"ttscn envelope meta.schema_version {version!r} is not a semver "
+            "string — cannot verify bridge compatibility. Upgrade ttscn, or "
+            "pin it to a release with a 1.x envelope schema."
+        ) from None
+    if major != SUPPORTED_SCHEMA_MAJOR:
+        raise RuntimeError(
+            f"ttscn envelope schema {version} is incompatible with this vpm "
+            f"(supports schema major {SUPPORTED_SCHEMA_MAJOR}) — upgrade "
+            "video-podcast-maker, or pin ttscn to a 1.x-schema release."
+        )
 
 
 def _merge_native_boundaries(chunk, native, base_offset):
@@ -145,6 +185,8 @@ def synthesize(chunks, config, output_dir, resume=False):
                 envelope = json.loads(proc.stdout) if proc.stdout.strip() else None
             except json.JSONDecodeError:
                 pass
+            if envelope is not None:
+                _check_schema_version(envelope)
             if proc.returncode == 0 and envelope and envelope.get('ok'):
                 resample = subprocess.run(
                     ["ffmpeg", "-y", "-i", raw_file, "-ar", "48000", "-ac", "1", part_file],

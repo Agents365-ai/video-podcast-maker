@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.1.0
+
+### Added
+
+- **Envelope schema assertion in the ttscn bridge.** The bridge now validates
+  `meta.schema_version` on every ttscn JSON envelope (success and error)
+  against the supported schema major (`1`). An incompatible major fails fast
+  with an actionable message instead of silently misreading the envelope;
+  an absent `schema_version` (pre-contract ttscn) is accepted. The contract
+  is documented in ttscn's SKILL.md and the bridge module docstring.
+
 ## 5.0.0
 
 ### Breaking Changes
