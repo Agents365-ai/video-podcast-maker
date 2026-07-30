@@ -5,9 +5,9 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 4.2.1
+version: 5.0.0
 created: 2025-01-27
-updated: 2026-07-18
+updated: 2026-07-30
 permissions:
   - env
   - file_read
@@ -84,7 +84,7 @@ Updates flow through the plugin marketplace (`/plugin update`); direct git-clone
 
 **All rendering goes into `videos/{name}/`** — every `output.mp4`, `final_video.mp4`, and `thumbnail_*.png` lands directly in the per-video directory. Never render to an `out/` or `dist/` directory; the `--public-dir videos/{name}/` convention keeps everything self-contained.
 
-**TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`, plus the legacy `ttscn` alias) synthesize through the **ttsCN component skill**, which is **required**: install it under `~/.claude/skills/ttsCN` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
+**TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`) synthesize through the **ttsCN component skill**, which is **required**: install it under `~/.claude/skills/ttsCN` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
 
 > **Design Learning shortcut**: If the user provides a reference video/image or asks to save/list/delete style profiles, see [references/design-learning.md](references/design-learning.md) instead of running the workflow below.
 

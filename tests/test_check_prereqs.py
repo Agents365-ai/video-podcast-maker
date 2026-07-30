@@ -163,7 +163,7 @@ def test_known_backend_flags_backend_known_true():
 
 # --- ttsCN component check (required for every backend) ------------------
 
-@pytest.mark.parametrize('backend', ['ttscn', 'edge', 'azure'])
+@pytest.mark.parametrize('backend', ['edge', 'azure'])
 def test_missing_ttscn_component_reported_for_any_backend(monkeypatch, backend):
     monkeypatch.setattr(components, 'find_component', lambda name: (None, None))
     with patch('check_prereqs.shutil.which', _all_bins_present), \

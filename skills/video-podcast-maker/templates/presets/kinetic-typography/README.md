@@ -41,7 +41,7 @@ Examples that fit:
 2. Generate TTS first (you NEED the SRT for accurate beat timing):
 
    ```bash
-   AZURE_TTS_VOICE=zh-CN-XiaoxiaoNeural TTS_STYLE="" TTS_RATE=+5% \
+   TTS_VOICE=zh-CN-XiaoxiaoNeural TTS_STYLE="" TTS_RATE=+5% \
      python3 ${SKILL_DIR}/scripts/generate_tts.py \
      -i videos/{name}/podcast.txt -o videos/{name}/
    ```

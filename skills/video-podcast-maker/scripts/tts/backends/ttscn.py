@@ -37,10 +37,12 @@ def _merge_native_boundaries(chunk, native, base_offset):
     so walk the visible chunk text and re-emit the skipped characters as
     short entries anchored to the preceding word's end.
 
-    Some backends (MiniMax) return one entry per spoken syllable, each
-    labeled with the full source token — e.g. "37" spoken as "三十七"
-    produces 3 entries all with text "37". Merge consecutive identical
-    token entries into one before gap reconstruction.
+    Any platform may split one source token into multiple per-syllable
+    boundary entries, each labeled with the full source token — e.g. "37"
+    spoken as "三十七" produces 3 entries all with text "37" (MiniMax is
+    the known example). Merging consecutive identical token entries into
+    one is a generic normalization step of the bridge, applied uniformly
+    before gap reconstruction regardless of platform.
     """
     # --- Merge consecutive identical tokens (syllable splitting) ---
     deduped = []

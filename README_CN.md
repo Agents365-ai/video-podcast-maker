@@ -200,8 +200,6 @@ npm install remotion @remotion/cli @remotion/player zod
 | `openai` | OpenAI TTS | `OPENAI_API_KEY` | [OpenAI Platform](https://platform.openai.com/) |
 | `google` | Google Cloud TTS | `GOOGLE_TTS_API_KEY` | [Google Cloud 控制台](https://console.cloud.google.com/) |
 
-旧的 `TTS_BACKEND=ttscn` 别名仍然可用，其平台由 `TTSCN_PLATFORM` 指定。
-
 ### 所需 API 密钥（非 TTS）
 
 | 服务 | 用途 | 获取方式 |
@@ -218,7 +216,7 @@ npm install remotion @remotion/cli @remotion/player zod
 export TTS_BACKEND="edge"                            # 或 azure / cosyvoice / doubao / tencent / baidu / minimax / xunfei / elevenlabs / openai / google
 
 # 可选：音色覆盖（不设置则使用 ttsCN 的平台默认音色）
-export TTS_VOICE="zh-CN-XiaoxiaoNeural"              # 旧的按后端变量（AZURE_TTS_VOICE、EDGE_TTS_VOICE 等）仍然有效
+export TTS_VOICE="zh-CN-XiaoxiaoNeural"
 
 # 可选：语速与 Azure express-as 风格
 export TTS_RATE="+5%"                                # 默认 +5%；也可写入 user_prefs.json（global.tts.rate）

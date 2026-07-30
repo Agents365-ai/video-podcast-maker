@@ -206,8 +206,6 @@ All 11 TTS platforms are synthesized by the **required** [ttsCN](https://github.
 | `openai` | OpenAI TTS | `OPENAI_API_KEY` | [OpenAI Platform](https://platform.openai.com/) |
 | `google` | Google Cloud TTS | `GOOGLE_TTS_API_KEY` | [Google Cloud Console](https://console.cloud.google.com/) |
 
-The legacy `TTS_BACKEND=ttscn` alias still works and picks its platform from `TTSCN_PLATFORM`.
-
 ### API Keys Required (non-TTS)
 
 | Service | Purpose | Get Key |
@@ -224,7 +222,7 @@ Add to `~/.zshrc` or `~/.bashrc`:
 export TTS_BACKEND="edge"                            # or azure / cosyvoice / doubao / tencent / baidu / minimax / xunfei / elevenlabs / openai / google
 
 # Optional: voice override (unset = ttsCN's per-platform default)
-export TTS_VOICE="zh-CN-XiaoxiaoNeural"              # legacy per-backend vars (AZURE_TTS_VOICE, EDGE_TTS_VOICE, ...) still work
+export TTS_VOICE="zh-CN-XiaoxiaoNeural"
 
 # Optional: speech rate and Azure express-as style
 export TTS_RATE="+5%"                                # default +5%; also settable in user_prefs.json (global.tts.rate)

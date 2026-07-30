@@ -97,9 +97,8 @@ def resolve_speech_rate():
     return "+5%", "default"
 
 
-# Routing table: each backend id maps 1:1 to the ttsCN platform of the same
-# name, except the legacy 'ttscn' alias whose platform comes from the
-# TTSCN_PLATFORM env var (default 'edge'), exactly as before v4.0.0.
+# Routing table: each backend id maps 1:1 to the ttsCN platform of the
+# same name.
 BACKENDS = {
     "edge": {"env": []},
     "azure": {"env": ["AZURE_SPEECH_KEY"]},
@@ -112,26 +111,13 @@ BACKENDS = {
     "elevenlabs": {"env": ["ELEVENLABS_API_KEY"]},
     "openai": {"env": ["OPENAI_API_KEY"]},
     "google": {"env": ["GOOGLE_TTS_API_KEY"]},
-    "ttscn": {"env": []},
 }
 
 MAX_CHARS = 400
 
-# Legacy per-backend voice env vars (pre-4.0) — kept so existing setups keep
-# working. The generic TTS_VOICE covers every id, including the new ones.
-_VOICE_ENV = {
-    "azure": "AZURE_TTS_VOICE",
-    "edge": "EDGE_TTS_VOICE",
-    "doubao": "VOLCENGINE_VOICE_TYPE",
-    "elevenlabs": "ELEVENLABS_VOICE_ID",
-    "openai": "OPENAI_TTS_VOICE",
-    "google": "GOOGLE_TTS_VOICE",
-    "ttscn": "TTSCN_VOICE",
-}
-
 
 def _resolve_voice(name):
-    """Voice precedence: TTS_VOICE > legacy per-backend env var > user_prefs.
+    """Voice precedence: env TTS_VOICE > user_prefs.json voices.<name> > None.
 
     Returns None when nothing is set — the bridge then omits --voice and
     ttsCN resolves its own per-platform default (no default-voice table is
@@ -139,7 +125,6 @@ def _resolve_voice(name):
     """
     return (
         os.environ.get("TTS_VOICE")
-        or os.environ.get(_VOICE_ENV.get(name, ""), "")
         or user_prefs_get("global", "tts", "voices", name)
     )
 
@@ -176,7 +161,7 @@ def init_backend(name):
         if not os.environ.get(var):
             raise MissingEnvVarError(f"{var} not set", var=var)
 
-    platform = name if name != "ttscn" else os.environ.get("TTSCN_PLATFORM", "edge")
+    platform = name
     voice = _resolve_voice(name)
     print(f"  ttsCN engine: platform={platform} entry={entry}")
     print(f"  Voice: {voice or f'(ttsCN default for {platform})'}")

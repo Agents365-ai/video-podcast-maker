@@ -116,8 +116,7 @@ component skill (`cli.py capabilities` shows the install; `check_prereqs.py`
 fails with an install hint when missing). `TTS_BACKEND` accepts the platform
 id directly: `edge` (default, free), `azure`, `cosyvoice`, `doubao`,
 `tencent`, `baidu`, `minimax`, `xunfei`, `elevenlabs`, `openai`, `google`.
-The legacy `ttscn` alias still works and picks its platform from
-`TTSCN_PLATFORM` (default `edge`). ttsCN renders expressiveness markers
+ttsCN renders expressiveness markers
 (`[PAUSE:x]`, sound tags) and applies phonemes per platform. Word
 boundaries: native per-word timings for platforms that report them (edge,
 azure, doubao, minimax, cosyvoice); chunk-level estimation otherwise — both
@@ -132,10 +131,9 @@ The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once 
 | zh-CN | zh-CN-XiaoxiaoNeural | zh-CN-XiaoxiaoNeural | BV001_streaming | longxiaochun |
 | en-US | en-US-JennyNeural | en-US-JennyNeural | BV700_streaming | longlaoshu_v2 |
 
-**Manual override (one-off run, no prefs change)** — set `TTS_VOICE` (generic) or a legacy per-backend env var:
+**Manual override (one-off run, no prefs change)** — set `TTS_VOICE`:
 
 ```bash
-# Generic: TTS_VOICE. Legacy per-backend vars still work: AZURE_TTS_VOICE / EDGE_TTS_VOICE / VOLCENGINE_VOICE_TYPE / etc.
 TTS_VOICE="en-US-JennyNeural" python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 

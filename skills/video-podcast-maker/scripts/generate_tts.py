@@ -24,7 +24,7 @@ def build_parser():
         description='Generate TTS audio from podcast script',
         epilog='Backends (all synthesized by the required ttsCN component skill): edge (default, '
                'free), azure, cosyvoice, doubao, tencent, baidu, minimax, xunfei, elevenlabs, '
-               'openai, google, plus the ttscn alias (TTSCN_PLATFORM picks its platform). '
+               'openai, google. '
                'Env: TTS_BACKEND, TTS_VOICE, TTS_RATE + per-platform API keys (check_prereqs.py '
                'validates the active backend).'
     )
@@ -33,7 +33,7 @@ def build_parser():
     parser.add_argument('--phonemes', '-p', default=None, help='Phoneme dictionary JSON file')
     parser.add_argument('--backend', '-b', default=None,
         help='TTS backend (routed via ttsCN): edge, azure, cosyvoice, doubao, tencent, '
-             'baidu, minimax, xunfei, elevenlabs, openai, google, or ttscn')
+             'baidu, minimax, xunfei, elevenlabs, openai, google')
     parser.add_argument('--resume', action='store_true', help='Resume from last breakpoint')
     parser.add_argument('--dry-run', action='store_true',
         help='Plan synthesis without calling the TTS API. Emits backend, voice, '

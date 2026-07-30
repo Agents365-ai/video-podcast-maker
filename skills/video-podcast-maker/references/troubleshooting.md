@@ -266,7 +266,7 @@ Use this for **content that is mostly Chinese with rare English abbreviations** 
 
 #### Picking voice from content
 
-The `tts/voice_advisor.py` module analyses your script and prints a recommendation at TTS startup. Heed its warnings. Override via `AZURE_TTS_VOICE` env var if you disagree.
+The `tts/voice_advisor.py` module analyses your script and prints a recommendation at TTS startup. Heed its warnings. Override via `TTS_VOICE` env var if you disagree.
 
 ### SSML pitfalls
 

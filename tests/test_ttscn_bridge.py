@@ -53,8 +53,7 @@ def fake_skill(tmp_path):
 def no_user_prefs(monkeypatch):
     """Isolate voice resolution from any real user_prefs.json on this machine."""
     monkeypatch.setattr(backends, "user_prefs_get", lambda *k: None)
-    for var in ("TTS_VOICE", "AZURE_TTS_VOICE", "EDGE_TTS_VOICE", "TTSCN_VOICE"):
-        monkeypatch.delenv(var, raising=False)
+    monkeypatch.delenv("TTS_VOICE", raising=False)
 
 
 # --- routing table --------------------------------------------------------
@@ -62,14 +61,14 @@ def no_user_prefs(monkeypatch):
 def test_registry_routes_all_platforms():
     assert set(BACKENDS) == {
         "edge", "azure", "cosyvoice", "doubao", "tencent", "baidu",
-        "minimax", "xunfei", "elevenlabs", "openai", "google", "ttscn",
+        "minimax", "xunfei", "elevenlabs", "openai", "google",
     }
     assert BACKENDS["azure"]["env"] == ["AZURE_SPEECH_KEY"]
     assert BACKENDS["tencent"]["env"] == ["TENCENT_SECRET_ID", "TENCENT_SECRET_KEY"]
     assert BACKENDS["baidu"]["env"] == ["BAIDU_APP_ID", "BAIDU_API_KEY", "BAIDU_SECRET_KEY"]
     assert BACKENDS["minimax"]["env"] == ["MINIMAX_API_KEY"]
     assert BACKENDS["xunfei"]["env"] == ["XUNFEI_APP_ID", "XUNFEI_API_KEY", "XUNFEI_API_SECRET"]
-    assert BACKENDS["ttscn"]["env"] == []
+    assert BACKENDS["edge"]["env"] == []
 
 
 def test_init_backend_requires_ttscn_install_for_every_backend(monkeypatch, tmp_path):
@@ -107,14 +106,6 @@ def test_init_backend_env_fastfail(monkeypatch, fake_skill):
         init_backend("tencent")
 
 
-def test_ttscn_alias_honors_platform_env(monkeypatch, fake_skill):
-    monkeypatch.setenv("TTSCN_HOME", str(fake_skill.parents[1]))
-    monkeypatch.setenv("TTSCN_PLATFORM", "tencent")
-    config = init_backend("ttscn")
-    assert config["entry"] == str(fake_skill)
-    assert config["platform"] == "tencent"
-
-
 def test_voice_omitted_by_default(monkeypatch, fake_skill, no_user_prefs):
     monkeypatch.setenv("TTSCN_HOME", str(fake_skill.parents[1]))
     assert init_backend("edge")["voice"] is None
@@ -123,9 +114,20 @@ def test_voice_omitted_by_default(monkeypatch, fake_skill, no_user_prefs):
 def test_voice_env_resolution(monkeypatch, fake_skill, no_user_prefs):
     monkeypatch.setenv("TTSCN_HOME", str(fake_skill.parents[1]))
     monkeypatch.setenv("AZURE_SPEECH_KEY", "xxx")
-    monkeypatch.setenv("AZURE_TTS_VOICE", "zh-CN-YunyangNeural")  # legacy var
+    monkeypatch.setenv("TTS_VOICE", "zh-CN-XiaoyiNeural")
+    assert init_backend("azure")["voice"] == "zh-CN-XiaoyiNeural"
+
+
+def test_voice_user_prefs_fallback(monkeypatch, fake_skill, no_user_prefs):
+    monkeypatch.setenv("TTSCN_HOME", str(fake_skill.parents[1]))
+    monkeypatch.setenv("AZURE_SPEECH_KEY", "xxx")
+    monkeypatch.setattr(
+        backends, "user_prefs_get",
+        lambda *k: "zh-CN-YunyangNeural"
+        if k == ("global", "tts", "voices", "azure") else None,
+    )
     assert init_backend("azure")["voice"] == "zh-CN-YunyangNeural"
-    monkeypatch.setenv("TTS_VOICE", "zh-CN-XiaoyiNeural")  # generic wins
+    monkeypatch.setenv("TTS_VOICE", "zh-CN-XiaoyiNeural")  # env wins over prefs
     assert init_backend("azure")["voice"] == "zh-CN-XiaoyiNeural"
 
 

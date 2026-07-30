@@ -40,7 +40,7 @@ def test_env_example_lists_every_backend():
     missing = [
         backend
         for backend in BACKENDS
-        if backend != "ttscn" and backend not in options_line  # legacy alias excluded
+        if backend not in options_line
     ]
     assert not missing, f".env.example TTS_BACKEND options line missing: {missing}"
 
