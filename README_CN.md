@@ -170,15 +170,6 @@ videos/{视频名称}/
 
 **背景音乐：** 内置曲目位于 `skills/video-podcast-maker/assets/` —— `perfect-beauty-191271.mp3`（轻快积极）和 `snow-stevekaldes-piano-397491.mp3`（舒缓钢琴）。各平台行为（封面、章节、CTA、发布格式）见技能内 `references/platform-matrix.md`。
 
-## 开发路线
-
-- [ ] 风格偏好自动学习（当前偏好为手动管理）
-- [ ] Playwright 自动抓取 B站/YouTube 设计风格（Phase 4）
-- [ ] 制作视频时自动匹配并推荐已有风格档案（Phase 5）
-- [ ] 封面设计学习（Phase 5）
-- [ ] YouTube 自动化发布（视频、元数据、章节、封面）
-- [ ] Windows 适配（WSL 验证 + 文档）
-
 ## ❤️ 支持作者
 
 如果这个项目对你有帮助，欢迎支持作者：
