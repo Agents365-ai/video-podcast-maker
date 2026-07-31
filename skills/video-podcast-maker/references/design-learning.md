@@ -28,9 +28,9 @@ python3 scripts/learn_design.py ./reference.mp4 --profile "tech-minimal" --tags 
 ## Reference Library Commands
 
 All reference-library management goes through `learn_design.py`. The library
-lives at `${SKILL_DIR}/design_references/` (next to `user_prefs.json`) so it is
-shared across projects and independent of the invoking directory; pass
-`--output-dir` only to override. If you have an old project-local
+lives at `${SKILL_DIR}/design_references/` by default (pass `--output-dir` to
+relocate) so it is shared across projects and independent of the invoking
+directory; `user_prefs.json` itself lives in `~/.video-podcast-maker/`. If you have an old project-local
 `design_references/` directory, move its contents into the skill-root one.
 
 ```bash

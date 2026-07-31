@@ -94,7 +94,7 @@ python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --yes
 
 Then read `~/.video-podcast-maker/user_prefs.json` (mutable state lives in the shared state dir, not the install dir) and apply settings in subsequent steps.
 
-The script prints one of: `already at v1.7 — no migration needed`, `Created user_prefs.json at v1.7 from template`, or `Migrated from v{old} to v1.7` with a per-change list. To inspect what each version added, see the inline `_structural_migrate` table in `scripts/migrate_prefs.py`.
+The script prints one of: `already at v1.7 — no migration needed`, `Created user_prefs.json at v1.7 from template`, or `Migrated from v{old} to v1.7` with a per-change list. To inspect what each version added, see the `_structural_migrate` function in `scripts/learn_design.py` (imported by `scripts/migrate_prefs.py`).
 
 At Step 1 start, inform the user of active preferences (if customized):
 

@@ -96,7 +96,7 @@ def build_parser():
     parser.add_argument(
         "--prefs",
         default=None,
-        help="Path to user_prefs.json (default: ${SKILL_DIR}/user_prefs.json)",
+        help="Path to user_prefs.json (default: ~/.video-podcast-maker/user_prefs.json)",
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="Report changes without writing"

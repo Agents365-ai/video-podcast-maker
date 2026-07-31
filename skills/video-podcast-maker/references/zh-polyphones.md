@@ -8,7 +8,7 @@ This is a non-exhaustive reference for the most common polyphones in tech / expl
 
 - Pick the pronunciation by **context**, not by single-character lookup. Polyphone disambiguation is what makes this an LLM step instead of a regex.
 - Add **whole-word** entries to `videos/{name}/phonemes.json`, never single characters. Whole-word keys avoid catastrophic over-replacement (the applier matches longest-first).
-- Skip any word **already** present in the global `${SKILL_DIR}/phonemes.json` — duplicate entries waste a phoneme tag and risk drift.
+- Skip any word **already** present in the global `~/.video-podcast-maker/phonemes.json` — duplicate entries waste a phoneme tag and risk drift.
 
 ## Common polyphones in tech / explainer content
 

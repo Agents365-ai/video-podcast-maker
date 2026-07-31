@@ -177,8 +177,15 @@ def match_section_times(sections, word_boundaries, total_duration):
         for s in sections:
             print(f"  ≈ {s['name']}: {s['start_time']:.1f}s - {s['end_time']:.1f}s ({s['duration']:.1f}s)")
     else:
-        sections[0]['start_time'] = 0
-        sections[0]['end_time'] = total_duration
-        sections[0]['duration'] = total_duration
+        if sections[0].get('is_silent', False):
+            # All-silent script: zero-width section at the end of the audio,
+            # consistent with the trailing-silent pinning above.
+            sections[0]['start_time'] = total_duration
+            sections[0]['end_time'] = total_duration
+            sections[0]['duration'] = 0
+        else:
+            sections[0]['start_time'] = 0
+            sections[0]['end_time'] = total_duration
+            sections[0]['duration'] = total_duration
 
     return sections
