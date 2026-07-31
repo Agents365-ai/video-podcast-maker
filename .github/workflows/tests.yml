@@ -53,10 +53,11 @@ jobs:
           mkdir -p src/remotion public
           cp ../../tests/fixtures/smoke-render/Root.tsx src/remotion/
           cp ../../tests/fixtures/smoke-render/timing.json public/
-          echo -n > public/podcast_audio.wav
+          cp ../../tests/fixtures/smoke-render/podcast_audio.wav public/
           echo -n > public/podcast_audio.srt
           rm -f src/remotion/index.ts
-          echo 'import { RemotionRoot } from "./Root";' > src/remotion/index.ts
-          echo 'export default RemotionRoot;' >> src/remotion/index.ts
+          echo 'import { registerRoot } from "remotion";' > src/remotion/index.ts
+          echo 'import { RemotionRoot } from "./Root";' >> src/remotion/index.ts
+          echo 'registerRoot(RemotionRoot);' >> src/remotion/index.ts
           npx remotion render src/remotion/index.ts SmokeTest \
             out/smoke.mp4 --frames=0-1 --scale=0.25
