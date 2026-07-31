@@ -12,7 +12,7 @@
 
 [English](README.md)
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，经 [ttscn](https://github.com/Agents365-ai/ttsCN) 桥接合成）、Remotion 渲染和 FFmpeg 混音。当前版本：**v5.1** —— 版本历史见 [CHANGELOG.md](CHANGELOG.md)。
+自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，经 [ttscn](https://github.com/Agents365-ai/ttsCN) 桥接合成）、Remotion 渲染和 FFmpeg 混音。当前版本：**v5.2** —— 版本历史见 [CHANGELOG.md](CHANGELOG.md)。
 
 **支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) · [Pi](https://github.com/earendil-works/pi-coding-agent) — 任何支持 SKILL.md 的 coding agent
 

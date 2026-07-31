@@ -17,7 +17,6 @@ SKILL_ROOT = REPO_ROOT / "skills" / "video-podcast-maker"
 # Single source of truth for the test suite; update together with the docs
 # when a platform gains native word-boundary support in ttscn.
 NATIVE_BOUNDARY_PLATFORMS = "edge, azure, doubao, minimax, cosyvoice"
-
 # Files that state the native-boundary platform list.
 NATIVE_BOUNDARY_DOCS = [
     SKILL_ROOT / "references" / "troubleshooting.md",
@@ -82,6 +81,79 @@ def test_skill_and_package_versions_match():
     )["version"]
     assert skill_version == package_version, (
         f"SKILL.md version {skill_version} != package.json version {package_version}"
+    )
+
+
+# Canonical workflow step ids (single source of truth — keep in sync with
+# the workflow table in SKILL.md, which folds the decimal sub-steps into its
+# 12 rows). Docs, templates, and script comments must only reference these.
+CANONICAL_STEPS = {
+    "1", "2", "3", "4", "4.5", "5", "5.5", "6", "7", "8", "9", "9.5",
+    "10", "10.1", "10.2", "10.3", "11",
+}
+
+# Scanned for 'Step N' references. CHANGELOG.md is intentionally excluded:
+# old entries document retired numbering and are a historical record.
+STEP_SCAN_FILES = (
+    [SKILL_ROOT / "SKILL.md"]
+    + sorted(SKILL_ROOT.glob("references/*.md"))
+    + sorted(SKILL_ROOT.glob("templates/**/*.tsx"))
+    + sorted(SKILL_ROOT.glob("templates/**/*.ts"))
+    + sorted(SKILL_ROOT.glob("scripts/**/*.py"))
+    + [REPO_ROOT / "README.md", REPO_ROOT / "README_CN.md"]
+)
+
+_STEP_START = re.compile(r"Steps?\s+(\d+(?:\.\d+)?)", re.IGNORECASE)
+_STEP_RANGE = re.compile(r"\s*[-–—]\s*(\d+(?:\.\d+)?)")
+_STEP_LIST = re.compile(r",\s*(?:and\s+)?(\d+(?:\.\d+)?)")
+
+
+def _step_numbers(line):
+    """Yield every step number mentioned in a line.
+
+    Handles the shapes docs actually use: 'Step 9', 'Steps 5.5-9.5',
+    'Steps 10.1-11', and comma lists like 'Steps 7, 9, 10, 13, and 15'
+    (the last one is how the retired 13/15 refs survived a renumbering).
+    """
+    for start in _STEP_START.finditer(line):
+        yield start.group(1)
+        rest = line[start.end():]
+        rm = _STEP_RANGE.match(rest)
+        if rm:
+            yield rm.group(1)
+            rest = rest[rm.end():]
+        while True:
+            cm = _STEP_LIST.match(rest)
+            if not cm:
+                break
+            yield cm.group(1)
+            rest = rest[cm.end():]
+
+
+def test_step_references_resolve_to_canonical_workflow():
+    """Every 'Step N' mention must be a canonical workflow step id.
+
+    This is the drift class that produced 6 of the 25 findings in the
+    dual-review round: retired steps 13/15 survived in platform-matrix.md,
+    BGM mix was called 'Step 11' (shorts) in four templates, and SKILL.md
+    contradicted itself on Step 8 vs 9 for design-guide.md. A renumbering
+    must update CANONICAL_STEPS here and SKILL.md's table together.
+    """
+    violations = []
+    for path in STEP_SCAN_FILES:
+        if not path.exists():
+            continue
+        for lineno, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(), 1
+        ):
+            for num in _step_numbers(line):
+                if num not in CANONICAL_STEPS:
+                    rel = path.relative_to(REPO_ROOT)
+                    violations.append(
+                        f"{rel}:{lineno}: 'Step {num}' not in {sorted(CANONICAL_STEPS)}"
+                    )
+    assert not violations, (
+        f"{len(violations)} stale step reference(s):\n" + "\n".join(violations)
     )
 
 
