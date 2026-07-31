@@ -2,12 +2,17 @@
   "sections": [
     {
       "name": "intro",
-      "startSec": 0,
-      "durationSec": 0.33,
-      "startFrame": 0,
-      "durationFrames": 10
+      "label": "intro",
+      "start_time": 0,
+      "end_time": 0.33,
+      "duration": 0.33,
+      "start_frame": 0,
+      "duration_frames": 10,
+      "is_silent": false
     }
   ],
-  "totalDuration": 0.33,
-  "totalFrames": 10
+  "total_duration": 0.33,
+  "fps": 30,
+  "total_frames": 10,
+  "speech_rate": "+5%"
 }
