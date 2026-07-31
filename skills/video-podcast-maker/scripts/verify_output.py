@@ -2,7 +2,7 @@
 """End-of-pipeline verification + auto-fix for a video project.
 
 Checks that all expected files exist and meet specs, auto-fixes common
-omissions (e.g. final_video.mp4 missing because Step 12 skipped subtitles
+omissions (e.g. final_video.mp4 missing because Step 10.1 skipped subtitles
 without aliasing), and prints a clean acceptance report.
 
 Usage:
@@ -203,7 +203,7 @@ def auto_fix(video_dir):
     elif not final_mp4.exists() and output_mp4.exists():
         shutil.copy2(output_mp4, final_mp4)
         fixes.append(
-            "Created final_video.mp4 from output.mp4 (no BGM mix; consider running Step 11)"
+            "Created final_video.mp4 from output.mp4 (no BGM mix; consider running Step 9.5)"
         )
 
     return fixes
@@ -414,7 +414,7 @@ def verify(video_dir, strict=False, do_auto_fix=True):
                 any_present = True
                 thumb_record["present"] = True
                 sz = png_size(p)
-                if sz == expected:
+                if sz is not None and sz == expected:
                     print(f"  ✓ {fname}: {sz[0]}x{sz[1]}")
                     thumb_record["size"] = list(sz)
                     thumb_record["ok"] = True
@@ -478,6 +478,7 @@ def verify(video_dir, strict=False, do_auto_fix=True):
     # Final video vs audio — the rendered/mixed output must match the master clock.
     print("\n--- Final video / audio sync ---")
     if final_mp4.exists() and wav.exists():
+        info = ffprobe_video(final_mp4)
         wav_info_final = ffprobe_audio(wav)
         if info is None:
             print("  ✗ ffprobe failed on final_video.mp4")
@@ -552,7 +553,7 @@ def verify(video_dir, strict=False, do_auto_fix=True):
         for w in m_warnings:
             print(f"  ⚠ {w}")
             warnings.append(f"asset manifest: {w}")
-        if not m_errors:
+        if not m_errors and m_manifest is not None:
             count = len(m_manifest.get("assets", []))
             print(f"  ✓ {count} assets registered, no errors")
         o_errors, o_warnings, o_details = check_overlay_assets(video_dir, m_manifest)

@@ -4,7 +4,7 @@
 >
 > **Covers:** Pre-workflow (optional design reference extraction) → Startup (load user preferences) → Steps 1-4 (topic → research → sections → script).
 >
-> **Next phase:** See `workflow-assets.md` for Step 5 (asset plan & resolve), then `workflow-production.md` for Steps 6-11 (publish info, TTS, Remotion, render, BGM).
+> **Next phase:** See `workflow-assets.md` for Step 5 (asset plan & resolve), then `workflow-production.md` for Steps 5.5-9.5 (publish info, TTS, Remotion, render, BGM).
 
 ## Execution Modes
 
@@ -15,16 +15,16 @@ Detect at workflow start:
 
 ### Auto Mode defaults
 
-Full pipeline with sensible defaults. **Mandatory stop at Step 9** (Studio review); Step 10 (4K render) only fires when the user says "render 4K" / "render final".
+Full pipeline with sensible defaults. **Mandatory stop at Step 8** (Studio review); Step 9 (4K render) only fires when the user says "render 4K" / "render final".
 
 | Step | Decision | Auto Default |
 | ------ | ---------- | ------------- |
 | 3 | Title position | top-center |
 | 5 | Assets | Free sources auto-resolve; paid generation needs confirmation |
-| 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
-| 9 | Outro animation | Pre-made MP4 (white/black by theme) |
-| 12 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
-| 14 | Cleanup | Auto-clean temp files |
+| 6 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
+| 8 | Outro animation | Pre-made MP4 (white/black by theme) |
+| 10.1 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
+| 10.3 | Cleanup | Auto-clean temp files |
 
 Override any default in the initial request:
 
@@ -174,7 +174,7 @@ Topic-specific styles are applied via `user_prefs.json` under `topic_patterns`.
 >
 > **After the first draft exists, load [references/script-polish.md](script-polish.md)** for the deep editing pass — 24 EN+ZH before/after patterns, evidence boundaries for factual claims, and per-language quality scoring rubrics. Run its editing workflow before TTS.
 >
-> **Then show the user the polish scorecard** — the per-dimension /50 score from script-polish's rubric plus a 2-3 line summary of what the editing pass changed. Do not block on a reply (Auto Mode continues to the dry-run); the user can request another polish pass at any point before Step 8 (TTS).
+> **Then show the user the polish scorecard** — the per-dimension /50 score from script-polish's rubric plus a 2-3 line summary of what the editing pass changed. Do not block on a reply (Auto Mode continues to the dry-run); the user can request another polish pass at any point before Step 7 (TTS).
 
 **Preference application:** Adjust script style from `user_prefs.content`:
 

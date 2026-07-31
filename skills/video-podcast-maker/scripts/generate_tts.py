@@ -182,9 +182,10 @@ def _run(args, started_at):
     else:
         # --validate path: skip backend init, but use the registry's edge limit
         # so chunk-count estimates stay in sync with real synthesis.
-        from tts.backends import get_max_chars
+        from tts.backends import get_max_chars, get_synthesize_func
         BACKEND = "edge"
         MAX_CHARS = get_max_chars(BACKEND)
+        config = {}  # unreachable past the --validate early exit below
 
     from tts.backends import resolve_speech_rate
     SPEECH_RATE, rate_source = resolve_speech_rate()
@@ -284,7 +285,7 @@ def _run(args, started_at):
         est_frames = int(est_duration * 30)
         non_silent = [s for s in sections if not s.get('is_silent')]
         chunks = chunk_text(clean_text, MAX_CHARS)
-        print(f"\n--- Dry Run ---")
+        print("\n--- Dry Run ---")
         print(f"Chinese chars: {cn_chars}, English words: {en_words}")
         print(f"Total chars: {len(clean_text)} -> {len(chunks)} chunk(s) (max {MAX_CHARS}/chunk)")
         print(f"Estimated duration: {est_duration:.0f}s ({est_duration/60:.1f}min)")
@@ -383,7 +384,7 @@ def _run(args, started_at):
             started_at=started_at,
         ))
     print(f"Done: {output_wav}")
-    print(f"  Temp files kept: {len(part_files)} part_*.wav (manual cleanup: Step 14)")
+    print(f"  Temp files kept: {len(part_files)} part_*.wav (manual cleanup: Step 10.3)")
 
     # Reconcile timing.json with actual WAV duration. Azure can under-report
     # audio_duration when SSML tags (break/phoneme/say-as) are present, leading

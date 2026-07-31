@@ -1,6 +1,6 @@
 # Script Polish — Deep Editing Toolkit
 
-> **When to load:** After writing the first draft of `podcast.txt` (Step 4), **before** generating TTS (Step 8). Pair with [natural-narration.md](natural-narration.md) — natural-narration is the pre-write checklist (load it before writing); this file is the post-write editing toolkit (load it after the draft exists, to scrub remaining AI tells). Where the two conflict, natural-narration's spoken-narration rules win.
+> **When to load:** After writing the first draft of `podcast.txt` (Step 4), **before** generating TTS (Step 7). Pair with [natural-narration.md](natural-narration.md) — natural-narration is the pre-write checklist (load it before writing); this file is the post-write editing toolkit (load it after the draft exists, to scrub remaining AI tells). Where the two conflict, natural-narration's spoken-narration rules win.
 >
 > **Sources:** Distilled and adapted for spoken scripts from `blader/humanizer` (33 patterns from Wikipedia's "Signs of AI writing"), `op7418/Humanizer-zh` (Chinese adaptation), `hardikpandya/stop-slop` (EN prose anti-slop), and `stop-slop-zh` (ZH scenario-gated editing).
 

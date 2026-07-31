@@ -30,7 +30,7 @@ metadata:
   openclaw:
     requires:
       bins: [python3, ffmpeg, node, npx]
-      env: []
+      env: [AZURE_SPEECH_KEY, DASHSCOPE_API_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, TENCENT_SECRET_ID, TENCENT_SECRET_KEY, BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY, MINIMAX_API_KEY, XUNFEI_APP_ID, XUNFEI_API_KEY, XUNFEI_API_SECRET, ELEVENLABS_API_KEY, OPENAI_API_KEY, GOOGLE_TTS_API_KEY]
     emoji: "🎬"
     homepage: https://github.com/Agents365-ai/video-podcast-maker
     os: ["macos", "linux"]
@@ -94,6 +94,8 @@ Updates flow through the plugin marketplace (`/plugin update`); direct git-clone
 
 **TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`) synthesize through the **ttscn component skill**, which is **required**: install it under `~/.claude/skills/ttscn` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
 
+> **Pi users:** `ttscn` is not bundled with Pi — install `Agents365-ai/ttsCN` as a Pi skill (its `skills/ttscn/` layout is auto-detected) or set `TTSCN_HOME`; `check_prereqs.py` verifies the install before TTS.
+
 > **Design Learning shortcut**: If the user provides a reference video/image or asks to save/list/delete style profiles, see [references/design-learning.md](references/design-learning.md) instead of running the workflow below.
 
 ---
@@ -115,7 +117,7 @@ Pick the **smallest** re-run for what actually changed:
 | Narration script (`podcast.txt`) | Step 7 (TTS) → Step 8 preview → render+mix | topic research + section design |
 | Visuals only (components, layout, colors) | Step 8 preview → render+mix | audio (`podcast_audio.wav` / `timing.json`) |
 | Background music only | Re-mix BGM | `output.mp4` (no re-render) |
-| Subtitles only | Step 10 finalize | `output.mp4` / `video_with_bgm.mp4` |
+| Subtitles only | Step 10.1 finalize | `output.mp4` / `video_with_bgm.mp4` |
 
 Any re-run that changes what the viewer **sees or hears** re-enters the Step 8 gate: apply the change, let Studio hot-reload, and wait for a fresh explicit "render 4K" — the previous confirmation does **not** carry over. A **script** change shifts every downstream timestamp, so always regenerate `timing.json` through TTS — never hand-edit it. After any re-run, re-verify:
 
@@ -275,8 +277,8 @@ Load on demand — **do NOT load all at once**:
 | [references/workflow-production.md](references/workflow-production.md) | Steps 6-9 (thumbnails → TTS → Remotion → render + BGM) |
 | [references/workflow-publish.md](references/workflow-publish.md) | Steps 10-11 (publish info, verify, shorts) |
 | [references/platform-matrix.md](references/platform-matrix.md) | Platform-specific behavior (thumbnails, chapters, outro, publish info, shorts) |
-| [references/design-guide.md](references/design-guide.md) | **MUST load before Step 9** — visual minimums, typography, animation safety |
-| [references/visual-taste.md](references/visual-taste.md) | **Load before Step 9** alongside design-guide — design dials, anti-default rules, visual modes, section rhythm |
+| [references/design-guide.md](references/design-guide.md) | **MUST load before Step 8** — visual minimums, typography, animation safety |
+| [references/visual-taste.md](references/visual-taste.md) | **Load before Step 8** alongside design-guide — design dials, anti-default rules, visual modes, section rhythm |
 | [references/design-learning.md](references/design-learning.md) | User provides a reference video/image, or manages style profiles |
 | [references/troubleshooting.md](references/troubleshooting.md#azure-tts-deep-dive) | Choosing Azure voice/style, debugging hoarse/glitchy audio |
 | [references/troubleshooting.md](references/troubleshooting.md) | On error, script/CLI discovery, or user asks about preferences/BGM |

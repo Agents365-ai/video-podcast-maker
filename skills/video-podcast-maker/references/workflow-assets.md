@@ -36,7 +36,7 @@ plan directly as manifest entries.
 | `inline` | Framed content media inside the layout | image, icon | `<AssetImage role="inline">` (delegates to `MediaSection`) |
 | `broll` | Atmosphere clip | video | `<AssetVideo>` |
 | `overlay` | Transparent animation layer (Hyperframes, P3) | overlay | `OverlayLayer` (P3) |
-| `bgm` / `sfx` | Music / sound effects (Step 11) | audio | FFmpeg mix, not Remotion |
+| `bgm` / `sfx` | Music / sound effects (Step 9.5) | audio | FFmpeg mix, not Remotion |
 
 **Auto mode policy** (replaces the old "skip media" default):
 
@@ -185,7 +185,7 @@ it never replaces the main composition.
 WebM VP9 is the primary format because Remotion Studio previews
 `<OffthreadVideo>` as a browser `<video>` element — Chrome plays WebM alpha
 natively but **cannot decode ProRes**, so a ProRes overlay would look broken
-at the mandatory Step 9 review even though it renders correctly. During the
+at the mandatory Step 8 review even though it renders correctly. During the
 real render, the `transparent` prop extracts alpha frames via FFmpeg.
 Export ProRes 4444 additionally only if the user wants the overlay for
 external editing software. PNG sequence is the lossless fallback.
@@ -276,9 +276,9 @@ animation components.
 python3 ${SKILL_DIR}/scripts/cli.py assets validate videos/{name}/
 ```
 
-Errors (bad schema, missing files, path escapes) must be fixed before Step 9;
+Errors (bad schema, missing files, path escapes) must be fixed before Step 8;
 license warnings should be resolved before publishing. `verify_output.py`
-(Step 14) re-runs this check.
+(Step 10.3) re-runs this check.
 
 In the per-video composition:
 

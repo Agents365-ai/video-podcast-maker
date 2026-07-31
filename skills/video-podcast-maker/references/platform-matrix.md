@@ -60,8 +60,8 @@
 
 | Platform | Shorts generated | Notes |
 | ---------- | ----------------- | ------- |
-| Bilibili | Optional (Step 15) | Long-form is primary |
-| YouTube | Optional (Step 15) | Long-form is primary; Shorts are separate content |
+| Bilibili | Optional (Step 11) | Long-form is primary |
+| YouTube | Optional (Step 11) | Long-form is primary; Shorts are separate content |
 | Xiaohongshu | Recommended | Vertical shorts are primary format |
 | Douyin | Required | Douyin is shorts-only — no horizontal long-form video |
 | WeChat Channels | Required | Channels is shorts-only — no horizontal long-form video |

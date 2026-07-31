@@ -1,8 +1,8 @@
 # Video Podcast Maker — Design Guide
 
-> **When to load:** Load this file when working on Step 9 (Remotion composition) or when the user asks about visual design.
+> **When to load:** Load this file when working on Step 8 (Remotion composition) or when the user asks about visual design.
 >
-> **Pair with [visual-taste.md](visual-taste.md)** — design-guide owns the hard floors (px minimums, animation safety, checklists); visual-taste owns the judgment calls above those floors (dials, color calibration, typography choices, section rhythm). Load both before Step 9.
+> **Pair with [visual-taste.md](visual-taste.md)** — design-guide owns the hard floors (px minimums, animation safety, checklists); visual-taste owns the judgment calls above those floors (dials, color calibration, typography choices, section rhythm). Load both before Step 8.
 
 ## Contents
 

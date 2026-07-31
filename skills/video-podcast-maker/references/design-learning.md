@@ -64,11 +64,11 @@ When the user provides a reference video or image alongside a video creation req
 
 See `references/workflow-script.md` → Pre-workflow section for the full extraction flow.
 
-## Step 9 Integration
+## Step 8 Integration
 
-Before choosing visual design in Step 9, check for matching style profiles or reference library entries. Apply the best match as a starting point for Remotion composition props.
+Before choosing visual design in Step 8, check for matching style profiles or reference library entries. Apply the best match as a starting point for Remotion composition props.
 
-See `references/workflow-production.md` → Step 9 Style Profile Integration for the priority chain.
+See `references/workflow-production.md` → Step 8 Style Profile Integration for the priority chain.
 
 ---
 
