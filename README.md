@@ -114,7 +114,7 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 > 4. **Audit numbers, proper nouns, and English terms separately.** ~90% of TTS mispronunciations live here. If pronunciation is wrong, add it to `phonemes.json`; if it just sounds awkward, rewrite it.
 > 5. **Know your length budget.** Estimate **~280 zh-CN chars/min** or **~150 en words/min**. A 5–10 min video means ~1400–2800 chars / 750–1500 words. Don't pad to fill time.
 >
-> **The only acceptance test:** read through it once in your head — does any line make you wince? If yes, don't move on to Step 8 (TTS) yet. Otherwise you're just rendering 4K of something even you don't want to hear.
+> **The only acceptance test:** read through it once in your head — does any line make you wince? If yes, don't move on to Step 7 (TTS) yet. Otherwise you're just rendering 4K of something even you don't want to hear.
 
 ## Related Skills
 
@@ -302,7 +302,7 @@ videos/{video-name}/
 ├── timing.json              # Section timing for sync
 ├── thumbnail_*.png          # Video thumbnails
 ├── publish_info.md          # Title, tags, description
-├── part_*.wav               # TTS segments (temp, cleanup via Step 14)
+├── part_*.wav               # TTS segments (temp, cleanup via Step 10.3)
 ├── output.mp4               # Raw render (temp)
 ├── video_with_bgm.mp4       # With BGM (temp)
 └── final_video.mp4          # Final output
@@ -331,7 +331,7 @@ Included tracks in `skills/video-podcast-maker/assets/`:
 - [x] Skill docs restructured as a `SKILL.md` workflow usable by Claude Code, Codex, OpenCode, and OpenClaw
 - [x] Design learning system — learn visual styles from reference videos/images into a reusable profile library
 - [ ] Playwright auto-capture — analyze Bilibili/YouTube video design straight from a URL (Phase 4)
-- [ ] Step 9 smart recommendations — auto-match saved style profiles when making a video (Phase 5)
+- [ ] Step 8 smart recommendations — auto-match saved style profiles when making a video (Phase 5)
 - [ ] Thumbnail design learning — apply learned cover styles to the Thumbnail.tsx template (Phase 5)
 - [ ] Automated YouTube publishing — upload video, metadata, chapters, and thumbnail via the YouTube Data API
 - [ ] Windows support (WSL validation + docs)

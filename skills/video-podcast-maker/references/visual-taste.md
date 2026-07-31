@@ -1,6 +1,6 @@
 # Visual Taste — Design Decision Framework
 
-> **When to load:** Load alongside [design-guide.md](design-guide.md) at Step 9 (Remotion composition), *before* choosing colors, fonts, or layouts. design-guide.md owns the hard floors (px minimums, animation safety, checklists); this file owns the judgment calls above those floors. Where the two conflict, design-guide.md wins.
+> **When to load:** Load alongside [design-guide.md](design-guide.md) at Step 8 (Remotion composition), *before* choosing colors, fonts, or layouts. design-guide.md owns the hard floors (px minimums, animation safety, checklists); this file owns the judgment calls above those floors. Where the two conflict, design-guide.md wins.
 
 ## Contents
 

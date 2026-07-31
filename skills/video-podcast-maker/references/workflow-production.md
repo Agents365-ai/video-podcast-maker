@@ -2,20 +2,20 @@
 
 > **When to load:** Load after the narration script exists, or when the user asks about media, TTS, Remotion composition, 4K render, or BGM mixing.
 >
-> **Covers:** Steps 6-11 (publish info draft → thumbnail → TTS → Remotion composition + Studio preview → 4K render → BGM mix). Step 5 (asset plan & resolve) lives in `workflow-assets.md` — only a pointer stub remains below.
+> **Covers:** Steps 5.5-9.5 (publish info draft → thumbnail → TTS → Remotion composition + Studio preview → 4K render → BGM mix). Step 5 (asset plan & resolve) lives in `workflow-assets.md` — only a pointer stub remains below.
 >
 > **Previous phase:** See `workflow-script.md` for Pre-workflow + Startup + Steps 1-4, then `workflow-assets.md` for Step 5.
-> **Next phase:** See `workflow-publish.md` for Steps 12-15 (subtitles, publish info, cleanup, shorts).
+> **Next phase:** See `workflow-publish.md` for Steps 10.1-11 (finalize, publish info, verify + cleanup, shorts).
 
 ## Contents
 
 - [Step 5: Asset Plan & Resolve](#step-5-asset-plan--resolve) — pointer to workflow-assets.md
-- [Step 6: Generate Publish Info (Part 1)](#step-6-generate-publish-info-part-1)
-- [Step 7: Generate Video Thumbnail](#step-7-generate-video-thumbnail)
-- [Step 8: Generate TTS Audio](#step-8-generate-tts-audio) — voice selection, SSML, chunk seams
-- [Step 9: Create Remotion Composition + Studio Preview](#step-9-create-remotion-composition--studio-preview)
-- [Step 10: Render 4K Video](#step-10-render-4k-video)
-- [Step 11: Mix with Background Music](#step-11-mix-with-background-music)
+- [Step 5.5: Generate Publish Info (Part 1)](#step-55-generate-publish-info-part-1)
+- [Step 6: Generate Video Thumbnail](#step-6-generate-video-thumbnail)
+- [Step 7: Generate TTS Audio](#step-7-generate-tts-audio) — voice selection, SSML, chunk seams
+- [Step 8: Create Remotion Composition + Studio Preview](#step-8-create-remotion-composition--studio-preview)
+- [Step 9: Render 4K Video](#step-9-render-4k-video)
+- [Step 9.5: Mix with Background Music](#step-95-mix-with-background-music)
 
 ---
 
@@ -33,7 +33,7 @@ with `assets add --path`.
 
 ---
 
-## Step 6: Generate Publish Info (Part 1)
+## Step 5.5: Generate Publish Info (Part 1)
 
 Based on `podcast.txt`, generate `publish_info.md`:
 
@@ -43,12 +43,12 @@ Based on `podcast.txt`, generate `publish_info.md`:
 
 ---
 
-## Step 7: Generate Video Thumbnail
+## Step 6: Generate Video Thumbnail
 
 **Auto mode:** Generate Remotion thumbnails (16:9 + 4:3).
 **Interactive mode:** Ask user: Remotion-generated / AI (imagencn) / both.
 
-**MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required for horizontal video. (9:16 thumbnail is generated alongside the vertical render in Step 10/15 — not here.)
+**MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required for horizontal video. (9:16 thumbnail is generated alongside the vertical render in Step 9/11 — not here.)
 
 **Thumbnail design rules** (see `references/design-guide.md` for full spec):
 
@@ -92,7 +92,7 @@ Remotion thumbnails too when generating both; verify accepts either naming.
 
 ---
 
-## Step 8: Generate TTS Audio
+## Step 7: Generate TTS Audio
 
 > **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[troubleshooting.md → Azure TTS Deep-Dive](troubleshooting.md#azure-tts-deep-dive)** before picking a voice or style — covers voice selection, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio.
 
@@ -174,7 +174,7 @@ If the drift is ≥ 0.5s, re-run TTS or run `python3 ${SKILL_DIR}/scripts/align_
 
 ---
 
-## Step 9: Create Remotion Composition + Studio Preview
+## Step 8: Create Remotion Composition + Studio Preview
 
 **The agent MUST read `references/design-guide.md` AND `references/visual-taste.md` before this step** — design-guide owns the hard floors (px minimums, animation safety), visual-taste owns the judgment calls above them (dials, anti-default rules, section rhythm).
 
@@ -369,27 +369,27 @@ If you intentionally run multiple Remotion projects in parallel, launch Studio o
 5. Ask user: "Studio is running at <http://localhost:3000>. Please review the video preview."
 6. **Review loop** — user reviews, requests changes, the agent applies them, Studio hot reloads:
    - Layout/animation tweaks → edit components, Studio auto-refreshes
-   - Script/content changes → edit `podcast.txt`, may need re-TTS (Step 8)
-   - Pronunciation fixes → re-run TTS (Step 8)
+   - Script/content changes → edit `podcast.txt`, may need re-TTS (Step 7)
+   - Pronunciation fixes → re-run TTS (Step 7)
 
    A reply that requests **any** adjustment stays inside this loop — it is never an
    implicit render request, even when phrased as "change X, the rest looks good" or
    when the user confirmed a render for an earlier version. After applying the
    changes, tell the user Studio has hot-reloaded and ask them to review again.
-7. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" **in a message that requests no further changes** → proceed to Step 10
-8. Do NOT proceed to Step 10 until the user confirms. Each round of adjustments invalidates any earlier confirmation — wait for a fresh one.
+7. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" **in a message that requests no further changes** → proceed to Step 9
+8. Do NOT proceed to Step 9 until the user confirms. Each round of adjustments invalidates any earlier confirmation — wait for a fresh one.
 
 ---
 
-### Visual QA (Automated, part of Step 9)
+### Visual QA (Automated, part of Step 8)
 
 Visual quality is verified via Remotion Studio preview. The agent may offer to render section stills for manual inspection if requested.
 
 ---
 
-## Step 10: Render 4K Video
+## Step 9: Render 4K Video
 
-> **Prerequisite:** User has reviewed in Remotion Studio (Step 9) and explicitly requested final render.
+> **Prerequisite:** User has reviewed in Remotion Studio (Step 8) and explicitly requested final render.
 
 ### 4K Render
 
@@ -435,18 +435,18 @@ The vertical composition reuses Video.tsx with `orientation: "vertical"`. All co
 
 ---
 
-## Step 11: Mix with Background Music
+## Step 9.5: Mix with Background Music
 
 > **BGM source single-write rule (READ THIS FIRST).** Two paths can layer BGM
 > on the final video: the Remotion `<Audio src="bgm.mp3">` block inside
 > `Video.tsx`, and the FFmpeg `amix` below. **Pick exactly one.** Default
 > behavior is FFmpeg-only — `Root.tsx::defaultVideoProps.bgmVolume` is `0`,
-> so the Remotion BGM block is disabled and `output.mp4` from Step 10
-> contains *only* narration. Step 11 then layers BGM via FFmpeg.
+> so the Remotion BGM block is disabled and `output.mp4` from Step 9
+> contains *only* narration. Step 9.5 then layers BGM via FFmpeg.
 >
 > If you intend to bake BGM inside Remotion instead (e.g. for a beat-synced
 > video where the BGM drives animation): set `bgmVolume > 0` in Studio,
-> ensure `bgm.mp3` is present in `--public-dir`, and **skip Step 11**. Running
+> ensure `bgm.mp3` is present in `--public-dir`, and **skip Step 9.5**. Running
 > both layers it twice.
 
 ### BGM Selection

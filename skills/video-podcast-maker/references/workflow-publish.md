@@ -2,35 +2,35 @@
 
 > **When to load:** Load after the 4K video is rendered with BGM, or when the user asks about subtitles, publish info, cleanup, verification, or generating vertical shorts.
 >
-> **Covers:** Steps 12-15 (subtitles → publish info → verify + cleanup → optional vertical shorts).
+> **Covers:** Steps 10.1-11 (finalize → publish info → verify + cleanup → optional vertical shorts).
 >
-> **Previous phase:** See `workflow-production.md` for Steps 6-11.
+> **Previous phase:** See `workflow-production.md` for Steps 5.5-9.5.
 
 ## Contents
 
-- [Step 12: Finalize (optional legacy subtitle burn)](#step-12-finalize-optional-legacy-subtitle-burn)
-- [Step 13: Complete Publish Info (Part 2)](#step-13-complete-publish-info-part-2)
-- [Step 14: Verify Output & Cleanup](#step-14-verify-output--cleanup)
-- [Step 15: Generate Vertical Shorts (Optional)](#step-15-generate-vertical-shorts-optional)
+- [Step 10.1: Finalize (optional legacy subtitle burn)](#step-101-finalize-optional-legacy-subtitle-burn)
+- [Step 10.2: Complete Publish Info (Part 2)](#step-102-complete-publish-info-part-2)
+- [Step 10.3: Verify Output & Cleanup](#step-103-verify-output--cleanup)
+- [Step 11: Generate Vertical Shorts (Optional)](#step-11-generate-vertical-shorts-optional)
 
 ---
 
-## Step 12: Finalize (optional legacy subtitle burn)
+## Step 10.1: Finalize (optional legacy subtitle burn)
 
-> **Decision point: pick subtitle approach BEFORE Step 10, not here.**
+> **Decision point: pick subtitle approach BEFORE Step 9, not here.**
 >
-> Subtitles are normally baked into `output.mp4` during Step 10's Remotion
+> Subtitles are normally baked into `output.mp4` during Step 9's Remotion
 > render via `<Subtitles src={staticFile("podcast_audio.srt")} />` in
-> `Video.tsx`. Once Step 10 runs with that component in place, subtitles are
-> already inside the pixel stream — re-burning at Step 12 would double up.
+> `Video.tsx`. Once Step 9 runs with that component in place, subtitles are
+> already inside the pixel stream — re-burning at Step 10.1 would double up.
 >
-> **Default (Remotion-native subtitles in Step 10):** Step 12 is a finalize/alias
+> **Default (Remotion-native subtitles in Step 9):** Step 10.1 is a finalize/alias
 > step. Copy `video_with_bgm.mp4` to `final_video.mp4` and move on.
 >
-> **Legacy FFmpeg burn (rare):** Only choose this if Step 10 was rendered
+> **Legacy FFmpeg burn (rare):** Only choose this if Step 9 was rendered
 > *without* the `<Subtitles>` component (e.g. you removed it for a karaoke
 > effect, or you're re-burning into an older render). In that case render
-> Step 10 with subtitles disabled, then run the FFmpeg pass below.
+> Step 9 with subtitles disabled, then run the FFmpeg pass below.
 
 **Auto mode:** Skip subtitles — copy `video_with_bgm.mp4` as `final_video.mp4`.
 **Interactive mode:** Ask user: "Add burned-in subtitles? (Usually not needed — Remotion renders subtitles natively)"
@@ -42,6 +42,7 @@ Read `subtitle` preferences. If `subtitle.enabled == false`, skip subtitle burni
 If FFmpeg subtitle burn is explicitly requested (legacy/special cases only):
 
 Resolve `fontName: "auto"` by `language`:
+
 - zh-CN → `PingFang SC`
 - en-US → `Arial`
 
@@ -56,13 +57,14 @@ ffmpeg -y -i videos/{name}/video_with_bgm.mp4 \
 ```
 
 If skipping (default for Remotion-native subtitle videos):
+
 ```bash
 cp videos/{name}/video_with_bgm.mp4 videos/{name}/final_video.mp4
 ```
 
 ---
 
-## Step 13: Complete Publish Info (Part 2)
+## Step 10.2: Complete Publish Info (Part 2)
 
 Generate Bilibili chapters from `timing.json`:
 
@@ -80,28 +82,33 @@ Format: `MM:SS Chapter Title`, each gap ≥5s.
 **Agent behavior:** Generate publish info matching `platform` preference.
 
 **bilibili format:**
+
 - 标题公式、标签、简介
 - 章节时间戳 (if `content.chapters == true`)
 
 **youtube format:**
+
 - SEO-optimized title (<70 chars)
 - Keyword-rich description with timestamps
 - Tags and hashtags (#tag1 #tag2)
 - Chapters (if `content.chapters == true`, first line must be `0:00`)
 
 **xiaohongshu format:**
+
 - 标题（≤20字）— short, punchy, emoji-friendly
 - 正文（200-500字）— 种草/knowledge-sharing style with emoji
 - 话题标签 5-10 个，格式 `#话题#`（双井号）
 - 无章节时间戳（小红书不支持）
 
 **douyin format:**
+
 - 文案（100-200字）— casual, emoji-friendly, conversational tone
 - 话题标签 3-8 个，格式 `#话题`（单井号）
 - 无章节时间戳
 - Note: Douyin is shorts-only — no horizontal long-form video
 
 **weixin-channels format:**
+
 - 文案（100-300字）— knowledge-sharing style, suitable for forwarding
 - 话题标签 3-8 个，格式 `#话题`（单井号）
 - 无章节时间戳
@@ -109,9 +116,9 @@ Format: `MM:SS Chapter Title`, each gap ≥5s.
 
 ---
 
-## Step 14: Verify Output & Cleanup
+## Step 10.3: Verify Output & Cleanup
 
-### 14.1 Verification
+### 10.3.1 Verification
 
 Run the unified verifier — it checks all required files, validates technical specs, audits audio/timing alignment, sanity-checks publish_info.md, AND **auto-fixes common omissions** (e.g. creates `final_video.mp4` from `video_with_bgm.mp4` when subtitles were skipped but the alias step was missed; disable with `--no-fix`).
 
@@ -120,11 +127,13 @@ python3 ${SKILL_DIR}/scripts/verify_output.py videos/{name}/
 ```
 
 Exit codes (preserved across all output formats):
+
 - `0` = all required files present and valid → ready to publish
 - `1` = critical missing or invalid → fix before publishing
 - `2` = warnings only → still publishable, review noted issues
 
 **Flags:**
+
 - `--strict` — treat any warning as a critical issue (exit 1 instead of 2)
 - `--no-fix` — skip the auto-fix step; preview only (useful for diagnosing what *would* change before any mutation)
 - `--format auto|json|prose` — `auto` (default) emits JSON when stdout is not a TTY; force with `--format json` for orchestrators that need to parse results programmatically; force prose with `--format prose`
@@ -138,6 +147,7 @@ python3 ${SKILL_DIR}/scripts/verify_output.py videos/{name}/ --format json
 ```
 
 What it checks:
+
 - Required files: podcast.txt, podcast_audio.{wav,srt}, timing.json, output.mp4, **final_video.mp4**, publish_info.md, both thumbnails
 - Final video specs: 3840×2160 (or 2160×3840 vertical), h264 + aac, has audio track, duration plausible
 - Thumbnail dimensions: 1920×1080 (16:9) and 1200×900 (4:3) — each aspect ratio accepts either `thumbnail_remotion_*.png` or `thumbnail_ai_*.png`, only flagged missing when both alternatives are absent
@@ -146,10 +156,11 @@ What it checks:
 - publish_info.md: contains promo line + per-platform required section headers (bilibili: 标题/标签/简介/章节; youtube: Title/Tags/Description/Chapters; xiaohongshu/douyin/weixin-channels: shorter set without chapters) — resolved from `user_prefs.json` → `global.platform`, defaults to bilibili
 
 What it auto-fixes:
-- Creates `final_video.mp4` from `video_with_bgm.mp4` if missing (subtitles-skipped path)
-- Falls back to `output.mp4` if no BGM mix exists yet (with warning to run Step 11)
 
-### 14.2 Cleanup
+- Creates `final_video.mp4` from `video_with_bgm.mp4` if missing (subtitles-skipped path)
+- Falls back to `output.mp4` if no BGM mix exists yet (with warning to run Step 9.5)
+
+### 10.3.2 Cleanup
 
 **Both modes:** Only clean TTS temp files (part_*.wav, concat_list.txt) automatically. **NEVER delete output.mp4 or video_with_bgm.mp4** until the user has reviewed final_video.mp4 and explicitly confirmed it's acceptable. These files are needed to re-do BGM/subtitle steps without a full re-render (~8 min).
 
@@ -164,7 +175,7 @@ echo "  output.mp4 — clean render without BGM/subtitles"
 echo "  video_with_bgm.mp4 — render with BGM, no subtitles"
 ```
 
-### 14.3 Final Report
+### 10.3.3 Final Report
 
 ```
 === Video Complete ===
@@ -179,9 +190,9 @@ echo "  video_with_bgm.mp4 — render with BGM, no subtitles"
 
 ---
 
-## Step 15: Generate Vertical Shorts (Optional)
+## Step 11: Generate Vertical Shorts (Optional)
 
-**When:** After long-form video is complete (Step 14). Optional step.
+**When:** After long-form video is complete (Step 10.3). Optional step.
 
 **Agent behavior:** Offer to generate vertical shorts. If user agrees, run automatically.
 
@@ -192,6 +203,7 @@ python3 ${SKILL_DIR}/scripts/generate_shorts.py --input-dir videos/{name}/ --tit
 ```
 
 This produces `videos/{name}/shorts/{section_name}/` for each qualifying section (>20s, not hero/outro) with:
+
 - `short_audio.wav` — extracted audio slice
 - `short_timing.json` — timing for intro (3s) + content + CTA (3s)
 - `short_info.json` — composition metadata
@@ -200,6 +212,7 @@ This produces `videos/{name}/shorts/{section_name}/` for each qualifying section
 ### Create short compositions
 
 For each generated short:
+
 1. Copy `templates/ShortVideo.tsx` as `src/remotion/{SectionName}ShortVideo.tsx`
 2. Replace `SectionContent` placeholder with the actual section component from the long-form video
 3. Update `SHORT_CONFIG` with values from `short_info.json`
@@ -224,6 +237,7 @@ load the long-form `podcast_audio.wav`/`timing.json` instead of the short's
 sliced assets and the render would drift.)
 
 Each short is a standalone 9:16 4K video (2160×3840) with:
+
 - 3-second intro title card
 - Section content (vertical layout, all components auto-adapt)
 - 3-second CTA card ("关注看完整版")

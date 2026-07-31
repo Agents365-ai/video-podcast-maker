@@ -357,7 +357,7 @@ Available at `${SKILL_DIR}/assets/`:
 cp /path/to/my-bgm.mp3 videos/{name}/bgm.mp3
 ```
 
-If user says "use my own BGM" or provides a file path, skip the default BGM copy in Step 11.
+If user says "use my own BGM" or provides a file path, skip the default BGM copy in Step 9.5.
 
 ### Royalty-Free BGM Sources
 
