@@ -130,8 +130,6 @@ This skill depends on **remotion-best-practices** and works alongside other opti
 - **[videogencn](https://github.com/Agents365-ai/videogenCN)** - AI video clip generation for B-roll and i2v (optional, paid APIs)
 - **[ttscn](https://github.com/Agents365-ai/ttsCN)** - The TTS engine behind all 11 backends (**required** — install under `~/.claude/skills/ttscn`, as a Pi skill, or set `TTSCN_HOME`)
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→video renderer for transparent overlay animations (optional, Node 22+)
-- **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
-- **ffmpeg** - Advanced audio/video processing (optional)
 
 ## Requirements
 

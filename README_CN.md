@@ -129,8 +129,6 @@
 - **[videogencn](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
 - **[ttscn](https://github.com/Agents365-ai/ttsCN)** - 全部 11 个 TTS 后端的合成引擎（**必需** —— 安装到 `~/.claude/skills/ttscn`、作为 Pi 技能安装，或设置 `TTSCN_HOME`）
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→视频渲染器，产出透明动画叠层（可选，Node 22+）
-- **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
-- **ffmpeg** - 高级音视频处理（可选）
 
 ## 环境要求
 
