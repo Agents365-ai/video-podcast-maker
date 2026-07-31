@@ -1,5 +1,5 @@
 import { Composition } from "remotion";
-import { Video } from "../../../skills/video-podcast-maker/templates/Video";
+import { Video } from "../../templates/Video";
 
 export const RemotionRoot: React.FC = () => {
 	return (
