@@ -28,6 +28,7 @@ Manifest schema (schema_version 1) — per-asset fields:
 import argparse
 import json
 import os
+import re
 import shutil
 import sys
 import time
@@ -91,6 +92,8 @@ def validate_manifest(video_dir):
         return [err], [], None
     if manifest is None:
         return [], [], None
+    if not isinstance(manifest, dict):
+        return [f"manifest root must be an object, got {type(manifest).__name__}"], [], None
 
     errors, warnings = [], []
     if manifest.get("schema_version") != SCHEMA_VERSION:
@@ -150,6 +153,11 @@ def cmd_init(args, started_at):
     manifest, err = load_manifest(video_dir)
     if err:
         return cli_envelope.emit_error(args, "input_invalid", err, started_at=started_at)
+    if not isinstance(manifest, dict):
+        return cli_envelope.emit_error(
+            args, "input_invalid",
+            f"manifest root must be an object, got {type(manifest).__name__}",
+            started_at=started_at)
     count = len(manifest["assets"])
     if not cli_envelope.use_json(args):
         state = "created" if created else f"already exists ({count} assets)"
@@ -181,6 +189,12 @@ def cmd_add(args, started_at):
         return cli_envelope.emit_error(
             args, "validation_failed",
             f"Asset id '{args.id}' already exists (use --replace to overwrite)",
+            field="id", started_at=started_at)
+
+    if not re.match(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", args.id or ""):
+        return cli_envelope.emit_error(
+            args, "input_invalid",
+            f"Invalid asset id: {args.id!r} (allowed: letters, digits, . _ -)",
             field="id", started_at=started_at)
 
     entry = {
