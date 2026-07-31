@@ -214,7 +214,7 @@ def _run(args, started_at):
             section_names = [s['name'] for s in sections]
             # Run the real chunker so the agent sees the actual chunk count
             # an agent gets from `tts run` — not a stale `len(text) // 200`
-            # estimate that predates the 400 → 2000 max_chars bump.
+            # estimate that predates the per-backend max_chars registry (currently 400).
             chunks = chunk_text(clean_text, MAX_CHARS)
             if errors:
                 sys.exit(cli_envelope.emit_error(
@@ -267,8 +267,25 @@ def _run(args, started_at):
     # SSML support (Doubao / ElevenLabs / OpenAI / Google) by rewriting the source text.
     # Trade-off: it also changes what the subtitle says (Y appears, X is gone). Prefer the
     # inline [pinyin] marker or phonemes.json when SSML is available (Azure / Edge).
-    clean_text = re.sub(r'([A-Za-z0-9\-]+)，读作["""]([\u4e00-\u9fff]+)["""]', r"\2", clean_text)
+    clean_text = re.sub(
+        r'([A-Za-z0-9\-]+)，读作["“”]([\u4e00-\u9fff]+)["“”]', r"\2", clean_text
+    )
     print(f"Text length: {len(clean_text)} characters")
+
+    # Re-normalize section anchors with the same transforms applied to the
+    # narration text — an anchor containing [pinyin] markers or a "读作"
+    # rewrite would otherwise never match the (already normalized) boundary
+    # text and would silently fall back to proportional estimates.
+    pinyin_inline_re = re.compile(
+        r"([\u4e00-\u9fff]+)\[[a-zA-Zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü\s]+\]"
+    )
+    for s in sections:
+        first = s.get("first_text", "")
+        first = pinyin_inline_re.sub(r"\1", first)
+        first = re.sub(
+            r'([A-Za-z0-9\-]+)，读作["“”]([\u4e00-\u9fff]+)["“”]', r"\2", first
+        )
+        s["first_text"] = first
 
     # Voice advisory — flag when content vs voice choice is suboptimal
     if BACKEND == 'azure':
