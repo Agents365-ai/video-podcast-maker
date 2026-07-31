@@ -37,54 +37,10 @@ from learn_design import (  # noqa: E402
     PREFS_VERSION,
     _load_template,
     _deep_merge,
+    _structural_migrate,
     save_prefs,
 )
 
-
-# Default voice map for v1.1 -> v1.2 conversion. Old prefs only had a single
-# `tts.voice` string (used by azure + edge); doubao/cosyvoice didn't exist yet.
-V1_2_DEFAULT_VOICES = {
-    "azure": "zh-CN-XiaoxiaoNeural",
-    "edge": "zh-CN-XiaoxiaoNeural",
-    "doubao": "BV001_streaming",
-    "cosyvoice": "longxiaochun",
-}
-
-
-def _structural_migrate(prefs):
-    """Apply structural rewrites that deep-merge cannot do.
-
-    Returns (prefs, changes) where `changes` is a list of human-readable
-    descriptions for the report.
-    """
-    changes = []
-    tts = prefs.setdefault("global", {}).setdefault("tts", {})
-
-    # v1.1 -> v1.2: tts.voice (string) -> tts.voices (per-backend object)
-    if "voice" in tts and "voices" not in tts:
-        old_voice = tts.pop("voice")
-        voices = dict(V1_2_DEFAULT_VOICES)
-        # Preserve the old voice for the two backends that historically used it.
-        if isinstance(old_voice, str) and old_voice:
-            voices["azure"] = old_voice
-            voices["edge"] = old_voice
-        tts["voices"] = voices
-        changes.append(f"converted tts.voice='{old_voice}' -> tts.voices object")
-
-    # v1.2 -> v1.3: progressBar bool -> object {enabled, height, fontSize, ...}
-    visual = prefs.setdefault("global", {}).setdefault("visual", {})
-    pb = visual.get("progressBar")
-    if isinstance(pb, bool):
-        visual["progressBar"] = {
-            "enabled": pb,
-            "height": 6,
-            "fontSize": 18,
-            "activeColor": "auto",
-            "position": "bottom",
-        }
-        changes.append(f"expanded progressBar={pb} -> object")
-
-    return prefs, changes
 
 
 def migrate(prefs_path, dry_run=False):

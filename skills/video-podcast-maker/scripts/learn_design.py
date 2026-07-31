@@ -238,12 +238,14 @@ def extract_video_frames(video_path, ref_dir):
     """Extract up to MAX_FRAMES representative frames from a video using ffmpeg.
 
     Builds the ffmpeg command inline (fps=1/interval, scale=-1:1080).
-    Returns list of extracted frame paths.
+    Returns a list of extracted frame paths, or None when extraction failed
+    (missing/oversized file, undeterminable duration, ffmpeg missing/crash) —
+    callers must not index a reference that produced no frames.
     """
     # Guard: file must exist
     if not os.path.exists(video_path):
         print(f"Error: video not found: {video_path}", file=sys.stderr)
-        return []
+        return None
 
     # Guard: file size
     size = os.path.getsize(video_path)
@@ -252,12 +254,12 @@ def extract_video_frames(video_path, ref_dir):
             f"Warning: video exceeds 2 GB limit ({size} bytes), skipping frame extraction",
             file=sys.stderr,
         )
-        return []
+        return None
 
     duration = get_video_duration(video_path)
     if duration is None or duration <= 0:
         print(f"Error: could not determine duration for {video_path}", file=sys.stderr)
-        return []
+        return None
 
     frames_dir = os.path.join(ref_dir, "frames")
     os.makedirs(frames_dir, exist_ok=True)
@@ -287,10 +289,10 @@ def extract_video_frames(video_path, ref_dir):
             "Error: ffmpeg not found. Install ffmpeg to enable video frame extraction.",
             file=sys.stderr,
         )
-        return []
+        return None
     except subprocess.CalledProcessError as e:
         print(f"Error: ffmpeg failed: {e.stderr}", file=sys.stderr)
-        return []
+        return None
 
     # Collect extracted frames
     frames = sorted(
@@ -357,15 +359,68 @@ def _deep_merge(base, override):
     return result
 
 
+# Default voice map for v1.1 -> v1.2 conversion. Old prefs only had a single
+# `tts.voice` string (used by azure + edge); doubao/cosyvoice didn't exist yet.
+V1_2_DEFAULT_VOICES = {
+    "azure": "zh-CN-XiaoxiaoNeural",
+    "edge": "zh-CN-XiaoxiaoNeural",
+    "doubao": "BV001_streaming",
+    "cosyvoice": "longxiaochun",
+}
+
+
+def _structural_migrate(prefs):
+    """Apply structural rewrites that deep-merge cannot do.
+
+    Returns (prefs, changes) where `changes` is a list of human-readable
+    descriptions for the report. Imported by migrate_prefs.py — keep this
+    the single source of truth so learn_design's in-memory migration and
+    the CLI migrator never diverge.
+    """
+    changes = []
+    tts = prefs.setdefault("global", {}).setdefault("tts", {})
+
+    # v1.1 -> v1.2: tts.voice (string) -> tts.voices (per-backend object)
+    if "voice" in tts and "voices" not in tts:
+        old_voice = tts.pop("voice")
+        voices = dict(V1_2_DEFAULT_VOICES)
+        # Preserve the old voice for the two backends that historically used it.
+        if isinstance(old_voice, str) and old_voice:
+            voices["azure"] = old_voice
+            voices["edge"] = old_voice
+        tts["voices"] = voices
+        changes.append(f"converted tts.voice='{old_voice}' -> tts.voices object")
+
+    # v1.2 -> v1.3: progressBar bool -> object {enabled, height, fontSize, ...}
+    visual = prefs.setdefault("global", {}).setdefault("visual", {})
+    pb = visual.get("progressBar")
+    if isinstance(pb, bool):
+        visual["progressBar"] = {
+            "enabled": pb,
+            "height": 6,
+            "fontSize": 18,
+            "activeColor": "auto",
+            "position": "bottom",
+        }
+        changes.append(f"expanded progressBar={pb} -> object")
+
+    return prefs, changes
+
+
 def _migrate_prefs(prefs):
-    """Migrate prefs to current version by merging missing fields from template."""
-    if prefs.get("version", "1.0") != PREFS_VERSION:
-        template = _load_template()
-        # Deep merge: user values override template defaults, template fills gaps
-        migrated = _deep_merge(template, prefs)
-        migrated["version"] = PREFS_VERSION
-        return migrated
-    return prefs
+    """Migrate prefs to current version: structural transforms + deep-merge.
+
+    Mirrors migrate_prefs.py::migrate (minus the CLI --yes gate) so an old
+    schema is brought fully current in memory — never just stamped with a
+    new version, which would strand old keys the runtime no longer reads.
+    """
+    if prefs.get("version", "1.0") == PREFS_VERSION:
+        return prefs
+    prefs, _changes = _structural_migrate(prefs)
+    template = _load_template()
+    migrated = _deep_merge(template, prefs)
+    migrated["version"] = PREFS_VERSION
+    return migrated
 
 
 def load_prefs(prefs_path):
@@ -471,6 +526,24 @@ def add_style_profile(
         }
 
 
+_REF_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def _resolve_ref_dir(base_dir, ref_id):
+    """Return the reference dir for a CLI-supplied id, or None if unsafe.
+
+    Reference ids are machine-generated slugs; anything else is rejected so
+    --show/--delete can never escape the reference library.
+    """
+    if not isinstance(ref_id, str) or not _REF_ID_RE.match(ref_id):
+        return None
+    candidate = os.path.abspath(os.path.join(base_dir, ref_id))
+    base = os.path.abspath(base_dir)
+    if os.path.commonpath([base, candidate]) != base:
+        return None
+    return candidate
+
+
 def remove_reference(prefs, ref_id, design_refs_base):
     """Remove a reference from the index and clean it from all style profiles.
 
@@ -486,8 +559,8 @@ def remove_reference(prefs, ref_id, design_refs_base):
             refs.remove(ref_id)
 
     # Delete directory
-    ref_dir = os.path.join(design_refs_base, ref_id)
-    if os.path.isdir(ref_dir):
+    ref_dir = _resolve_ref_dir(design_refs_base, ref_id)
+    if ref_dir is not None and os.path.isdir(ref_dir):
         shutil.rmtree(ref_dir)
 
 
@@ -702,7 +775,18 @@ def _run(parser, args, started_at):
     # -- Show mode --
     if args.show:
         ref_id = args.show
-        ref_dir = os.path.join(output_dir, ref_id)
+        ref_dir = _resolve_ref_dir(output_dir, ref_id)
+        if ref_dir is None:
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "input_invalid",
+                    f"invalid reference id: {ref_id!r}",
+                    field="show",
+                    extra={"ref_id": ref_id},
+                    started_at=started_at,
+                )
+            )
         try:
             report = load_report(ref_dir)
         except FileNotFoundError:
@@ -735,7 +819,18 @@ def _run(parser, args, started_at):
     # -- Delete mode (gated by --yes) --
     if args.delete:
         ref_id = args.delete
-        ref_dir = os.path.join(output_dir, ref_id)
+        ref_dir = _resolve_ref_dir(output_dir, ref_id)
+        if ref_dir is None:
+            sys.exit(
+                cli_envelope.emit_error(
+                    args,
+                    "input_invalid",
+                    f"invalid reference id: {ref_id!r}",
+                    field="delete",
+                    extra={"ref_id": ref_id},
+                    started_at=started_at,
+                )
+            )
         in_prefs = ref_id in prefs.get("design_references", {})
         on_disk = os.path.isdir(ref_dir)
         if not in_prefs and not on_disk:
@@ -936,6 +1031,16 @@ def _run(parser, args, started_at):
         orientation = detect_orientation(w, h) if w and h else "unknown"
         duration = get_video_duration(video_path)
         frames = extract_video_frames(video_path, ref_dir)
+        if frames is None:
+            # Extraction failed — never index a reference with no frames; it
+            # would look usable to later style selection but is not.
+            print(
+                f"  ✗ Frame extraction failed for {video_path} — not indexed.",
+                file=sys.stderr,
+            )
+            skipped.append({"input": video_path, "reason": "frame_extraction_failed"})
+            shutil.rmtree(ref_dir, ignore_errors=True)
+            continue
 
         report = {
             "ref_id": ref_id,

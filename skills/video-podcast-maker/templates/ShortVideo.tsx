@@ -91,10 +91,13 @@ export const ShortVideo = () => {
     SHORT_CONFIG;
 
   // TransitionSeries compensates for frame overlap:
-  // each transition "steals" transitionFrames from adjacent sequences.
-  // We add lost frames to the first sequence so total duration stays accurate.
-  const transitionCount = 2; // intro→content, content→CTA
-  const compensatedIntroFrames = introFrames + transitionCount * transitionFrames;
+  // each transition "steals" transitionFrames from the preceding sequence's
+  // tail, so rendered = sum(durations) - 2*transitionFrames. Distributing
+  // +transitionFrames to intro and content makes the rendered total exactly
+  // introFrames + contentFrames + ctaFrames (matching generate_shorts.py
+  // total_frames), and content starts at rendered frame introFrames where
+  // the audio begins.
+  const compensatedIntroFrames = introFrames + transitionFrames;
 
   return (
     <AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>

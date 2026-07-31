@@ -2,6 +2,55 @@ import type { VideoProps } from "../Root";
 import { useEntrance } from "./animations";
 import { Icon } from "./Icon";
 
+const FeatureCard = ({
+  props,
+  item,
+  index,
+  cols,
+  v,
+  delay,
+}: {
+  props: VideoProps;
+  item: { icon: string; title: string; description: string };
+  index: number;
+  cols: number;
+  v: boolean;
+  delay: number;
+}) => {
+  // Hook at component top level — never inside a .map() (Rules of Hooks).
+  const a = useEntrance(props.enableAnimations, delay + index * 5, "snappy");
+  const itemDelay = delay + index * 5;
+  const iconAnim = props.iconAnimation === "none" ? "none" : "entrance";
+  return (
+    <div style={{
+      flex: `0 0 calc(${100 / cols}% - ${(v ? 24 : 28) * (cols - 1) / cols}px)`,
+      background: `linear-gradient(135deg, rgba(255,255,255,0.9), ${props.primaryColor}06)`,
+      border: `1px solid ${props.primaryColor}18`,
+      borderRadius: 24,
+      padding: v ? "32px 36px" : "36px 32px",
+      textAlign: v ? "left" : "center",
+      display: v ? "flex" : undefined, alignItems: v ? "center" : undefined, gap: v ? 24 : undefined,
+      boxShadow: `0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)`,
+      opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
+    }}>
+      <div style={{
+        marginBottom: v ? 0 : 16, flexShrink: 0,
+        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+      }}>
+        <Icon name={item.icon} size={v ? 48 : 56} color={props.primaryColor} animate={iconAnim} delay={itemDelay} />
+      </div>
+      <div>
+        <div style={{ fontSize: v ? 42 : 40, fontWeight: 700, color: props.primaryColor, marginBottom: 8 }}>
+          {item.title}
+        </div>
+        <div style={{ fontSize: v ? 34 : 32, color: props.textColor, lineHeight: 1.5, opacity: 0.75 }}>
+          {item.description}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const FeatureGrid = ({
   props,
   items,
@@ -15,44 +64,22 @@ export const FeatureGrid = ({
 }) => {
   const v = props.orientation === "vertical";
   const cols = v ? 1 : columns;
-  const iconAnim = props.iconAnimation === "none" ? "none" : "entrance";
 
   return (
     <div style={{
       display: "flex", flexWrap: "wrap", gap: v ? 24 : 28, width: "100%",
     }}>
-      {items.map((item, i) => {
-        const a = useEntrance(props.enableAnimations, delay + i * 5, "snappy");
-        const itemDelay = delay + i * 5;
-        return (
-          <div key={i} style={{
-            flex: `0 0 calc(${100 / cols}% - ${(v ? 24 : 28) * (cols - 1) / cols}px)`,
-            background: `linear-gradient(135deg, rgba(255,255,255,0.9), ${props.primaryColor}06)`,
-            border: `1px solid ${props.primaryColor}18`,
-            borderRadius: 24,
-            padding: v ? "32px 36px" : "36px 32px",
-            textAlign: v ? "left" : "center",
-            display: v ? "flex" : undefined, alignItems: v ? "center" : undefined, gap: v ? 24 : undefined,
-            boxShadow: `0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)`,
-            opacity: a.opacity, transform: `translateY(${a.translateY}px)`,
-          }}>
-            <div style={{
-              marginBottom: v ? 0 : 16, flexShrink: 0,
-              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-            }}>
-              <Icon name={item.icon} size={v ? 48 : 56} color={props.primaryColor} animate={iconAnim} delay={itemDelay} />
-            </div>
-            <div>
-              <div style={{ fontSize: v ? 42 : 40, fontWeight: 700, color: props.primaryColor, marginBottom: 8 }}>
-                {item.title}
-              </div>
-              <div style={{ fontSize: v ? 34 : 32, color: props.textColor, lineHeight: 1.5, opacity: 0.75 }}>
-                {item.description}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      {items.map((item, i) => (
+        <FeatureCard
+          key={i}
+          props={props}
+          item={item}
+          index={i}
+          cols={cols}
+          v={v}
+          delay={delay}
+        />
+      ))}
     </div>
   );
 };

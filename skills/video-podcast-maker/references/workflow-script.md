@@ -92,9 +92,9 @@ python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --dry-run
 python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --yes
 ```
 
-Then read `${SKILL_DIR}/user_prefs.json` and apply settings in subsequent steps.
+Then read `~/.video-podcast-maker/user_prefs.json` (mutable state lives in the shared state dir, not the install dir) and apply settings in subsequent steps.
 
-The script prints one of: `already at v1.6 — no migration needed`, `Created user_prefs.json at v1.6 from template`, or `Migrated from v{old} to v1.6` with a per-change list. To inspect what each version added, see the inline `_structural_migrate` table in `scripts/migrate_prefs.py`.
+The script prints one of: `already at v1.7 — no migration needed`, `Created user_prefs.json at v1.7 from template`, or `Migrated from v{old} to v1.7` with a per-change list. To inspect what each version added, see the inline `_structural_migrate` table in `scripts/migrate_prefs.py`.
 
 At Step 1 start, inform the user of active preferences (if customized):
 
@@ -283,7 +283,7 @@ Report estimated duration. If >12min or <3min, suggest adjustments.
 ### Inputs
 
 1. `videos/{name}/podcast.txt` — the script just written
-2. `${SKILL_DIR}/phonemes.json` — global dict (already-covered words; do NOT duplicate). Auto-created from `${SKILL_DIR}/phonemes.template.json` on the first run of `scripts/generate_tts.py`, so it always exists by the time TTS executes. To pre-create before the first TTS call: `cp "${SKILL_DIR}/phonemes.template.json" "${SKILL_DIR}/phonemes.json"`.
+2. `~/.video-podcast-maker/phonemes.json` — global dict (already-covered words; do NOT duplicate). Auto-created from `${SKILL_DIR}/phonemes.template.json` on the first run of `scripts/generate_tts.py`, so it always exists by the time TTS executes. To pre-create before the first TTS call: `cp "${SKILL_DIR}/phonemes.template.json" "$HOME/.video-podcast-maker/phonemes.json"`.
 3. `videos/{name}/phonemes.json` — project dict (create if missing; takes precedence over global)
 
 ### Pass 1 — Polyphone scan

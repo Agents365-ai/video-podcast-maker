@@ -2,6 +2,28 @@ import React from "react";
 import type { VideoProps } from "../Root";
 import { useEntrance } from "./animations";
 
+const CodeLine = ({
+  line,
+  enableAnimations,
+  delay,
+}: {
+  line: string;
+  enableAnimations: boolean;
+  delay: number;
+}) => {
+  // Hook at component top level — never inside a .map() (Rules of Hooks).
+  const lineAnim = useEntrance(enableAnimations, delay);
+  return (
+    <div style={{
+      fontFamily: "SF Mono, Menlo, Monaco, monospace", fontSize: 26,
+      color: "#e6e6e6", lineHeight: 1.8,
+      opacity: lineAnim.opacity, transform: `translateY(${lineAnim.translateY}px)`,
+    }}>
+      {line}
+    </div>
+  );
+};
+
 export const CodeBlock = ({
   props,
   title = "terminal",
@@ -32,18 +54,14 @@ export const CodeBlock = ({
         <span style={{ fontSize: 20, color: "rgba(255,255,255,0.5)", marginLeft: 8 }}>{title}</span>
       </div>
       <div style={{ background: "#1e1e1e", padding: "28px 32px" }}>
-        {lines.map((line, i) => {
-          const lineAnim = useEntrance(props.enableAnimations, delay + 5 + i * 4);
-          return (
-            <div key={i} style={{
-              fontFamily: "SF Mono, Menlo, Monaco, monospace", fontSize: 26,
-              color: "#e6e6e6", lineHeight: 1.8,
-              opacity: lineAnim.opacity, transform: `translateY(${lineAnim.translateY}px)`,
-            }}>
-              {line}
-            </div>
-          );
-        })}
+        {lines.map((line, i) => (
+          <CodeLine
+            key={i}
+            line={line}
+            enableAnimations={props.enableAnimations}
+            delay={delay + 5 + i * 4}
+          />
+        ))}
       </div>
     </div>
   );

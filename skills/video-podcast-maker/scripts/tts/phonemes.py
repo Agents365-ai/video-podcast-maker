@@ -10,7 +10,7 @@ import re
 import json
 import tempfile
 
-from _state import resolve_state_file
+from _state import get_skill_dir, resolve_state_file
 
 
 def _atomic_write_json(data, path):
@@ -41,10 +41,8 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
     global_path = resolve_state_file(
         "phonemes.json", template_filename="phonemes.template.json"
     )
-    template_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "phonemes.template.json",
-    )
+    # Template lives at the skill root (next to SKILL.md), not in scripts/.
+    template_path = os.path.join(get_skill_dir(), "phonemes.template.json")
     project_path = os.path.join(
         os.path.dirname(os.path.abspath(input_file)), "phonemes.json"
     )

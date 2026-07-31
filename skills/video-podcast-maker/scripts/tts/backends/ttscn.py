@@ -198,10 +198,16 @@ def synthesize(chunks, config, output_dir, resume=False):
                         f"ffmpeg resample failed for part {i + 1}: "
                         f"{resample.stderr.strip()[-200:]}")
                 os.remove(raw_file)
-                chunk_duration = float(envelope['data'].get('duration_seconds') or 0)
-                if not chunk_duration:
-                    dur = check_resume(part_file)
-                    chunk_duration = dur or 0
+                # Measure the actual resampled audio rather than trusting
+                # ttscn's reported duration_seconds — some platforms (e.g.
+                # Azure SSML) under-report, which would shift every
+                # subsequent chunk's boundaries and the SRT. Fall back to
+                # the envelope's report only when the probe fails.
+                measured = check_resume(part_file)
+                if measured:
+                    chunk_duration = measured
+                else:
+                    chunk_duration = float(envelope['data'].get('duration_seconds') or 0)
                 native = envelope['data'].get('word_boundaries')
                 if native:
                     word_boundaries.extend(_merge_native_boundaries(
