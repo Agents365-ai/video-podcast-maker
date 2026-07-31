@@ -170,15 +170,6 @@ videos/{video-name}/
 
 **Background music:** bundled tracks live in `skills/video-podcast-maker/assets/` — `perfect-beauty-191271.mp3` (upbeat) and `snow-stevekaldes-piano-397491.mp3` (calm piano). Per-platform behavior (thumbnails, chapters, CTA, publish formats) is documented in the skill's `references/platform-matrix.md`.
 
-## Roadmap
-
-- [ ] Automatic style-profile learning (preferences are currently user-managed)
-- [ ] Playwright auto-capture of Bilibili/YouTube design (Phase 4)
-- [ ] Auto-match saved style profiles when making a video (Phase 5)
-- [ ] Thumbnail design learning (Phase 5)
-- [ ] Automated YouTube publishing (video, metadata, chapters, thumbnail)
-- [ ] Windows support (WSL validation + docs)
-
 ## ❤️ Support
 
 If this project helps you, consider supporting the author:
