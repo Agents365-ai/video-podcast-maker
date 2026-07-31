@@ -14,11 +14,13 @@
 
 Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (11 backends incl. the ttscn bridge), Remotion video rendering, and FFmpeg audio mixing.
 
+**v5.0 "Direct Backends"**: `TTS_BACKEND` takes the platform id directly (`edge`, `azure`, …) — the legacy `TTSCN_PLATFORM` alias is gone. Mutable state (`user_prefs.json`, `phonemes.json`) moved to `~/.video-podcast-maker/`, so skill updates never overwrite your settings. v5.1 adds a versioned JSON envelope contract between the bridge and ttscn for fail-fast compatibility checks.
+
 **v4.0 "ttscn Routing"**: all 11 TTS backends now synthesize through the required [ttscn](https://github.com/Agents365-ai/ttsCN) component skill — one bridge adapter, per-platform expressiveness markers and phoneme handling, native word boundaries where the platform supports them.
 
 **v3.0 "Asset Engine"**: a unified asset layer feeds the composition from five producers — your own files, [assetseeker](https://github.com/Agents365-ai/assetSeeker) stock, [imagencn](https://github.com/Agents365-ai/imagenCN) AI stills, [videogencn](https://github.com/Agents365-ai/videogenCN) AI B-roll, and [Hyperframes](https://github.com/heygen-com/hyperframes) transparent overlays — all registered in a per-video manifest with license provenance. Free sources auto-resolve; paid generation always asks first. Every producer is optional: with none installed you still get a polished text-animation video.
 
-**Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — any coding agent that supports SKILL.md
+**Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) · [Pi](https://github.com/earendil-works/pi-coding-agent) — any coding agent that supports SKILL.md
 
 **Publish to:** Bilibili · YouTube · Xiaohongshu · Douyin · WeChat Channels
 
@@ -50,6 +52,8 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 - **Manual Style Profiles** - User-managed `style_profiles` in `user_prefs.json` carry palette / typography / animation settings across videos (automatic preference learning is on the roadmap, not yet implemented)
 - **Multi-Platform** - Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels with independent platform and language settings
 - **Multi-Language** - Chinese (zh-CN) and English (en-US) script templates, TTS voices, subtitle fonts
+- **Design Learning** - Extract style profiles from reference videos/images into a reusable library; applied automatically when topics match (`cli.py design …`, `learn_design.py`)
+- **Vertical Shorts** - 9:16 highlight shorts generated from long-form sections with per-short timing and compositions (`cli.py shorts gen`, `generate_shorts.py`)
 - **Subtitle Preferences** - Custom font, size, color, outline; toggle subtitle burning on/off
 - **Configurable CTA** - Auto (Bilibili triple/YouTube subscribe), animation, text, or custom
 
@@ -124,7 +128,7 @@ This skill depends on **remotion-best-practices** and works alongside other opti
 - **[assetseeker](https://github.com/Agents365-ai/assetSeeker)** - License-vetted free stock photos/video/BGM/SFX/icons/fonts (optional asset producer)
 - **[imagencn](https://github.com/Agents365-ai/imagenCN)** - AI image generation for scene illustrations and thumbnails (optional, paid APIs)
 - **[videogencn](https://github.com/Agents365-ai/videogenCN)** - AI video clip generation for B-roll and i2v (optional, paid APIs)
-- **[ttscn](https://github.com/Agents365-ai/ttsCN)** - The TTS engine behind all 11 backends (**required** — install under `~/.claude/skills/ttscn` or set `TTSCN_HOME`)
+- **[ttscn](https://github.com/Agents365-ai/ttsCN)** - The TTS engine behind all 11 backends (**required** — install under `~/.claude/skills/ttscn`, as a Pi skill, or set `TTSCN_HOME`)
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→video renderer for transparent overlay animations (optional, Node 22+)
 - **find-skills** - Official skill discovery tool (optional, helps find and install additional skills)
 - **ffmpeg** - Advanced audio/video processing (optional)
@@ -195,7 +199,7 @@ All 11 TTS platforms are synthesized by the **required** [ttscn](https://github.
 | `TTS_BACKEND` | Provider | Required env vars | Get Key |
 | --------------- | ---------- | ------------------- | --------- |
 | `edge` (default) | Microsoft Edge TTS | *(none — free)* | — |
-| `azure` | Microsoft Azure Speech | `AZURE_SPEECH_KEY` (+ `AZURE_SPEECH_REGION`) | [Azure Portal](https://portal.azure.com/) |
+| `azure` | Microsoft Azure Speech | `AZURE_SPEECH_KEY` (+ optional `AZURE_SPEECH_REGION`, default `eastasia`) | [Azure Portal](https://portal.azure.com/) |
 | `cosyvoice` | Aliyun CosyVoice | `DASHSCOPE_API_KEY` | [Aliyun Bailian](https://bailian.console.aliyun.com/) |
 | `doubao` | Volcengine Doubao | `VOLCENGINE_APPID`, `VOLCENGINE_ACCESS_TOKEN` | [Volcengine Console](https://console.volcengine.com/speech/service/8) |
 | `tencent` | Tencent Cloud TTS | `TENCENT_SECRET_ID`, `TENCENT_SECRET_KEY` | [Tencent Console](https://console.cloud.tencent.com/tts) |
@@ -245,7 +249,7 @@ Then reload: `source ~/.zshrc`
 
 ### Usage
 
-This skill is designed for use with coding agents that support `SKILL.md`, including [Claude Code](https://claude.ai/claude-code), [Codex](https://openai.com/index/introducing-codex/), and [OpenCode](https://github.com/opencode-ai/opencode). Simply tell your agent:
+This skill is designed for use with coding agents that support `SKILL.md`, including [Claude Code](https://claude.ai/claude-code), [Codex](https://openai.com/index/introducing-codex/), [OpenCode](https://github.com/opencode-ai/opencode), and [Pi](https://github.com/earendil-works/pi-coding-agent). Simply tell your agent:
 
 > "Create a video podcast about [your topic]"
 
@@ -280,14 +284,16 @@ This opens a browser-based editor where you can:
 
 ## Configuration Files
 
-All paths below are relative to the skill root (`skills/video-podcast-maker/` in this repo, or `${SKILL_DIR}` when installed via the marketplace):
+Mutable user-level files live in `~/.video-podcast-maker/` (shared across projects, safe from skill updates); everything else lives in the skill root (`skills/video-podcast-maker/` in this repo, or `${SKILL_DIR}` when installed via the marketplace):
 
-| File | Scope | Purpose |
-| ------ | ------- | --------- |
-| `phonemes.json` | Global | Chinese polyphone dictionary shared across all projects. Auto-created from `phonemes.template.json` on first run. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
-| `user_prefs.template.json` | Global | Default preferences template. Copied to `user_prefs.json` on first run, which auto-evolves as the skill learns your style |
-| `prefs_schema.json` | Global | JSON Schema for preference validation. Do not edit manually |
-| `tsconfig.json` | Global | TypeScript config for Remotion templates |
+| File | Location | Purpose |
+| ------ | -------- | --------- |
+| `phonemes.json` | `~/.video-podcast-maker/` (user-level) | Chinese polyphone dictionary shared across all projects. Auto-created from the bundled template on first run. Edit to add/fix pronunciations (e.g., 行 háng vs xíng). Per-project overrides go in `videos/{name}/phonemes.json` |
+| `user_prefs.json` | `~/.video-podcast-maker/` (user-level) | Your preferences (TTS backend/voice/rate, BGM track, platform, visual overrides, style profiles). Auto-created from `user_prefs.template.json` on first run |
+| `user_prefs.template.json` | Skill root | Default preferences template — the source for your user-level copy |
+| `phonemes.template.json` | Skill root | Default phoneme dictionary template — the source for your user-level copy |
+| `prefs_schema.json` | Skill root | JSON Schema for preference validation. Do not edit manually |
+| `tsconfig.json` | Skill root | TypeScript config for Remotion templates |
 
 ## Output Structure
 
@@ -297,6 +303,7 @@ videos/{video-name}/
 ├── topic_research.md        # Research notes
 ├── podcast.txt              # Narration script
 ├── phonemes.json            # (Optional) Project-specific pronunciation overrides
+├── assets/manifest.json     # Asset registry (role / source / license)
 ├── podcast_audio.wav        # TTS audio
 ├── podcast_audio.srt        # Subtitles
 ├── timing.json              # Section timing for sync
@@ -305,7 +312,9 @@ videos/{video-name}/
 ├── part_*.wav               # TTS segments (temp, cleanup via Step 10.3)
 ├── output.mp4               # Raw render (temp)
 ├── video_with_bgm.mp4       # With BGM (temp)
-└── final_video.mp4          # Final output
+├── bgm.mp3                  # Background music
+├── final_video.mp4          # Final output
+└── shorts/                  # (Optional) 9:16 vertical shorts
 ```
 
 ## Background Music
@@ -327,7 +336,7 @@ Included tracks in `skills/video-podcast-maker/assets/`:
 - [x] Resumable synthesis (`--resume`)
 - [x] Estimation mode (`--dry-run` duration estimate without API calls)
 - [ ] Self-evolving user preferences (automatic visual/TTS/content style learning) — planned; preferences are currently user-managed
-- [ ] Visual QA — automated aesthetic/layout review of rendered sections — planned, not yet implemented
+- [x] Visual QA — Auto Mode key-frame stills self-review against the design-guide / visual-taste checklists
 - [x] Skill docs restructured as a `SKILL.md` workflow usable by Claude Code, Codex, OpenCode, and OpenClaw
 - [x] Design learning system — learn visual styles from reference videos/images into a reusable profile library
 - [ ] Playwright auto-capture — analyze Bilibili/YouTube video design straight from a URL (Phase 4)
