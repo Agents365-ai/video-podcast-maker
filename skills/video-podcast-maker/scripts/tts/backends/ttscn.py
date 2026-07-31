@@ -208,6 +208,12 @@ def synthesize(chunks, config, output_dir, resume=False):
                     chunk_duration = measured
                 else:
                     chunk_duration = float(envelope['data'].get('duration_seconds') or 0)
+                if not chunk_duration:
+                    raise RuntimeError(
+                        f"Part {i + 1}: no duration — ffprobe failed and the "
+                        "envelope reported 0s; refusing to desync all later "
+                        "boundaries"
+                    )
                 native = envelope['data'].get('word_boundaries')
                 if native:
                     word_boundaries.extend(_merge_native_boundaries(

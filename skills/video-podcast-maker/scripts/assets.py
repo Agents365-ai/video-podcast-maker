@@ -61,15 +61,22 @@ def manifest_path(video_dir):
 
 
 def load_manifest(video_dir):
-    """Return (manifest_dict, error_message). Missing file -> (None, None)."""
+    """Return (manifest_dict, error_message). Missing file -> (None, None).
+
+    A non-object root (e.g. a top-level JSON list) is a validation error so
+    every consumer shares the same boundary.
+    """
     path = manifest_path(video_dir)
     if not path.exists():
         return None, None
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f), None
+            manifest = json.load(f)
     except (json.JSONDecodeError, OSError) as e:
         return None, f"manifest unreadable: {e}"
+    if not isinstance(manifest, dict):
+        return None, f"manifest root must be an object, got {type(manifest).__name__}"
+    return manifest, None
 
 
 def save_manifest(video_dir, manifest):
@@ -92,8 +99,6 @@ def validate_manifest(video_dir):
         return [err], [], None
     if manifest is None:
         return [], [], None
-    if not isinstance(manifest, dict):
-        return [f"manifest root must be an object, got {type(manifest).__name__}"], [], None
 
     errors, warnings = [], []
     if manifest.get("schema_version") != SCHEMA_VERSION:
@@ -105,6 +110,9 @@ def validate_manifest(video_dir):
 
     seen_ids = set()
     for i, a in enumerate(assets):
+        if not isinstance(a, dict):
+            errors.append(f"assets[{i}]: not an object")
+            continue
         label = a.get("id") or f"assets[{i}]"
         for field in ("id", "section", "type", "role", "source", "status"):
             if not a.get(field):
@@ -153,11 +161,6 @@ def cmd_init(args, started_at):
     manifest, err = load_manifest(video_dir)
     if err:
         return cli_envelope.emit_error(args, "input_invalid", err, started_at=started_at)
-    if not isinstance(manifest, dict):
-        return cli_envelope.emit_error(
-            args, "input_invalid",
-            f"manifest root must be an object, got {type(manifest).__name__}",
-            started_at=started_at)
     count = len(manifest["assets"])
     if not cli_envelope.use_json(args):
         state = "created" if created else f"already exists ({count} assets)"
