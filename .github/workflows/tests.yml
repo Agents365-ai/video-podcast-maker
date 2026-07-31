@@ -50,7 +50,7 @@ jobs:
         run: |
           cd skills/video-podcast-maker
           cp templates/remotion.config.ts .
-          mkdir -p src/remotion
+          mkdir -p src/remotion public
           cp ../../tests/fixtures/smoke-render/Root.tsx src/remotion/
           cp ../../tests/fixtures/smoke-render/timing.json public/
           echo -n > public/podcast_audio.wav
