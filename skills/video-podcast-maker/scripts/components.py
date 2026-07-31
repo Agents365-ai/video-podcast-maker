@@ -12,6 +12,10 @@ Discovery order per component (first hit wins):
   2. Extra parent dirs from VPM_COMPONENT_ROOTS (colon-separated)
   3. ~/.claude/skills/<dirname>   (symlinks resolved)
 
+Directory names are matched case-insensitively (installs use mixed casing:
+ttsCN vs ttscn, assetSeeker vs assetseeker) so discovery also works on
+case-sensitive filesystems.
+
 A "skill root" may hold the runtime directly (scripts/...) or in the
 marketplace repo layout (skills/<dirname>/scripts/...); both are handled.
 
@@ -82,7 +86,7 @@ COMPONENTS = {
             "MINIMAX_API_KEY",
             "XUNFEI_APP_ID",
         ],
-        "provides": "TTS engine — required for Step 8 (Edge platform works with no key)",
+        "provides": "TTS engine — required for Step 7 (Edge platform works with no key)",
     },
 }
 
@@ -104,16 +108,44 @@ def _candidate_roots(name):
     yield Path.home() / ".claude" / "skills" / name
 
 
+def _case_insensitive_path(parent, name):
+    """Return an existing child of parent matching name case-insensitively.
+
+    Component dirs use mixed casing across installs (ttsCN vs ttscn,
+    assetSeeker vs assetseeker). macOS's default case-insensitive APFS
+    resolves either spelling, which hides a mismatch until a case-sensitive
+    filesystem (Linux) is used. Falls back to parent/name when nothing matches.
+    """
+    if not parent.is_dir():
+        return parent / name
+    exact = parent / name
+    if exact.exists():
+        return exact
+    try:
+        for child in parent.iterdir():
+            if child.name.lower() == name.lower():
+                return child
+    except OSError:
+        pass
+    return exact
+
+
 def find_component(name):
     """Return (root, entry_path) for an installed component, or (None, None)."""
     entry = COMPONENTS[name]["entry"]
     for root in _candidate_roots(name):
         try:
-            root = root.resolve()
+            root = _case_insensitive_path(root.parent, root.name).resolve()
         except OSError:
             continue
-        for base in (root, root / "skills" / name):
-            script = base / entry
+        candidates = [root]
+        skills = _case_insensitive_path(root, "skills")
+        if skills.is_dir():
+            candidates.append(_case_insensitive_path(skills, name))
+        for base in candidates:
+            script = base
+            for part in entry.split("/"):
+                script = _case_insensitive_path(script, part)
             if script.is_file():
                 return base, script
     return None, None
@@ -129,7 +161,10 @@ def _node_major():
     except (OSError, subprocess.SubprocessError):
         return None
     m = re.match(r"v(\d+)", out.strip())
-    return int(m.group(1)) if m else None
+    try:
+        return int(m.group(1)) if m else None
+    except ValueError:
+        return None
 
 
 def _probe_hyperframes():

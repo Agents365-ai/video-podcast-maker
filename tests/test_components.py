@@ -65,3 +65,58 @@ def test_home_env_override_wins(monkeypatch, tmp_path):
     report = components.probe()
     assert report["ttscn"]["root"] == str(preferred.resolve())
     assert str(decoy) not in report["ttscn"]["root"]
+
+
+def test_mixed_case_dirname_discovered_flat(monkeypatch, tmp_path):
+    """Installs use mixed casing (assetSeeker vs assetseeker); discovery must
+    still find them (assertion is FS-agnostic — APFS normalizes the returned
+    spelling, a case-sensitive FS keeps the original)."""
+    _fake_skill(tmp_path, "assetSeeker", "scripts/seek_assets.py")
+    monkeypatch.setenv("VPM_COMPONENT_ROOTS", str(tmp_path))
+    monkeypatch.setattr(components.Path, "home", staticmethod(lambda: tmp_path / "nohome"))
+    root, entry = components.find_component("assetseeker")
+    assert root is not None
+    assert entry.is_file()
+
+
+def test_mixed_case_dirname_discovered_nested(monkeypatch, tmp_path):
+    """Both levels can differ in case: root ttsCN, nested dir ttscn — the real install layout."""
+    script = tmp_path / "ttsCN" / "skills" / "ttscn" / "scripts" / "tts.py"
+    script.parent.mkdir(parents=True, exist_ok=True)
+    script.write_text("#!/usr/bin/env python3\n")
+    monkeypatch.setenv("VPM_COMPONENT_ROOTS", str(tmp_path))
+    monkeypatch.setattr(components.Path, "home", staticmethod(lambda: tmp_path / "nohome"))
+    root, entry = components.find_component("ttscn")
+    assert root is not None
+    assert entry.is_file()
+
+
+def test_mixed_case_entry_script(monkeypatch, tmp_path):
+    """Entry script casing may also differ (Generate_Image.py vs generate_image.py)."""
+    base = tmp_path / "imagencn" / "skills" / "imagencn"
+    script = base / "scripts" / "Generate_Image.py"
+    script.parent.mkdir(parents=True, exist_ok=True)
+    script.write_text("#!/usr/bin/env python3\n")
+    monkeypatch.setenv("VPM_COMPONENT_ROOTS", str(tmp_path))
+    monkeypatch.setattr(components.Path, "home", staticmethod(lambda: tmp_path / "nohome"))
+    root, entry = components.find_component("imagencn")
+    assert root is not None
+    assert entry.is_file()
+
+
+def test_case_insensitive_fallback_fires(monkeypatch, tmp_path):
+    """Deterministic check of the CI fallback on a case-sensitive filesystem:
+    the exact-spelling probe misses, the directory scan must find the match.
+    (APFS can't reproduce this — it resolves either spelling — so fake it.)"""
+    (tmp_path / "assetSeeker").mkdir()
+    original_exists = type(tmp_path).exists
+
+    def cs_exists(self):
+        if self.name == "assetseeker" and self.parent == tmp_path:
+            return False
+        return original_exists(self)
+
+    monkeypatch.setattr(type(tmp_path), "exists", cs_exists)
+    got = components._case_insensitive_path(tmp_path, "assetseeker")
+    assert got.name == "assetSeeker"
+    assert got.is_dir()
