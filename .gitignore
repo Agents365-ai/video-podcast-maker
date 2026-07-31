@@ -35,6 +35,7 @@ videos/
 *.wav
 *.mp4
 *.srt
+!tests/fixtures/smoke-render/podcast_audio.wav
 
 # Keep assets
 !assets/*.mp4
