@@ -78,8 +78,9 @@ def parse_beats(tsx_text: str):
             if not start:
                 continue
             start_sec = float(start.group(1))
-            # Extract human-readable summary of beat lines
-            lines = re.findall(r"t\s*:\s*['\"](.*?)['\"]", obj_body)
+            # Extract human-readable summary of beat lines — supports both
+            # `lines: ['a', 'b']` string arrays and `t: "text"` object entries.
+            lines = re.findall(r"['\"]([^'\"]+)['\"]", obj_body)
             summary = ' / '.join(lines)
             items.append((start_sec, summary))
         beats_arrays[beats_name] = items
@@ -206,9 +207,12 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
                 if len(nf) >= 2:
                     fragments.append(nf)
             text_ok = True
-            if narration.strip() and fragments:
+            if fragments:
+                # Every meaningful displayed fragment must appear in the
+                # narration overlapping the beat's range — a beat showing
+                # text when nothing is spoken, or unrelated text, fails.
                 norm_narr = _norm(narration)
-                text_ok = any(nf in norm_narr for nf in fragments)
+                text_ok = all(nf in norm_narr for nf in fragments)
                 if not text_ok:
                     problems.append('text mismatch')
             if problems:
