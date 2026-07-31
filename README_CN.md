@@ -14,11 +14,13 @@
 
 自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，含 ttscn 桥接）、Remotion 视频渲染和 FFmpeg 音频混音。
 
+**v5.0「直连后端」**：`TTS_BACKEND` 直接填平台 id（`edge`、`azure`……），旧的 `TTSCN_PLATFORM` 别名已移除。可变状态（`user_prefs.json`、`phonemes.json`）迁至 `~/.video-podcast-maker/`，技能更新不会覆盖你的设置。v5.1 起桥接层与 ttscn 之间采用带版本号的 JSON 信封协议，版本不兼容时快速失败。
+
 **v4.0「ttscn 路由」**：全部 11 个 TTS 后端统一经必装的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能合成——单一桥接适配器，按平台处理表现力标记与多音字，支持原生字级时间戳的平台自动启用。
 
 **v3.0「资产引擎」**：统一的资产层从五种生产者向合成供货——你自己的文件、[assetseeker](https://github.com/Agents365-ai/assetSeeker) 免费图库、[imagencn](https://github.com/Agents365-ai/imagenCN) AI 图片、[videogencn](https://github.com/Agents365-ai/videogenCN) AI 视频片段、[Hyperframes](https://github.com/heygen-com/hyperframes) 透明动画叠层——全部登记进每视频的 manifest 并记录许可来源。免费资源自动解析，付费生成必先确认。所有生产者均为可选：一个不装也能产出精良的纯文字动画视频。
 
-**支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) (ClawHub) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) — 任何支持 SKILL.md 的 coding agent
+**支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) · [Pi](https://github.com/earendil-works/pi-coding-agent) — 任何支持 SKILL.md 的 coding agent
 
 **发布平台：** B站 · YouTube · 小红书 · 抖音 · 微信视频号
 
@@ -49,6 +51,8 @@
 - **手动风格档案** - 用户在 `user_prefs.json` 的 `style_profiles` 中维护配色/字体/动画设置，跨视频复用（自动偏好学习在路线图上，尚未实现）
 - **多平台支持** - B站 (Bilibili)、YouTube、小红书、抖音和微信视频号，独立配置平台和语言
 - **多语言支持** - 中文 (zh-CN) 和英文 (en-US) 脚本模板、TTS 音色、字幕字体
+- **设计学习** - 从参考视频/图片提取风格档案，构建可复用库；主题匹配时自动套用（`cli.py design …`、`learn_design.py`）
+- **竖屏短片** - 从长视频章节生成 9:16 精华短片，含独立节奏与合成配置（`cli.py shorts gen`、`generate_shorts.py`）
 - **字幕偏好** - 自定义字体、字号、颜色、描边，支持开关字幕烧录
 - **CTA 可配置** - 自动（B站三连/YouTube订阅）、动画、文字、自定义
 
@@ -123,7 +127,7 @@
 - **[assetseeker](https://github.com/Agents365-ai/assetSeeker)** - 许可核验的免费图库/视频/BGM/音效/图标/字体（可选资产生产者）
 - **[imagencn](https://github.com/Agents365-ai/imagenCN)** - AI 图片生成，用于场景插图与封面（可选，付费 API）
 - **[videogencn](https://github.com/Agents365-ai/videogenCN)** - AI 视频片段生成，用于 B-roll 与图生视频（可选，付费 API）
-- **[ttscn](https://github.com/Agents365-ai/ttsCN)** - 全部 11 个 TTS 后端的合成引擎（**必需** —— 安装到 `~/.claude/skills/ttscn` 或设置 `TTSCN_HOME`）
+- **[ttscn](https://github.com/Agents365-ai/ttsCN)** - 全部 11 个 TTS 后端的合成引擎（**必需** —— 安装到 `~/.claude/skills/ttscn`、作为 Pi 技能安装，或设置 `TTSCN_HOME`）
 - **[Hyperframes](https://github.com/heygen-com/hyperframes)** - HTML→视频渲染器，产出透明动画叠层（可选，Node 22+）
 - **find-skills** - 官方技能发现工具（可选，用于查找和安装更多技能）
 - **ffmpeg** - 高级音视频处理（可选）
@@ -189,7 +193,7 @@ npm install remotion @remotion/cli @remotion/player zod
 | `TTS_BACKEND` | 平台 | 所需环境变量 | 获取密钥 |
 | --------------- | ------ | ------------- | --------- |
 | `edge`（默认） | 微软 Edge TTS | *（无 —— 免费）* | — |
-| `azure` | 微软 Azure Speech | `AZURE_SPEECH_KEY`（+ `AZURE_SPEECH_REGION`） | [Azure 门户](https://portal.azure.com/) |
+| `azure` | 微软 Azure Speech | `AZURE_SPEECH_KEY`（可选 `AZURE_SPEECH_REGION`，默认 `eastasia`） | [Azure 门户](https://portal.azure.com/) |
 | `cosyvoice` | 阿里云 CosyVoice | `DASHSCOPE_API_KEY` | [百炼控制台](https://bailian.console.aliyun.com/) |
 | `doubao` | 火山引擎豆包 | `VOLCENGINE_APPID`、`VOLCENGINE_ACCESS_TOKEN` | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
 | `tencent` | 腾讯云 TTS | `TENCENT_SECRET_ID`、`TENCENT_SECRET_KEY` | [腾讯云控制台](https://console.cloud.tencent.com/tts) |
@@ -239,7 +243,7 @@ export DASHSCOPE_API_KEY="your-dashscope-api-key"
 
 ### 使用方法
 
-本技能适用于支持 `SKILL.md` 的 coding agent，包括 [Claude Code](https://claude.ai/claude-code)、[Codex](https://openai.com/index/introducing-codex/) 和 [OpenCode](https://github.com/opencode-ai/opencode)。只需告诉你的 agent：
+本技能适用于支持 `SKILL.md` 的 coding agent，包括 [Claude Code](https://claude.ai/claude-code)、[Codex](https://openai.com/index/introducing-codex/)、[OpenCode](https://github.com/opencode-ai/opencode) 和 [Pi](https://github.com/earendil-works/pi-coding-agent)。只需告诉你的 agent：
 
 > "帮我制作一个关于 [你的主题] 的视频播客"
 
@@ -274,14 +278,16 @@ npx remotion studio src/remotion/index.ts
 
 ## 配置文件
 
-下表所有路径都相对于技能根目录（本仓库为 `skills/video-podcast-maker/`，通过 marketplace 安装后为 `${SKILL_DIR}`）：
+可变用户级文件位于 `~/.video-podcast-maker/`（所有项目共享，技能更新不会覆盖）；其余文件位于技能根目录（本仓库为 `skills/video-podcast-maker/`，marketplace 安装后为 `${SKILL_DIR}`）：
 
-| 文件 | 作用域 | 说明 |
+| 文件 | 位置 | 说明 |
 | ------ | -------- | ------ |
-| `phonemes.json` | 全局 | 多音字词典，所有视频项目共享。首次运行时由脚本从 `phonemes.template.json` 自动复制。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
-| `user_prefs.template.json` | 全局 | 偏好默认模板。首次运行时自动复制为 `user_prefs.json`，后续随使用自动学习你的风格 |
-| `prefs_schema.json` | 全局 | 偏好验证的 JSON Schema，无需手动编辑 |
-| `tsconfig.json` | 全局 | Remotion 模板的 TypeScript 配置 |
+| `phonemes.json` | `~/.video-podcast-maker/`（用户级） | 多音字词典，所有视频项目共享。首次运行时自动从内置模板复制。可直接编辑添加/修正发音（如 行 háng vs xíng）。项目级覆盖放在 `videos/{名称}/phonemes.json` |
+| `user_prefs.json` | `~/.video-podcast-maker/`（用户级） | 你的偏好（TTS 后端/音色/语速、BGM 曲目、平台、视觉覆盖、风格档案）。首次运行时自动从 `user_prefs.template.json` 复制 |
+| `user_prefs.template.json` | 技能根目录 | 偏好默认模板 — 用户级副本的来源 |
+| `phonemes.template.json` | 技能根目录 | 多音字词典默认模板 — 用户级副本的来源 |
+| `prefs_schema.json` | 技能根目录 | 偏好校验的 JSON Schema，无需手动编辑 |
+| `tsconfig.json` | 技能根目录 | Remotion 模板的 TypeScript 配置 |
 
 ## 输出结构
 
@@ -291,6 +297,7 @@ videos/{视频名称}/
 ├── topic_research.md        # 研究笔记
 ├── podcast.txt              # 旁白脚本
 ├── phonemes.json            # （可选）项目专属发音覆盖
+├── assets/manifest.json     # 资产清单（角色 / 来源 / 许可）
 ├── podcast_audio.wav        # TTS 音频
 ├── podcast_audio.srt        # 字幕文件
 ├── timing.json              # 章节时间轴
@@ -299,7 +306,9 @@ videos/{视频名称}/
 ├── part_*.wav               # TTS 分段（临时，Step 10.3 清理）
 ├── output.mp4               # 原始渲染（临时）
 ├── video_with_bgm.mp4       # 含背景音乐（临时）
-└── final_video.mp4          # 最终输出
+├── bgm.mp3                  # 背景音乐
+├── final_video.mp4          # 最终输出
+└── shorts/                  # （可选）9:16 竖屏短片
 ```
 
 ## 背景音乐
@@ -321,7 +330,7 @@ videos/{视频名称}/
 - [x] 断点续传（`--resume` 参数）
 - [x] 预估模式（`--dry-run` 预估时长，不调用 API）
 - [ ] 用户偏好自我进化（自动学习视觉/TTS/内容风格偏好）——规划中，当前偏好为手动管理
-- [ ] 视觉检查 - 对生成后的页面进行视觉检查，检查其美观性、布局合理性等——规划中，尚未实现
+- [x] 视觉检查 — Auto 模式渲染关键帧静帧，按 design-guide / visual-taste 清单自检
 - [x] 将技能文档重构为可被 Claude Code、Codex、OpenCode、OpenClaw 共同使用的 `SKILL.md` 工作流
 - [x] 设计学习系统 — 从参考视频/图片中学习设计风格，构建设计参考库和可复用的风格档案
 - [ ] Playwright 自动抓取 — 通过 URL 直接分析 B站/YouTube 视频设计风格（Phase 4）
