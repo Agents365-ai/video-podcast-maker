@@ -60,7 +60,7 @@ Automated pipeline for **4K Bilibili horizontal knowledge videos** from a topic.
 - [Bootstrap](#bootstrap) — prerequisites (run before Step 1)
 - [Execution Modes](#execution-modes) — Auto vs Interactive → [references/workflow-script.md](references/workflow-script.md)
 - [Regenerating an Existing Video](#regenerating-an-existing-video) — iterate on a finished video
-- [Workflow](#workflow) — the 10 steps + phase-file pointers + mandatory stops
+- [Workflow](#workflow) — the 11-step pipeline + phase-file pointers + mandatory stops
 - [Hard Rules](#hard-rules) — non-negotiable production constraints
 - [Audio-Master Clock & Sync](#audio-master-clock--sync)
 - [Per-Video Layout](#per-video-layout)
@@ -151,7 +151,7 @@ At Step 1 start, create one task per step in your agent's tracker. Mark `in_prog
 **Mandatory stops** (bold rows above):
 
 - **Step 8 — Studio review.** MUST launch `npx remotion studio` and wait for user feedback before rendering. NEVER render 4K until the user explicitly confirms ("render 4K" / "render final"). A reply containing adjustment requests is **not** confirmation — apply the changes, let Studio hot-reload, and ask again. Every round of adjustments needs its own fresh confirmation before Step 9.
-- **Step 10 — `verify_output.py`.** MUST pass before declaring the video done. Exit 0 = green; exit 2 = warnings still publishable. Auto-fixes common omissions (creates `final_video.mp4` if missing). Generates publish info (title, description, tags, chapter timestamps) from the platform matrix. For machine-readable output add `--format json`.
+- **Step 10 — `verify_output.py`.** MUST pass before declaring the video done. Exit 0 = green; exit 2 = warnings still publishable. Auto-fixes common omissions (creates `final_video.mp4` if missing). Validates publish info (title, description, tags, chapters) against the platform matrix — generate it in Steps 5.5 and 10.2. For machine-readable output add `--format json`.
 
 **Pre-render audit (recommended)** — before Step 8:
 
@@ -190,7 +190,7 @@ Pick frames at: hero title (~10% in), a dense section midpoint, and the outro. R
 | **Studio Before Render** | MUST launch `remotion studio` for review. NEVER render 4K until user explicitly confirms. Adjustment feedback ≠ confirmation — apply, hot-reload, ask again. |
 | **`--public-dir`** | Every Remotion command uses `--public-dir videos/{name}/`. All output files (output.mp4, final_video.mp4, thumbnails) go directly into `videos/{name}/` — never an `out/` or `dist/` dir. |
 
-Visual minimums (text sizes, content width, safe zones, animation safety) live in [references/design-guide.md](references/design-guide.md). **MUST load before Step 9.**
+Visual minimums (text sizes, content width, safe zones, animation safety) live in [references/design-guide.md](references/design-guide.md). **MUST load before Step 8.**
 
 ## Audio-Master Clock & Sync
 
@@ -274,7 +274,7 @@ Load on demand — **do NOT load all at once**:
 | [references/script-polish.md](references/script-polish.md) | **Load after Step 4 draft is written** — deep editing toolkit with 24 EN+ZH before/after patterns, evidence boundaries, quality rubrics |
 | [references/workflow-assets.md](references/workflow-assets.md) | Step 5, or when the user supplies images/clips or wants stock/AI media |
 | [references/workflow-assets.md](references/workflow-assets.md#transparent-overlays-via-hyperframes-free-needs-node-22) | A section needs a data-chart/infographic animation beyond the component library (transparent overlay via Hyperframes) |
-| [references/workflow-production.md](references/workflow-production.md) | Steps 6-9 (thumbnails → TTS → Remotion → render + BGM) |
+| [references/workflow-production.md](references/workflow-production.md) | Steps 5.5-9.5 (publish info draft → thumbnails → TTS → Remotion → render → BGM mix) |
 | [references/workflow-publish.md](references/workflow-publish.md) | Steps 10-11 (publish info, verify, shorts) |
 | [references/platform-matrix.md](references/platform-matrix.md) | Platform-specific behavior (thumbnails, chapters, outro, publish info, shorts) |
 | [references/design-guide.md](references/design-guide.md) | **MUST load before Step 8** — visual minimums, typography, animation safety |

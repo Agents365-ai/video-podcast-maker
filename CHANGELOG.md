@@ -30,10 +30,10 @@
   (Pi requires lowercase skill names): `ttsCN` → `ttscn`, `imagenCN` →
   `imagencn`, `videogenCN` → `videogencn`, `assetSeeker` → `assetseeker`.
   Install/discovery dirs change accordingly (e.g. `~/.claude/skills/ttscn`);
-  discovery looks for the lowercase dir names only. The `*_HOME` env vars
-  (`TTSCN_HOME`, `IMAGENCN_HOME`, `VIDEOGENCN_HOME`, `ASSETSEEKER_HOME`) are
-  unchanged. Linux users with an old capitalized install dir should rename
-  the dir or set the corresponding `*_HOME` env var.
+  discovery matches directory names case-insensitively, so an existing
+  `ttsCN`/`assetSeeker` install dir keeps working on case-sensitive
+  filesystems too. The `*_HOME` env vars (`TTSCN_HOME`, `IMAGENCN_HOME`,
+  `VIDEOGENCN_HOME`, `ASSETSEEKER_HOME`) are unchanged.
 
 ### Changed
 

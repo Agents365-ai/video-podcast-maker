@@ -8,7 +8,7 @@ This is a coding-agent skill for automated video podcast creation via Remotion. 
 
 1. Read [`SKILL.md`](SKILL.md) for the full workflow
 2. Run the bootstrap check: `python3 scripts/check_prereqs.py`
-3. The 15-step pipeline produces 4K MP4 from a topic: research → script → TTS → Remotion → render → BGM
+3. The 11-step pipeline produces 4K MP4 from a topic: research → script → TTS → Remotion → render → BGM
 
 ## Directory Layout
 

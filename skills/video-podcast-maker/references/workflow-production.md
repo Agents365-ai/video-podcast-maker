@@ -155,7 +155,7 @@ The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and p
 { "执行器": "zhí xíng qì", "重做": "chóng zuò" }
 ```
 
-**3. Global dictionary** — `phonemes.json` in skill root (shared across all projects)
+**3. Global dictionary** — `~/.video-podcast-maker/phonemes.json` (shared across all projects; auto-seeded from the bundled template)
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 

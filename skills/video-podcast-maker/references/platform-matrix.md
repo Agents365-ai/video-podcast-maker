@@ -1,6 +1,6 @@
 # Video Podcast Maker — Platform Matrix
 
-> **When to load:** When generating platform-specific outputs (publish info, thumbnails, outro, shorts). Reference during Steps 7, 9, 10, 13, and 15.
+> **When to load:** When generating platform-specific outputs (publish info, thumbnails, outro, shorts). Reference during Steps 5.5, 6, 8, 9, 10.2, and 11.
 
 ## Overview
 

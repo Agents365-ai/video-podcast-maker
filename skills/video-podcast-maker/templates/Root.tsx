@@ -1,7 +1,7 @@
 /**
  * Remotion Root component template — multi-video registration pattern.
  *
- * Per-video setup (workflow Step 9 copies this template into your project):
+ * Per-video setup (workflow Step 8 copies this template into your project):
  *
  * 1. Copy this file as `Root.tsx` (one per project, edit each time you add a video).
  * 2. For each video named `{video-name}`, copy `Video.tsx` as `{PascalCase}Video.tsx`
@@ -36,9 +36,10 @@ export const videoSchema = z.object({
   accentColor: z.string().describe("强调色（CTA、高亮）"),
 
   // 字体大小 (1080p design space, auto scale(2) to 4K)
-  titleSize: z.number().min(72).max(120).describe("标题字号 (hero/section title)"),
+  // Floors match design-guide.md hard minimums: hero ≥84, body ≥32.
+  titleSize: z.number().min(84).max(120).describe("标题字号 (hero/section title)"),
   subtitleSize: z.number().min(30).max(68).describe("副标题字号"),
-  bodySize: z.number().min(24).max(40).describe("正文字号"),
+  bodySize: z.number().min(32).max(40).describe("正文字号"),
 
   // 进度条设置 (native 4K, outside scale(2))
   showProgressBar: z.boolean().describe("显示底部进度条"),
@@ -76,10 +77,10 @@ export const defaultVideoProps: VideoProps = {
   accentColor: "#FF6B6B",
 
   // 字体大小 (1080p design space, auto scale(2) to 4K)
-  // Reference: PluginComparison hero=72, Superpowers hero=120, section=80
-  titleSize: 80,
+  // Defaults sit on the design-guide.md floors (hero ≥84, body ≥32).
+  titleSize: 84,
   subtitleSize: 40,
-  bodySize: 28,
+  bodySize: 32,
 
   // 进度条 (native 4K, matches Superpowers reference)
   showProgressBar: true,
@@ -87,9 +88,9 @@ export const defaultVideoProps: VideoProps = {
   progressFontSize: 38,
   progressActiveColor: "#4f6ef7",
 
-  // 音频 — default OFF so Step 11 (FFmpeg) is the single BGM source.
+  // 音频 — default OFF so Step 9.5 (FFmpeg) is the single BGM source.
   // Enabling this in Studio (e.g. 0.05) layers BGM inside the render; in that
-  // case skip Step 11 to avoid double-BGM. See references/workflow-production.md
+  // case skip Step 9.5 to avoid double-BGM. See references/workflow-production.md
   // → "BGM source single-write rule" for details.
   bgmVolume: 0,
 

@@ -5,7 +5,7 @@ import { useAssets, getAsset, assetSrc } from "./useAssets";
 
 /**
  * Manifest-aware B-roll renderer. Muted by default — narration audio is the
- * master clock and the only audio track until the Step 11 BGM mix.
+ * master clock and the only audio track until the Step 9.5 BGM mix.
  *
  * Usage:
  *   <AssetVideo props={props} id="city_broll" role="background" />
