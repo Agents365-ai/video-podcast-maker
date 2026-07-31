@@ -76,6 +76,54 @@ const TimelineConnector = ({
   );
 };
 
+const TimelineItem = ({
+  props,
+  item,
+  index,
+  isLast,
+  connectorHeight,
+  delay,
+}: {
+  props: VideoProps;
+  item: { label: string; description: string };
+  index: number;
+  isLast: boolean;
+  connectorHeight: number;
+  delay: number;
+}) => {
+  // Hook at component top level — never inside a .map() (Rules of Hooks).
+  const itemDelay = staggerDelay(index, delay, 10);
+  const a = useEntrance(props.enableAnimations, itemDelay, "snappy");
+  return (
+    <div style={{
+      display: "flex", gap: 28, opacity: a.opacity,
+      transform: `translateY(${a.translateY}px)`,
+    }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 32 }}>
+        <TimelineNode
+          color={props.primaryColor}
+          enabled={props.enableAnimations}
+          delay={itemDelay}
+        />
+        {!isLast && (
+          <TimelineConnector
+            color={props.primaryColor}
+            enabled={props.enableAnimations}
+            delay={itemDelay + 8}
+            height={connectorHeight}
+          />
+        )}
+      </div>
+      <div style={{ paddingBottom: !isLast ? 32 : 0, flex: 1 }}>
+        <div style={{ fontSize: 34, fontWeight: 700, color: props.primaryColor }}>{item.label}</div>
+        <div style={{ fontSize: 26, color: props.textColor, marginTop: 6, lineHeight: 1.5, opacity: 0.75 }}>
+          {item.description}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Timeline = ({
   props,
   items,
@@ -93,38 +141,17 @@ export const Timeline = ({
       width: "100%", maxWidth: 700,
       margin: "0 auto",
     }}>
-      {items.map((item, i) => {
-        const itemDelay = staggerDelay(i, delay, 10);
-        const a = useEntrance(props.enableAnimations, itemDelay, "snappy");
-        return (
-          <div key={i} style={{
-            display: "flex", gap: 28, opacity: a.opacity,
-            transform: `translateY(${a.translateY}px)`,
-          }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 32 }}>
-              <TimelineNode
-                color={props.primaryColor}
-                enabled={props.enableAnimations}
-                delay={itemDelay}
-              />
-              {i < items.length - 1 && (
-                <TimelineConnector
-                  color={props.primaryColor}
-                  enabled={props.enableAnimations}
-                  delay={itemDelay + 8}
-                  height={connectorHeight}
-                />
-              )}
-            </div>
-            <div style={{ paddingBottom: i < items.length - 1 ? 32 : 0, flex: 1 }}>
-              <div style={{ fontSize: 34, fontWeight: 700, color: props.primaryColor }}>{item.label}</div>
-              <div style={{ fontSize: 26, color: props.textColor, marginTop: 6, lineHeight: 1.5, opacity: 0.75 }}>
-                {item.description}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      {items.map((item, i) => (
+        <TimelineItem
+          key={i}
+          props={props}
+          item={item}
+          index={i}
+          isLast={i === items.length - 1}
+          connectorHeight={connectorHeight}
+          delay={delay}
+        />
+      ))}
     </div>
   );
 };

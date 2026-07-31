@@ -77,7 +77,7 @@ def print_validation_report(input_file, sections, clean_text, errors, warnings):
     print(f"\n{'='*50}")
     print(f"Validation: {input_file}")
     print(f"  Sections: {len(sections)} ({', '.join(names)})")
-    print(f"  Text length: {len(clean_text)} chars (~{len(clean_text)//200} chunks)")
+    print(f"  Text length: {len(clean_text)} chars")
     if errors:
         print(f"\n✘ {len(errors)} error(s):")
         for e in errors:
@@ -99,10 +99,15 @@ def match_section_times(sections, word_boundaries, total_duration):
         wb_texts = [wb['text'] for wb in word_boundaries]
         sections[0]['start_time'] = 0
         search_start = 0
+        last_anchored = 0  # index of the last non-silent section with a start_time
 
         for sec_idx, section in enumerate(sections[1:], 1):
             target = section['first_text'][:30]
             target_clean = re.sub(r"""[，。！？、：；""''\s]""", '', target)
+            if not target_clean:
+                # Silent section — no narration to anchor on. Its boundaries
+                # are resolved in the silent pass below.
+                continue
 
             found = False
             for i in range(search_start, len(word_boundaries)):
@@ -112,7 +117,7 @@ def match_section_times(sections, word_boundaries, total_duration):
                     window_clean = re.sub(r"""[，。！？、：；""''\s]""", '', window)
                     if len(window_clean) >= 10 and window_clean.startswith(target_clean[:12]):
                         section['start_time'] = word_boundaries[i]['offset']
-                        sections[sec_idx - 1]['end_time'] = section['start_time']
+                        sections[last_anchored]['end_time'] = section['start_time']
                         search_start = i + 1
                         print(f"  ✓ {section['name']}: {section['start_time']:.2f}s (matched: \"{window[:20]}...\")")
                         found = True
@@ -121,24 +126,29 @@ def match_section_times(sections, word_boundaries, total_duration):
                     break
 
             if not found:
-                prev_time = sections[sec_idx - 1]['start_time']
+                prev_time = sections[last_anchored]['start_time']
                 remaining = total_duration - prev_time
-                remaining_sections = len(sections) - sec_idx
+                remaining_sections = len(
+                    [s for s in sections[sec_idx:] if not s.get('is_silent')]
+                )
                 section['start_time'] = prev_time + remaining / (remaining_sections + 1)
-                sections[sec_idx - 1]['end_time'] = section['start_time']
+                sections[last_anchored]['end_time'] = section['start_time']
                 print(f"  ⚠ {section['name']}: {section['start_time']:.2f}s (estimated, not found: \"{target_clean[:15]}\")")
+            last_anchored = sec_idx
 
-        # Handle trailing silent sections
+        # Pin silent sections (any position): no narration, so they get zero
+        # duration at the boundary of the next non-silent section (or the end
+        # of the video for trailing ones). Remotion renders them as extra frames.
+        next_start = None
         for i in range(len(sections) - 1, -1, -1):
             if sections[i].get('is_silent', False):
-                sections[i]['start_time'] = total_duration
-                sections[i]['end_time'] = total_duration
+                anchor = next_start if next_start is not None else total_duration
+                sections[i]['start_time'] = anchor
+                sections[i]['end_time'] = anchor
                 sections[i]['duration'] = 0
-                if i > 0:
-                    sections[i-1]['end_time'] = total_duration
                 print(f"  ℹ {sections[i]['name']}: silent section, Remotion adds extra frames")
             else:
-                break
+                next_start = sections[i]['start_time']
 
         for section in sections:
             if section['end_time'] is None:
@@ -157,7 +167,8 @@ def match_section_times(sections, word_boundaries, total_duration):
             for s in sections:
                 s['start_time'] = t
                 if s.get('is_silent'):
-                    s['end_time'] = total_duration
+                    # Zero-width pause at the current boundary (middle or trailing).
+                    s['end_time'] = t
                     s['duration'] = 0
                 else:
                     t += avg_duration
