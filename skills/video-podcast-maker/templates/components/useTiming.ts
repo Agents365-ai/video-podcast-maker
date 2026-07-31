@@ -12,6 +12,12 @@ export interface TimingSection {
   is_silent?: boolean;
 }
 
+// Fixed render length for silent sections (e.g. a trailing outro card).
+// Documented in CLAUDE.md; Root.tsx appends these AFTER the narration
+// timeline (composition duration = total_frames + trailing*SILENT_FRAMES),
+// so they never steal time from voiced sections.
+export const SILENT_FRAMES = 150;
+
 export interface TimingData {
   total_duration: number;
   fps: number;

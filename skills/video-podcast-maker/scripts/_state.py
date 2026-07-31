@@ -35,10 +35,15 @@ def get_skill_dir() -> Path:
     return _SKILL_DIR
 
 
-def get_state_dir() -> Path:
-    """Return ~/.video-podcast-maker/, creating it if needed."""
+def get_state_dir(create=True) -> Path:
+    """Return ~/.video-podcast-maker/, creating it unless create=False.
+
+    create=False supports read-only consumers (e.g. verify --no-fix) that
+    must never mutate the filesystem.
+    """
     state_dir = Path.home() / _STATE_DIR_NAME
-    state_dir.mkdir(parents=True, exist_ok=True)
+    if create:
+        state_dir.mkdir(parents=True, exist_ok=True)
     return state_dir
 
 

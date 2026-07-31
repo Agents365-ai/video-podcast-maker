@@ -96,6 +96,18 @@ def _id_from_url(url):
     return f"ref-{h}"
 
 
+def _slugify(text):
+    """Coerce arbitrary text into the reference-id slug grammar.
+
+    Generated ids feed os.path.join + os.makedirs, so separators and
+    traversal must never survive (e.g. --name "../../escape"). Everything
+    outside [A-Za-z0-9._-] becomes '-', and leading/trailing dots and
+    hyphens are stripped so the result can't be '.' or '..'.
+    """
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip(".-")
+    return slug or "ref"
+
+
 def generate_reference_id(source, name=None, existing_ids=None):
     """Generate a unique reference ID for a given source.
 
@@ -116,12 +128,12 @@ def generate_reference_id(source, name=None, existing_ids=None):
     ):
         # Treat any path with a known extension as a local file reference,
         # whether or not the file exists yet (allows ID generation before copy).
-        stem = os.path.splitext(os.path.basename(source))[0]
+        stem = _slugify(os.path.splitext(os.path.basename(source))[0])
         base = f"local-{stem}"
     else:
         # Image set or unknown
         if name:
-            base = f"images-{name}"
+            base = f"images-{_slugify(name)}"
         else:
             ts = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
             base = f"images-{ts}"
@@ -305,7 +317,9 @@ def extract_video_frames(video_path, ref_dir):
     if frames:
         shutil.copy2(frames[0], os.path.join(ref_dir, "cover.jpg"))
 
-    return frames
+    # ffmpeg exiting 0 with zero frames is still a failed extraction —
+    # callers must not index an unusable reference.
+    return frames or None
 
 
 # ============ Report I/O ============
@@ -537,8 +551,11 @@ def _resolve_ref_dir(base_dir, ref_id):
     """
     if not isinstance(ref_id, str) or not _REF_ID_RE.match(ref_id):
         return None
-    candidate = os.path.abspath(os.path.join(base_dir, ref_id))
-    base = os.path.abspath(base_dir)
+    # Resolve symlinks before the containment check: a slug-named symlink
+    # inside the library may point outside (e.g. --show reading a foreign
+    # report.json).
+    base = os.path.realpath(base_dir)
+    candidate = os.path.realpath(os.path.join(base_dir, ref_id))
     if os.path.commonpath([base, candidate]) != base:
         return None
     return candidate
@@ -1119,6 +1136,19 @@ def _run(parser, args, started_at):
                 "needs_manual_frames": True,
                 "ref_dir": ref_dir,
             }
+        )
+
+    # If every input failed, this is a failed run — not a success with an
+    # empty result. Partial success (at least one reference) still reports.
+    if not result["images"] and not result["videos"] and not result["urls"]:
+        sys.exit(
+            cli_envelope.emit_error(
+                args,
+                "processing_failed",
+                "All inputs failed to produce a reference",
+                extra={"result": result},
+                started_at=started_at,
+            )
         )
 
     # Attach to style profile if --profile was passed. We use the existing

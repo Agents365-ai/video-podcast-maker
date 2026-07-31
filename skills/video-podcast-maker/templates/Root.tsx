@@ -24,7 +24,7 @@ import type { CalculateMetadataFunction } from "remotion";
 import { z } from "zod";
 import { Video } from "./Video";
 import { Thumbnail } from "./Thumbnail";
-import { fetchTimingData } from "./components";
+import { fetchTimingData, SILENT_FRAMES } from "./components";
 
 // 【可视化编辑】: Zod Schema 定义可编辑属性
 // Remotion Studio 会自动根据类型生成对应的编辑 UI
@@ -121,7 +121,16 @@ const calculateVideoMetadata: CalculateMetadataFunction<VideoProps> = async ({
   props,
 }) => {
   const timing = await fetchTimingData();
-  return { durationInFrames: timing.total_frames, props };
+  // Trailing silent sections (outro cards) append SILENT_FRAMES AFTER the
+  // narration timeline — the voiced sections keep the full total_frames.
+  const lastNonSilent = timing.sections
+    .map((s) => !s.is_silent)
+    .lastIndexOf(true);
+  const trailingSilent = timing.sections.length - 1 - lastNonSilent;
+  return {
+    durationInFrames: timing.total_frames + trailingSilent * SILENT_FRAMES,
+    props,
+  };
 };
 
 export const RemotionRoot = () => {

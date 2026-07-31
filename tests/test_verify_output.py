@@ -243,9 +243,11 @@ def test_verify_douyin_requires_shorts_not_longform(tmp_path, monkeypatch):
     assert 'output.mp4' not in result['required_files']['missing']
 
     # With shorts + 9x16 thumbnail present, douyin passes without long-form.
-    shorts = tmp_path / 'shorts'
-    shorts.mkdir()
-    (shorts / 'short_1.mp4').write_bytes(b'\x00' * 16)
+    # generate_shorts.py renders to the nested shorts/<section>/<CompId>.mp4
+    # layout; each short is probed against the vertical render contract.
+    section_dir = tmp_path / 'shorts' / 'content-1'
+    section_dir.mkdir(parents=True)
+    (section_dir / 'Content1Short.mp4').write_bytes(b'\x00' * 16)
     _make_png(tmp_path / 'thumbnail_remotion_9x16.png', 1080, 1920)
     monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe(width=2160, height=3840))
     exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
@@ -254,18 +256,21 @@ def test_verify_douyin_requires_shorts_not_longform(tmp_path, monkeypatch):
     assert exit_code in (0, 2)
     assert 'shorts' in result['required_files']['present']
     assert 'final_video.mp4' not in result['required_files']['missing']
+    assert result['shorts']['ok'] is True
 
 
 def test_verify_no_fix_does_not_seed_user_prefs(tmp_path, monkeypatch):
     _populate_full_dir(tmp_path)
-    state_dir = tmp_path / 'state'
-    monkeypatch.setattr('_state.get_state_dir', lambda: state_dir)
+    # Redirect HOME instead of monkeypatching get_state_dir — the real
+    # implementation must not create ~/.video-podcast-maker in --no-fix mode.
+    home = tmp_path / 'home'
+    monkeypatch.setattr(Path, 'home', lambda: home)
     monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
     monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
     # _resolve_platform(seed=False) must not create the state dir.
     exit_code, result = verify(tmp_path, strict=False, do_auto_fix=False)
     assert exit_code == 0  # bilibili default platform, all files present
-    assert not state_dir.exists()
+    assert not home.exists()
 
 
 def test_verify_thumbnail_size_mismatch_warns(tmp_path, monkeypatch):
@@ -321,11 +326,11 @@ def test_verify_douyin_platform_does_not_require_chapters(tmp_path, monkeypatch)
         encoding='utf-8',
     )
     _make_png(tmp_path / 'thumbnail_remotion_9x16.png', 1080, 1920)
-    shorts = tmp_path / 'shorts'
-    shorts.mkdir()
-    (shorts / 'short_1.mp4').write_bytes(b'\x00' * 16)
+    section_dir = tmp_path / 'shorts' / 'content-1'
+    section_dir.mkdir(parents=True)
+    (section_dir / 'Content1Short.mp4').write_bytes(b'\x00' * 16)
     monkeypatch.setattr(verify_output, '_resolve_platform', lambda seed=True: 'douyin')
-    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
+    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe(width=2160, height=3840))
     monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
     exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
     assert exit_code == 0
