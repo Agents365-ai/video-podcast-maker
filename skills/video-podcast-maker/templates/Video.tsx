@@ -35,6 +35,7 @@ import {
   IconCard,
   Icon,
   useTiming,
+  SILENT_FRAMES,
 } from "./components";
 import type { TimingSection } from "./components";
 
@@ -316,29 +317,40 @@ export const Video = (props: VideoProps) => {
     props.transitionType !== "none" && transitionFrames > 0 ? transitionFrames : 0;
 
   // Audio-master-clock: TransitionSeries renders sum(sections) - (N-1)*transitionFrames.
-  // Scale every section proportionally so the rendered total equals timing.total_frames,
-  // instead of stuffing all overlap frames into the first section (which desyncs it).
-  // Silent sections (is_silent, e.g. a trailing outro) get a fixed 150-frame floor
-  // (documented in CLAUDE.md) and are excluded from the proportional scale.
-  const SILENT_FRAMES = 150;
-  const sized = sections.map((s) => ({
+  // Scale every NON-silent section proportionally so the narrated sections
+  // cover exactly timing.total_frames (all transitions paid out of their
+  // budget). Trailing silent sections (e.g. an outro card) APPEND after the
+  // audio — Root.tsx registers the composition SILENT_FRAMES longer per
+  // trailing silent, so they never steal time from narration. Non-trailing
+  // silent sections keep the 15-frame floor (zero-width pause).
+  const lastNonSilentIdx = sections.map((s) => !s.is_silent).lastIndexOf(true);
+  const trailingSilentCount = sections.length - 1 - lastNonSilentIdx;
+  const sized = sections.map((s, i) => ({
     ...s,
-    duration_frames: s.is_silent ? SILENT_FRAMES : s.duration_frames,
+    duration_frames:
+      s.is_silent && i > lastNonSilentIdx ? SILENT_FRAMES : s.duration_frames,
   }));
-  const originalTotal = sized.reduce((sum, s) => sum + s.duration_frames, 0);
-  const targetTotal = timing.total_frames + transitionCount * effectiveTransitionFrames;
-  const silentTotal = sized
-    .filter((s) => s.is_silent)
-    .reduce((sum, s) => sum + s.duration_frames, 0);
-  const scaleableTotal = originalTotal - silentTotal;
-  const targetScaleable = targetTotal - silentTotal;
-  const scaleFactor = scaleableTotal > 0 ? targetScaleable / scaleableTotal : 1;
-
-  const compensatedSections = sized.map((s) =>
-    s.is_silent
-      ? { ...s, duration_frames: SILENT_FRAMES }
-      : { ...s, duration_frames: Math.max(15, Math.round(s.duration_frames * scaleFactor)) },
+  const originalTotal = sized.reduce(
+    (sum, s) => sum + (s.is_silent ? 0 : s.duration_frames),
+    0,
   );
+  const targetTotal =
+    timing.total_frames +
+    transitionCount * effectiveTransitionFrames +
+    trailingSilentCount * SILENT_FRAMES;
+  const scaleFactor = originalTotal > 0 ? targetTotal / originalTotal : 1;
+
+  const compensatedSections = sized.map((s) => {
+    if (s.is_silent) {
+      // Trailing silents are already sized (SILENT_FRAMES); non-trailing
+      // silents collapse to the 15-frame floor.
+      return { ...s, duration_frames: s.duration_frames > 0 ? s.duration_frames : 15 };
+    }
+    return {
+      ...s,
+      duration_frames: Math.max(15, Math.round(s.duration_frames * scaleFactor)),
+    };
+  });
 
   // Absorb rounding error so the total matches exactly. Land it on the last
   // non-silent section — a silent section's fixed floor must not swallow it.
