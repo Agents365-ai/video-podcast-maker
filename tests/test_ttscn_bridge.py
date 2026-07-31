@@ -31,12 +31,14 @@ FAKE_TTSCN = textwrap.dedent("""\
     if "FAIL" in text:
         print(envelope(ok=False, error={"code": "backend", "message": "boom"}))
         sys.exit(4)
+    dur = float(os.environ.get("FAKE_DURATION", 0.3))
+    report = float(os.environ.get("FAKE_REPORT", dur))
     with wave.open(output, "w") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000)
-        w.writeframes(b"\\x00\\x00" * int(24000 * 0.3))
+        w.writeframes(b"\\x00\\x00" * int(24000 * dur))
     with open(output + ".args.json", "w") as f:
         json.dump(args, f)
-    data = {"duration_seconds": 0.3, "output_file": output, "argv": args}
+    data = {"duration_seconds": report, "output_file": output, "argv": args}
     if platform in ("edge", "azure"):
         step = 0.3 / max(len(text), 1)
         data["word_boundaries"] = [
@@ -211,6 +213,21 @@ def test_native_boundaries_shifted_per_chunk(fake_skill, tmp_path):
     offsets = [b["offset"] for b in boundaries]
     assert offsets == sorted(offsets)
     assert all(b["duration"] > 0 for b in boundaries)
+
+
+def test_measured_duration_beats_underreported_envelope(monkeypatch, fake_skill, tmp_path):
+    # Azure-SSML case: the envelope under-reports (0.2s claimed, 0.5s real).
+    # The measured part duration must win, or every subsequent chunk's
+    # boundaries (and the SRT) drift early.
+    monkeypatch.setenv("FAKE_DURATION", "0.5")
+    monkeypatch.setenv("FAKE_REPORT", "0.2")
+    out = tmp_path / "out"
+    out.mkdir()
+    config = {"entry": str(fake_skill), "platform": "azure"}
+    _, boundaries, duration = synthesize(["你好。", "世界。"], config, str(out))
+    assert duration == pytest.approx(1.0, abs=0.01)
+    # second chunk starts at the MEASURED first-chunk duration, not 0.2
+    assert boundaries[3]["offset"] == pytest.approx(0.5, abs=0.01)
 
 
 def test_raw_text_passthrough(fake_skill, tmp_path):
