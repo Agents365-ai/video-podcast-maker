@@ -26,6 +26,43 @@ def load_worker():
     return module
 
 
+def test_run_decodes_windows_cp950_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    worker = load_worker()
+
+    def fake_run(*args, **kwargs):
+        assert kwargs["text"] is False
+        return subprocess.CompletedProcess(
+            args[0],
+            0,
+            stdout="渲染完成".encode("cp950"),
+            stderr=b"",
+        )
+
+    monkeypatch.setattr(worker.subprocess, "run", fake_run)
+
+    completed = worker.run(["render"], timeout=30)
+
+    assert completed.stdout == "渲染完成"
+    assert completed.stderr == ""
+
+
+def test_run_decodes_windows_cp950_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    worker = load_worker()
+
+    def fake_run(*args, **kwargs):
+        return subprocess.CompletedProcess(
+            args[0],
+            1,
+            stdout=b"",
+            stderr="渲染失敗".encode("cp950"),
+        )
+
+    monkeypatch.setattr(worker.subprocess, "run", fake_run)
+
+    with pytest.raises(worker.WorkerFailure, match="渲染失敗"):
+        worker.run(["render"], timeout=30)
+
+
 def test_capabilities_are_local_only_and_never_publish() -> None:
     completed = subprocess.run(
         [sys.executable, str(SCRIPT), "--project-root", ".", "--capabilities"],

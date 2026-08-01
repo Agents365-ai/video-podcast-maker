@@ -111,6 +111,19 @@ def tool(project_root: Path, *relative_candidates: str) -> Path:
     )
 
 
+def decode_subprocess_output(value: bytes | str | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    for encoding in ("utf-8", "cp950"):
+        try:
+            return value.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return value.decode("utf-8", errors="replace")
+
+
 def run(
     command: Sequence[str],
     *,
@@ -120,14 +133,20 @@ def run(
 ) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env.update(environment or {})
-    completed = subprocess.run(
+    raw = subprocess.run(
         list(command),
         cwd=str(cwd) if cwd else None,
         env=env,
-        text=True,
+        text=False,
         capture_output=True,
         timeout=timeout,
         check=False,
+    )
+    completed = subprocess.CompletedProcess(
+        args=raw.args,
+        returncode=raw.returncode,
+        stdout=decode_subprocess_output(raw.stdout),
+        stderr=decode_subprocess_output(raw.stderr),
     )
     if completed.returncode != 0:
         detail = completed.stderr.strip() or completed.stdout.strip()
