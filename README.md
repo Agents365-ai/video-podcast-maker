@@ -12,7 +12,7 @@
 
 [中文文档](README_CN.md)
 
-Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (11 backends via the [ttscn](https://github.com/Agents365-ai/ttsCN) bridge), Remotion rendering, and FFmpeg mixing. Current release: **v5.2** — see [CHANGELOG.md](CHANGELOG.md) for version history.
+Automated pipeline to create professional video podcasts from a topic. **Supports Bilibili, YouTube, Xiaohongshu, Douyin, and WeChat Channels** with multi-language output (zh-CN, en-US). Combines research, script generation, multi-engine TTS (11 backends via the [ttscn](https://github.com/Agents365-ai/ttsCN) bridge), Remotion rendering, and FFmpeg mixing. Current release: **v5.2.1** — see [CHANGELOG.md](CHANGELOG.md) for version history.
 
 **Works with:** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) · [Pi](https://github.com/earendil-works/pi-coding-agent) — any coding agent that supports SKILL.md
 
