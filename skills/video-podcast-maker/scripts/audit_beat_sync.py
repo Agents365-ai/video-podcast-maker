@@ -48,10 +48,32 @@ _BEATS_CONST = re.compile(
     r'const\s+([A-Z][A-Z0-9_]*_BEATS)\s*[:=][^=]*=\s*\[(.*?)\n\]\s*$',
     re.DOTALL | re.MULTILINE)
 
-# Match a single beat object: { ... startSec: 1.23 ... lines: [ ... ] ... }
-_BEAT_OBJECT = re.compile(
-    r'\{\s*([^{}]*?startSec\s*:\s*[\d.]+[^{}]*?lines\s*:\s*\[[^\]]*?\][^{}]*?)\}',
-    re.DOTALL)
+# Match a single beat object with balanced braces — beats may contain
+# nested object entries (e.g. the kinetic preset's `lines: [{ t: '...' }]`),
+# which a brace-free regex cannot parse.
+def _beat_objects(body):
+    """Yield the raw text of each balanced beat object in a BEATS body."""
+    i = 0
+    n = len(body)
+    while i < n:
+        j = body.find("{", i)
+        if j < 0:
+            return
+        depth = 0
+        k = j
+        while k < n:
+            ch = body[k]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    yield body[j : k + 1]
+                    i = k + 1
+                    break
+            k += 1
+        else:
+            return
 
 # Match SECTION_CONFIG mapping: { hero: { beats: HERO_BEATS, ... }, ... }
 _SECTION_CONFIG = re.compile(
@@ -72,15 +94,22 @@ def parse_beats(tsx_text: str):
         beats_name = m.group(1)
         body = m.group(2)
         items = []
-        for bm in _BEAT_OBJECT.finditer(body):
-            obj_body = bm.group(1)
+        for obj_body in _beat_objects(body):
             start = re.search(r'startSec\s*:\s*([\d.]+)', obj_body)
             if not start:
                 continue
             start_sec = float(start.group(1))
-            # Extract human-readable summary of beat lines — supports both
-            # `lines: ['a', 'b']` string arrays and `t: "text"` object entries.
-            lines = re.findall(r"['\"]([^'\"]+)['\"]", obj_body)
+            # Extract human-readable summary of beat lines, scoped to the
+            # `lines:` array so style enums outside it (e.g. `variant: 'pop'`,
+            # `c: 'mint'` in the kinetic preset) are never treated as
+            # narration. Inside the array, prefer anchored `t:` object keys
+            # and fall back to bare string-array entries.
+            lm = re.search(r"lines\s*:\s*\[(.*?)\]", obj_body, re.DOTALL)
+            arr_body = lm.group(1) if lm else ""
+            lines = (
+                re.findall(r"(?<![A-Za-z0-9_])t\s*:\s*['\"]([^'\"]+)['\"]", arr_body)
+                or re.findall(r"['\"]([^'\"]+)['\"]", arr_body)
+            )
             summary = ' / '.join(lines)
             items.append((start_sec, summary))
         beats_arrays[beats_name] = items

@@ -181,6 +181,42 @@ def test_audit_extracts_text_from_string_array_lines(tmp_path):
     assert result['sections'][0]['beats'][0]['shown'] == 'Hello world this is a test'
 
 
+PRESET_SHAPED_TSX = textwrap.dedent("""\
+    const HERO_BEATS: Beat[] = [
+      {
+        variant: 'pop',
+        startSec: 0,
+        lines: [
+          { t: '大家好', size: 220 },
+          { t: '欢迎来到我的频道', size: 110, c: 'mint', marker: true },
+        ],
+      }
+    ]
+
+    const SECTION_CONFIG: Record<string, Section> = {
+      hero: { beats: HERO_BEATS, label: 'Intro' }
+    }
+""")
+
+
+def test_audit_preset_shaped_beats_pass(tmp_path):
+    # The shipped kinetic preset uses nested object lines + style enums.
+    # Nested braces must parse, and variant/c enums must not leak into the
+    # shown text or fail the text check.
+    srt = textwrap.dedent("""\
+        1
+        00:00:00,000 --> 00:00:02,500
+        大家好 欢迎来到我的频道
+    """)
+    tsx_path, timing, srt_path = _write(tmp_path, PRESET_SHAPED_TSX, srt, total_duration=5.0)
+    issues, result = audit(str(tsx_path), str(timing), str(srt_path), drift_warn=1.5)
+    assert issues == 0, result
+    shown = result['sections'][0]['beats'][0]['shown']
+    assert 'pop' not in shown and 'mint' not in shown
+    assert '大家好' in shown and '欢迎来到我的频道' in shown
+    assert result['sections'][0]['beats'][0]['text_ok'] is True
+
+
 def test_audit_records_drift_threshold_in_result(tmp_path):
     tsx, timing, srt = _write(tmp_path, CLEAN_TSX, CLEAN_SRT, total_duration=5.0)
     _, result = audit(str(tsx), str(timing), str(srt), drift_warn=2.5)

@@ -38,6 +38,8 @@ ERROR_CODES = {
     "tool_missing":          {"retryable": False, "exit": 2},
     "backend_failed":        {"retryable": True,  "exit": 1},
     "ffmpeg_failed":         {"retryable": False, "exit": 1},
+    "processing_failed":     {"retryable": False, "exit": 1},
+    "render_failed":         {"retryable": False, "exit": 1},
     "confirmation_required": {"retryable": False, "exit": 3},
     "internal_error":        {"retryable": False, "exit": 1},
 }

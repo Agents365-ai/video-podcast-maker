@@ -312,39 +312,42 @@ export const Video = (props: VideoProps) => {
   const timing = useTiming();
   const sections = timing.sections;
   const transitionFrames = props.transitionDuration;
-  const transitionCount = Math.max(0, sections.length - 1);
+
+  // Non-trailing silent sections are zero-width pauses with nothing to
+  // render — drop them entirely (a 15-frame sequence flanked by 15-frame
+  // transitions is invisible at best, rejected by TransitionSeries at
+  // worst). Trailing silents (outro cards) APPEND after the narration:
+  // Root.tsx registers the composition SILENT_FRAMES longer per trailing
+  // silent, and they never enter the narration scaling budget.
+  const lastNonSilentIdx = sections.map((s) => !s.is_silent).lastIndexOf(true);
+  const renderSections = sections.filter(
+    (s, i) => !(s.is_silent && i <= lastNonSilentIdx),
+  );
+  const transitionCount = Math.max(0, renderSections.length - 1);
   const effectiveTransitionFrames =
     props.transitionType !== "none" && transitionFrames > 0 ? transitionFrames : 0;
+  const trailingSilentCount = renderSections.filter((s) => s.is_silent).length;
+  const silentBudget = trailingSilentCount * SILENT_FRAMES;
 
-  // Audio-master-clock: TransitionSeries renders sum(sections) - (N-1)*transitionFrames.
-  // Scale every NON-silent section proportionally so the narrated sections
-  // cover exactly timing.total_frames (all transitions paid out of their
-  // budget). Trailing silent sections (e.g. an outro card) APPEND after the
-  // audio — Root.tsx registers the composition SILENT_FRAMES longer per
-  // trailing silent, so they never steal time from narration. Non-trailing
-  // silent sections keep the 15-frame floor (zero-width pause).
-  const lastNonSilentIdx = sections.map((s) => !s.is_silent).lastIndexOf(true);
-  const trailingSilentCount = sections.length - 1 - lastNonSilentIdx;
-  const sized = sections.map((s, i) => ({
-    ...s,
-    duration_frames:
-      s.is_silent && i > lastNonSilentIdx ? SILENT_FRAMES : s.duration_frames,
-  }));
-  const originalTotal = sized.reduce(
+  // Audio-master-clock: TransitionSeries renders sum(sections) - (N-1)*t.
+  // Non-silent sections scale against the narration timeline ONLY
+  // (total_frames + transitions) — the silent budget is added to the
+  // target for the diff bookkeeping but excluded from the numerator, so
+  // every section's render start equals its audio start.
+  const originalTotal = renderSections.reduce(
     (sum, s) => sum + (s.is_silent ? 0 : s.duration_frames),
     0,
   );
   const targetTotal =
     timing.total_frames +
     transitionCount * effectiveTransitionFrames +
-    trailingSilentCount * SILENT_FRAMES;
-  const scaleFactor = originalTotal > 0 ? targetTotal / originalTotal : 1;
+    silentBudget;
+  const scaleFactor =
+    originalTotal > 0 ? (targetTotal - silentBudget) / originalTotal : 1;
 
-  const compensatedSections = sized.map((s) => {
+  const compensatedSections = renderSections.map((s) => {
     if (s.is_silent) {
-      // Trailing silents are already sized (SILENT_FRAMES); non-trailing
-      // silents collapse to the 15-frame floor.
-      return { ...s, duration_frames: s.duration_frames > 0 ? s.duration_frames : 15 };
+      return { ...s, duration_frames: SILENT_FRAMES };
     }
     return {
       ...s,
@@ -381,7 +384,7 @@ export const Video = (props: VideoProps) => {
               <TransitionSeries.Sequence durationInFrames={section.duration_frames}>
                 <SectionComponent section={section} props={props} />
               </TransitionSeries.Sequence>
-              {i < sections.length - 1 && transitionFrames > 0 && props.transitionType !== "none" && (
+              {i < renderSections.length - 1 && transitionFrames > 0 && props.transitionType !== "none" && (
                 <TransitionSeries.Transition
                   presentation={getPresentation(props.transitionType)}
                   timing={linearTiming({ durationInFrames: transitionFrames })}

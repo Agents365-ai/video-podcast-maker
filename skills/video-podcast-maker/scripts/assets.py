@@ -76,6 +76,8 @@ def load_manifest(video_dir):
         return None, f"manifest unreadable: {e}"
     if not isinstance(manifest, dict):
         return None, f"manifest root must be an object, got {type(manifest).__name__}"
+    if not isinstance(manifest.get("assets"), list):
+        return None, "manifest 'assets' must be a list"
     return manifest, None
 
 
@@ -105,8 +107,6 @@ def validate_manifest(video_dir):
         errors.append(
             f"schema_version {manifest.get('schema_version')!r} != {SCHEMA_VERSION}")
     assets = manifest.get("assets")
-    if not isinstance(assets, list):
-        return errors + ["'assets' is not a list"], warnings, manifest
 
     seen_ids = set()
     for i, a in enumerate(assets):
