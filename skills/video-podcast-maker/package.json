@@ -1,6 +1,6 @@
 {
   "name": "video-podcast-maker",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Automated pipeline to create professional video podcasts from a topic",
   "engines": {
     "node": ">=18"

@@ -1,6 +1,55 @@
 # Changelog
 
+## 5.2.1
+
+### Security
+
+- **learn_design reference-id generation:** `--name` and filename-derived
+  ids are slugified before any directory is created — a crafted
+  `images-../../escape` could previously write outside `--output-dir`, and
+  space-containing ids were created but undeletable. `--show`/`--delete`
+  containment now resolves symlinks (`realpath`).
+- **Zero-frame extraction** is treated as failure; a run where every input
+  fails exits `processing_failed` instead of success with an empty result.
+
+### Fixed
+
+- **Silent sections no longer steal narrated frames:** trailing silents
+  (outro cards) append AFTER the narration timeline — the composition is
+  registered `total_frames + trailing * 150` frames — so the outro appears
+  when the audio actually ends. The 5.2.0 fix compressed the narrated
+  sections to make room inside `total_frames`, desyncing visuals from audio.
+- **Shorts gate matches real output:** `generate_shorts.py` renders to
+  `shorts/<section>/<CompId>.mp4`; verification now finds nested files and
+  probes each short against the vertical render contract (2160×3840,
+  h264 + aac, ~30fps). Xiaohongshu no longer requires `output.mp4`
+  (horizontal long-form is optional per the platform matrix).
+- **audit_beat_sync text check:** the documented `lines: ['a', 'b']`
+  syntax now feeds the narration comparison (the 5.2.0 check only read
+  `t:` object entries); every displayed fragment must match, and a beat
+  showing text while nothing is spoken fails.
+- **Non-object manifest roots** are rejected at the single `load_manifest`
+  boundary — `assets add`/`list` previously crashed with an internal error.
+- **`--no-fix` preview** no longer creates `~/.video-podcast-maker/`
+  (`get_state_dir(create=False)`).
+- **ffprobe fallbacks:** `check_resume` survives a missing ffprobe, and
+  synthesis fails loudly when neither the probe nor the envelope yields a
+  duration instead of shifting every later boundary by 0s.
+- All-silent single-section scripts are pinned zero-width; drift threshold
+  is inclusive (`>0.5s` fails); fps probing prefers `avg_frame_rate`.
+
+### Docs
+
+- Remaining mutable-state paths (troubleshooting reset, zh-polyphones,
+  migrate_prefs help, design-learning) corrected to `~/.video-podcast-maker/`;
+  the `_structural_migrate` pointer now names its actual home in
+  `scripts/learn_design.py`.
+- Consistency tests: references/ may not point state files at
+  `${SKILL_DIR}`; the step-reference regex catches `and`/`through`/`/`
+  separators.
+
 ## 5.2.0
+
 
 ### Security
 
