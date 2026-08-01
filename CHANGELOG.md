@@ -44,6 +44,38 @@
   migrate_prefs help, design-learning) corrected to `~/.video-podcast-maker/`;
   the `_structural_migrate` pointer now names its actual home in
   `scripts/learn_design.py`.
+- `design_references/` moved to `~/.video-podcast-maker/design_references/`
+  (the skill install dir is wiped on updates, which silently orphaned the
+  reference index).
+
+### Fixed (validation round 3)
+
+- **Silent-section scaling:** the silent budget no longer enters the
+  narration scaling numerator — every section's render start now matches
+  its audio start (round-2 stretched narration by the silent budget and
+  crushed the last chapter by up to 4.5s). Non-trailing silent sections
+  (zero-width pauses) are dropped from the render entirely instead of
+  rendering 15-frame sequences flanked by 15-frame transitions.
+- **Verify sync gate:** the final-video/audio sync check now expects the
+  trailing-silent append (`wav + trailing*150/fps`) — round-2's template
+  change made every silent-outro video fail its own acceptance gate.
+- **audit_beat_sync:** beats are parsed with balanced braces (the kinetic
+  preset's nested `lines: [{ t: ... }]` was unparseable) and text
+  extraction is scoped to the `lines:` array — `variant`/`c` style enums
+  are no longer required narration fragments, so the preset passes.
+- **Shorts gate:** shorts must be strictly vertical (2160×3840); a
+  horizontal file no longer passes the douyin/weixin gate.
+- **Manifest boundary:** `load_manifest` also rejects a non-list `assets`
+  key (round-2 only covered non-object roots; `cmd_add`/`cmd_list` still
+  crashed one level deeper).
+- **Envelope codes:** `processing_failed` and `render_failed` are now
+  registered in `cli_envelope.ERROR_CODES`.
+- **fps probe:** `avg_frame_rate` values like `0/0` (undetermined rate)
+  fall back to the nominal `r_frame_rate`.
+- New contract tests: a Python mirror of the Video.tsx frame math asserts
+  the rendered total and per-section alignment invariants, and an audit
+  fixture shaped like the shipped kinetic preset locks in the parser
+  behavior.
 - Consistency tests: references/ may not point state files at
   `${SKILL_DIR}`; the step-reference regex catches `and`/`through`/`/`
   separators.
