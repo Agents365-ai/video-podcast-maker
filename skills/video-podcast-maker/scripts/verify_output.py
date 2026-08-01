@@ -92,6 +92,12 @@ THUMB_4x3 = (1200, 900)
 THUMB_3x4 = (1080, 1440)
 THUMB_9x16 = (1080, 1920)
 
+# Fixed render length for trailing silent sections — must match
+# templates/components/useTiming.ts SILENT_FRAMES. The composition is
+# registered total_frames + trailing*SILENT_FRAMES, so the final video
+# is that many frames longer than the WAV master clock.
+SILENT_FRAMES = 150
+
 # Per-platform required publish_info.md section headings. Keep keys in sync
 # with prefs_schema.json::global.platform and the format tables in
 # references/workflow-publish.md → "Publish Info Format by Platform".
@@ -155,7 +161,11 @@ def ffprobe_video(path):
         a = next((s for s in data["streams"] if s["codec_type"] == "audio"), None)
         if not v:
             return None
-        num, _, den = (v.get("avg_frame_rate") or v.get("r_frame_rate", "0/1")).partition("/")
+        rate = v.get("avg_frame_rate") or "0/0"
+        if rate.endswith("/0"):
+            # Undetermined/variable rate — fall back to the nominal rate.
+            rate = v.get("r_frame_rate") or "0/1"
+        num, _, den = rate.partition("/")
         return {
             "width": int(v["width"]),
             "height": int(v["height"]),
@@ -479,7 +489,9 @@ def verify(video_dir, strict=False, do_auto_fix=True):
                 print(f"  ✗ {label}: unreadable")
                 shorts_records.append({"path": str(label), "ok": False})
                 continue
-            res_ok = (info["width"], info["height"]) in EXPECTED_RES
+            # Shorts platforms are vertical-only: a horizontal file in shorts/
+            # must not pass the gate.
+            res_ok = (info["width"], info["height"]) == (2160, 3840)
             codec_ok = info["video_codec"] == "h264"
             audio_ok = info["audio_codec"] == "aac"
             fps_ok = info["fps"] is not None and abs(info["fps"] - 30) < 0.5
@@ -607,20 +619,39 @@ def verify(video_dir, strict=False, do_auto_fix=True):
         else:
             final_dur = info["duration"]
             wav_dur = wav_info_final["duration"]
-            sync_drift = final_dur - wav_dur
+            # Trailing silent sections append SILENT_FRAMES after the audio:
+            # the composition (and thus final_video.mp4) is registered
+            # trailing * 150 frames longer than the WAV master clock.
+            expected = wav_dur
+            try:
+                with open(timing_path) as f:
+                    timing_sync = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                timing_sync = None
+            if timing_sync is not None:
+                trailing = 0
+                for s in reversed(timing_sync.get("sections", [])):
+                    if not s.get("is_silent"):
+                        break
+                    trailing += 1
+                expected += trailing * SILENT_FRAMES / timing_sync.get("fps", 30)
+            sync_drift = final_dur - expected
             sync_ok = abs(sync_drift) <= 0.5
             if sync_ok:
                 print(
-                    f"  ✓ final_video {final_dur:.2f}s ≈ WAV {wav_dur:.2f}s (drift {sync_drift:+.2f}s)"
+                    f"  ✓ final_video {final_dur:.2f}s ≈ expected {expected:.2f}s "
+                    f"(WAV {wav_dur:.2f}s + trailing-silent frames, drift {sync_drift:+.2f}s)"
                 )
             else:
                 print(
-                    f"  ✗ final_video {final_dur:.2f}s vs WAV {wav_dur:.2f}s (drift {sync_drift:+.2f}s)"
+                    f"  ✗ final_video {final_dur:.2f}s vs expected {expected:.2f}s "
+                    f"(WAV {wav_dur:.2f}s + trailing-silent frames, drift {sync_drift:+.2f}s)"
                 )
                 errors.append(f"Final video/audio sync drift {sync_drift:+.2f}s")
             result["final_video_sync"] = {
                 "final_duration": round(final_dur, 2),
                 "wav_duration": round(wav_dur, 2),
+                "expected_duration": round(expected, 2),
                 "drift_seconds": round(sync_drift, 2),
                 "ok": sync_ok,
             }

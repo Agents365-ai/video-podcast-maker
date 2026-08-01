@@ -26,7 +26,7 @@ import cli_envelope  # noqa: E402
 # Skill root (one level above scripts/).
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-from _state import resolve_state_file
+from _state import get_state_dir, resolve_state_file
 
 SUPPORTED_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 SUPPORTED_VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv"}
@@ -636,9 +636,10 @@ def _build_parser():
     )
     parser.add_argument(
         "--output-dir",
-        default=os.path.join(SKILL_DIR, "design_references"),
+        default=None,
         help="Directory to store reference data "
-        "(default: <skill root>/design_references, shared across projects)",
+        "(default: ~/.video-podcast-maker/design_references — mutable user "
+        "data lives in the shared state dir, not the install dir)",
     )
     parser.add_argument(
         "--list",
@@ -766,7 +767,12 @@ def _run(parser, args, started_at):
         )
     )
     prefs = load_prefs(prefs_path)
-    output_dir = args.output_dir
+    # design_references is mutable user data — default into the state dir
+    # (never the install dir, which is wiped on skill updates). create=False:
+    # read-only commands (--list/--show) must not create state.
+    output_dir = args.output_dir or str(
+        get_state_dir(create=False) / "design_references"
+    )
 
     # -- List mode --
     if args.list:

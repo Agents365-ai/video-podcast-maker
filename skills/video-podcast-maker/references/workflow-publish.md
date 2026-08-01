@@ -152,7 +152,7 @@ What it checks:
 - Final video specs: 3840×2160 (or 2160×3840 vertical), h264 + aac at ~30fps, has audio track, duration plausible
 - Thumbnails: platform-derived ratios — 16:9 + 4:3 (bilibili/youtube), 3:4 (xiaohongshu), 9:16 (douyin/weixin-channels); each ratio accepts either `thumbnail_remotion_*.png` or `thumbnail_ai_*.png`, only flagged missing when all alternatives are absent
 - Audio/timing drift: WAV duration matches timing.json within 0.5s (uses an audio-only ffprobe pass so .wav containers don't false-fail) — drift beyond 0.5s is a hard error
-- Final video / audio sync: final_video.mp4 duration matches podcast_audio.wav within 0.5s — the rendered/mixed output must stay locked to the master clock
+- Final video / audio sync: final_video.mp4 duration matches the WAV master clock within 0.5s — trailing silent sections (outro cards) append 150 frames each after the audio, so the expected duration is `wav + trailing*150/fps`
 - publish_info.md: contains promo line + per-platform required section headers (bilibili: 标题/标签/简介/章节; youtube: Title/Tags/Description/Chapters; xiaohongshu/douyin/weixin-channels: shorter set without chapters) — resolved from `user_prefs.json` → `global.platform`, defaults to bilibili
 
 What it auto-fixes:
