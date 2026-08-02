@@ -1,13 +1,17 @@
 {
+  "schema_version": "cloudsea35-timing-v2",
+  "total_duration": 0.333,
+  "fps": 30,
+  "total_frames": 10,
   "sections": [
     {
       "name": "intro",
-      "startSec": 0,
-      "durationSec": 0.33,
-      "startFrame": 0,
-      "durationFrames": 10
+      "label": "Intro",
+      "start_time": 0.0,
+      "end_time": 0.333,
+      "duration": 0.333,
+      "start_frame": 0,
+      "duration_frames": 10
     }
-  ],
-  "totalDuration": 0.33,
-  "totalFrames": 10
+  ]
 }

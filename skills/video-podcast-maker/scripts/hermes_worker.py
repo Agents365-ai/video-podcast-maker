@@ -238,6 +238,55 @@ def ffprobe_duration(path: Path) -> float:
     return float(completed.stdout.strip())
 
 
+def ffprobe_resolution(path: Path) -> tuple[int, int]:
+    completed = run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height",
+            "-of",
+            "csv=p=0",
+            str(path),
+        ],
+        timeout=60,
+    )
+    line = next((value.strip() for value in completed.stdout.splitlines() if value.strip()), "")
+    parts = [value.strip() for value in line.split(",") if value.strip()]
+    if len(parts) != 2:
+        raise WorkerFailure(f"ffprobe returned an invalid resolution: {line!r}")
+    try:
+        return int(parts[0]), int(parts[1])
+    except ValueError as exc:
+        raise WorkerFailure(f"ffprobe returned an invalid resolution: {line!r}") from exc
+
+
+def ffmpeg_black_duration(path: Path) -> float:
+    completed = run(
+        [
+            "ffmpeg",
+            "-hide_banner",
+            "-nostats",
+            "-i",
+            str(path),
+            "-vf",
+            "blackdetect=d=1:pix_th=0.10",
+            "-an",
+            "-f",
+            "null",
+            "-",
+        ],
+        timeout=900,
+    )
+    return sum(
+        float(value)
+        for value in re.findall(r"black_duration:([0-9]+(?:\.[0-9]+)?)", completed.stderr)
+    )
+
+
 def srt_time(seconds: float) -> str:
     milliseconds = max(0, int(round(seconds * 1000)))
     hours, remainder = divmod(milliseconds, 3_600_000)
@@ -885,19 +934,52 @@ def visual_publishable_from_json(path: Path) -> bool:
 
 def stage_qa(request: Mapping[str, Any], root: Path, project_root: Path) -> dict[str, Any]:
     del request
-    verify = tool(
-        project_root,
-        "scripts/verify.sh",
-        "skills/video-podcast-maker/scripts/verify_output.py",
+    required_inputs = (
+        "final-video.mp4",
+        "branded-output.mp4",
+        "podcast_audio.wav",
+        "scene-plan.json",
+        "timing.json",
     )
-    if verify.suffix == ".sh":
-        run(["bash", str(verify), str(root)], cwd=project_root, timeout=1200)
-    else:
-        run(
-            [sys.executable, str(verify), str(root), "--strict", "--no-fix"],
-            cwd=project_root,
-            timeout=1200,
+    missing_inputs = [name for name in required_inputs if not (root / name).is_file()]
+    if missing_inputs:
+        raise WorkerFailure("QA inputs are missing: " + ", ".join(missing_inputs))
+
+    generator = tool(project_root, "generate_qa_report.py")
+    run(
+        [sys.executable, str(generator), str(root), "--json-only"],
+        cwd=project_root,
+        timeout=1200,
+    )
+    remotion_root = project_root / "poc-project"
+    if not remotion_root.is_dir():
+        raise NeedsHuman("local_dependency_unavailable: poc-project")
+    run(["npx", "tsc", "--noEmit"], cwd=remotion_root, timeout=1200)
+
+    final_video = root / "final-video.mp4"
+    audio = root / "podcast_audio.wav"
+    video_duration = ffprobe_duration(final_video)
+    audio_duration = ffprobe_duration(audio)
+    if video_duration <= 0 or audio_duration <= 0:
+        raise WorkerFailure("QA media duration must be positive")
+    width, height = ffprobe_resolution(final_video)
+    if (width, height) not in {(3840, 2160), (1920, 1080)}:
+        raise WorkerFailure(f"unexpected final-video resolution: {width}x{height}")
+    black_duration = ffmpeg_black_duration(final_video)
+    if black_duration >= video_duration * 0.95:
+        raise WorkerFailure(
+            f"final-video is effectively black: {black_duration:.2f}s / {video_duration:.2f}s"
         )
+
+    required_evidence = (
+        "qa/audit-report.json",
+        "qa/render-checkpoints.json",
+        "qa/visual-publishability.json",
+        "qa/qa_report.html",
+    )
+    missing_evidence = [name for name in required_evidence if not (root / name).is_file()]
+    if missing_evidence:
+        raise WorkerFailure("QA evidence is missing: " + ", ".join(missing_evidence))
     visual_path = root / "qa/visual-publishability.json"
     audit_path = root / "qa/audit-report.json"
     visual_publishable = visual_publishable_from_json(visual_path)
@@ -909,16 +991,17 @@ def stage_qa(request: Mapping[str, Any], root: Path, project_root: Path) -> dict
     names = [
         "final-video.mp4",
         "branded-output.mp4",
-        "qa/audit-report.json",
-        "qa/render-checkpoints.json",
-        "qa/visual-publishability.json",
-        "qa/qa_report.html",
+        *required_evidence,
     ]
     return outputs_for(
         root,
         names,
         visual_publishable=True,
         blocker_count=0,
+        resolution=f"{width}x{height}",
+        video_duration_seconds=round(video_duration, 3),
+        audio_duration_seconds=round(audio_duration, 3),
+        black_duration_seconds=round(black_duration, 3),
     )
 
 

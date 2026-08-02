@@ -26,6 +26,20 @@ def load_worker():
     return module
 
 
+def test_ffprobe_resolution_accepts_trailing_empty_csv_field(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    worker = load_worker()
+    monkeypatch.setattr(
+        worker,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args[0], 0, "3840,2160,\n", ""
+        ),
+    )
+    assert worker.ffprobe_resolution(Path("video.mp4")) == (3840, 2160)
+
+
 def test_run_decodes_windows_cp950_output(monkeypatch: pytest.MonkeyPatch) -> None:
     worker = load_worker()
 
@@ -321,24 +335,38 @@ def test_image_generation_uses_local_bridge_and_copies_output(
     assert updated["primary_visual_request_id"].startswith("vr_test")
 
 
-def test_qa_requires_visual_publishability_and_zero_blockers(
+def test_qa_generates_evidence_and_requires_all_gates(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     worker = load_worker()
     project = tmp_path / "project"
     root = tmp_path / "artifacts"
-    (project / "scripts").mkdir(parents=True)
-    (project / "scripts/verify.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    project.mkdir()
+    (project / "poc-project").mkdir()
+    (project / "generate_qa_report.py").write_text("# qa generator\n", encoding="utf-8")
     root.mkdir()
-    (root / "final-video.mp4").write_bytes(b"video")
-    (root / "branded-output.mp4").write_bytes(b"video")
+    for name in (
+        "final-video.mp4",
+        "branded-output.mp4",
+        "podcast_audio.wav",
+        "scene-plan.json",
+        "timing.json",
+    ):
+        (root / name).write_bytes(b"artifact")
     (root / "qa").mkdir()
+    for name in ("render-checkpoints.json", "qa_report.html"):
+        (root / "qa" / name).write_text("{}", encoding="utf-8")
 
-    monkeypatch.setattr(
-        worker,
-        "run",
-        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, "", ""),
-    )
+    calls: list[tuple[list[str], Path | None]] = []
+
+    def fake_run(command, *, cwd=None, **kwargs):
+        calls.append((list(command), cwd))
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(worker, "run", fake_run)
+    monkeypatch.setattr(worker, "ffprobe_duration", lambda path: 47.0)
+    monkeypatch.setattr(worker, "ffprobe_resolution", lambda path: (3840, 2160))
+    monkeypatch.setattr(worker, "ffmpeg_black_duration", lambda path: 0.0)
     request = {"inputs": {}}
     (root / "qa/visual-publishability.json").write_text(
         json.dumps({"visual_publishable": False}), encoding="utf-8"
@@ -364,6 +392,12 @@ def test_qa_requires_visual_publishability_and_zero_blockers(
     outputs = worker.stage_qa(request, root, project)
     assert outputs["visual_publishable"] is True
     assert outputs["blocker_count"] == 0
+    assert outputs["resolution"] == "3840x2160"
+    assert outputs["video_duration_seconds"] == 47.0
+    assert [sys.executable, str(project / "generate_qa_report.py"), str(root), "--json-only"] in [
+        command for command, _ in calls
+    ]
+    assert (["npx", "tsc", "--noEmit"], project / "poc-project") in calls
 
 
 def test_main_rejects_publish_stage_without_side_effects(tmp_path: Path) -> None:
