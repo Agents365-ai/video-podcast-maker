@@ -334,7 +334,7 @@ def _run(args, started_at):
 
     if not qualifying:
         skip_list = sorted(skip_set)
-        print(f"No qualifying sections found.")
+        print("No qualifying sections found.")
         print(f"  Skipped names: {skip_list}")
         print(f"  Min duration: {args.min_duration}s")
         print(f"  All sections: {result['all_sections']}")
@@ -356,9 +356,9 @@ def _run(args, started_at):
 
         # 1. Extract audio
         if extract_audio(input_dir, sec, output_dir):
-            print(f"    \u2713 Audio extracted")
+            print("    \u2713 Audio extracted")
         else:
-            print(f"    \u2717 Audio extraction failed, skipping")
+            print("    \u2717 Audio extraction failed, skipping")
             result['failed'].append({
                 "section_name": name,
                 "stage": "extract_audio",
@@ -409,19 +409,34 @@ def _run(args, started_at):
             started_at=started_at,
         ))
 
+    # Partial render failure must not pass silently: --render was requested
+    # and at least one short didn't render. (First-run --render is expected
+    # to fail until the per-short compositions are created — see
+    # workflow-publish.md "Create short compositions" — but a failure must
+    # be reported, not absorbed by the generated-count.)
+    render_failures = [f for f in result['failed'] if f['stage'] == 'render']
+    if args.render and render_failures:
+        sys.exit(cli_envelope.emit_error(
+            args,
+            "render_failed",
+            f"{len(render_failures)} of {len(result['generated'])} short(s) failed to render",
+            extra={"result": result},
+            started_at=started_at,
+        ))
+
     # Summary
     print("=" * 50)
     print(f"Generated {len(result['generated'])} shorts in {shorts_dir}/")
     for g in result['generated']:
         print(f"  {g['comp_id']}: {g['section_name']} ({g['total_frames']} frames)")
 
-    print(f"\nNext steps:")
-    print(f"  1. Create Remotion composition files for each short")
-    print(f"  2. Render with --public-dir pointing to the short's own directory")
-    print(f"     (NOT the long-form videos/{{name}}/ — shorts have their own audio + timing)")
-    print(f"  3. npx remotion render src/remotion/index.ts <CompId> \\")
-    print(f"       videos/<name>/shorts/<section>/<CompId>.mp4 \\")
-    print(f"       --video-bitrate 16M --public-dir videos/<name>/shorts/<section>/")
+    print("\nNext steps:")
+    print("  1. Create Remotion composition files for each short")
+    print("  2. Render with --public-dir pointing to the short's own directory")
+    print("     (NOT the long-form videos/{name}/ — shorts have their own audio + timing)")
+    print("  3. npx remotion render src/remotion/index.ts <CompId> \\")
+    print("       videos/<name>/shorts/<section>/<CompId>.mp4 \\")
+    print("       --video-bitrate 16M --public-dir videos/<name>/shorts/<section>/")
 
     sys.exit(cli_envelope.emit_success(args, result, started_at=started_at))
 

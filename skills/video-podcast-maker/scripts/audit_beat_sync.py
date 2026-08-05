@@ -48,10 +48,32 @@ _BEATS_CONST = re.compile(
     r'const\s+([A-Z][A-Z0-9_]*_BEATS)\s*[:=][^=]*=\s*\[(.*?)\n\]\s*$',
     re.DOTALL | re.MULTILINE)
 
-# Match a single beat object: { ... startSec: 1.23 ... lines: [ ... ] ... }
-_BEAT_OBJECT = re.compile(
-    r'\{\s*([^{}]*?startSec\s*:\s*[\d.]+[^{}]*?lines\s*:\s*\[[^\]]*?\][^{}]*?)\}',
-    re.DOTALL)
+# Match a single beat object with balanced braces — beats may contain
+# nested object entries (e.g. the kinetic preset's `lines: [{ t: '...' }]`),
+# which a brace-free regex cannot parse.
+def _beat_objects(body):
+    """Yield the raw text of each balanced beat object in a BEATS body."""
+    i = 0
+    n = len(body)
+    while i < n:
+        j = body.find("{", i)
+        if j < 0:
+            return
+        depth = 0
+        k = j
+        while k < n:
+            ch = body[k]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    yield body[j : k + 1]
+                    i = k + 1
+                    break
+            k += 1
+        else:
+            return
 
 # Match SECTION_CONFIG mapping: { hero: { beats: HERO_BEATS, ... }, ... }
 _SECTION_CONFIG = re.compile(
@@ -72,14 +94,22 @@ def parse_beats(tsx_text: str):
         beats_name = m.group(1)
         body = m.group(2)
         items = []
-        for bm in _BEAT_OBJECT.finditer(body):
-            obj_body = bm.group(1)
+        for obj_body in _beat_objects(body):
             start = re.search(r'startSec\s*:\s*([\d.]+)', obj_body)
             if not start:
                 continue
             start_sec = float(start.group(1))
-            # Extract human-readable summary of beat lines
-            lines = re.findall(r"t\s*:\s*['\"](.*?)['\"]", obj_body)
+            # Extract human-readable summary of beat lines, scoped to the
+            # `lines:` array so style enums outside it (e.g. `variant: 'pop'`,
+            # `c: 'mint'` in the kinetic preset) are never treated as
+            # narration. Inside the array, prefer anchored `t:` object keys
+            # and fall back to bare string-array entries.
+            lm = re.search(r"lines\s*:\s*\[(.*?)\]", obj_body, re.DOTALL)
+            arr_body = lm.group(1) if lm else ""
+            lines = (
+                re.findall(r"(?<![A-Za-z0-9_])t\s*:\s*['\"]([^'\"]+)['\"]", arr_body)
+                or re.findall(r"['\"]([^'\"]+)['\"]", arr_body)
+            )
             summary = ' / '.join(lines)
             items.append((start_sec, summary))
         beats_arrays[beats_name] = items
@@ -123,6 +153,14 @@ def srt_overlap(subs, range_start, range_end):
     return ' / '.join(parts)
 
 
+def _norm(s):
+    """Normalize for beat-vs-narration comparison: lowercase, drop whitespace
+    and punctuation (CJK + ASCII) so "故事" matches inside "每一个故事"."""
+    return re.sub(
+        r"[\s，。！？、：；""''“”‘’.,!?;:()\[\]（）·—\-]", '', s.lower()
+    )
+
+
 # Main ----------------------------------------------------------------------
 
 def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
@@ -160,6 +198,7 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
                 "name": name, "beats_array": None,
                 "status": "no_mapping", "beats": [],
             })
+            issues += 1  # an unverified section must fail the gate, not pass silently
             continue
         items = beats_arrays.get(beats_name, [])
         if not items:
@@ -168,6 +207,7 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
                 "name": name, "beats_array": beats_name,
                 "status": "unparseable", "beats": [],
             })
+            issues += 1
             continue
         sec_start = sec['start_time']
         sec_end = sec['start_time'] + sec['duration']
@@ -181,13 +221,34 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
             narration = srt_overlap(subs, abs_start, next_start)
             shown_short = shown[:30] + '..' if len(shown) > 32 else shown
             narr_short = narration[:58] + '..' if len(narration) > 60 else narration
-            flag = ''
+            problems = []
             # Heuristic warning: beat starts too far from any SRT entry start
             nearest = min((abs(s - abs_start) for s, _, _ in subs), default=99)
             beat_ok = nearest <= drift_warn
             if not beat_ok:
-                flag = f' ⚠ drift {nearest:.1f}s'
+                problems.append(f'drift {nearest:.1f}s')
+            # Text check: a beat's shown text must appear (normalized substring)
+            # in the narration overlapping its range. Skipped when the range has
+            # no narration (music/gap) or the beat carries no text fragments.
+            fragments = []
+            for frag in shown.split(' / '):
+                nf = _norm(frag)
+                if len(nf) >= 2:
+                    fragments.append(nf)
+            text_ok = True
+            if fragments:
+                # Every meaningful displayed fragment must appear in the
+                # narration overlapping the beat's range — a beat showing
+                # text when nothing is spoken, or unrelated text, fails.
+                norm_narr = _norm(narration)
+                text_ok = all(nf in norm_narr for nf in fragments)
+                if not text_ok:
+                    problems.append('text mismatch')
+            if problems:
+                flag = ' ⚠ ' + ', '.join(problems)
                 issues += 1
+            else:
+                flag = ''
             print(f"  {abs_start:6.2f}s+0  {shown_short:<32}  {narr_short:<60}{flag}")
             beat_records.append({
                 "start_sec_relative": round(start_sec, 2),
@@ -196,6 +257,7 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
                 "narration_overlap": narration,
                 "nearest_srt_distance_seconds": round(nearest, 2),
                 "ok": beat_ok,
+                "text_ok": text_ok,
             })
         section_records.append({
             "name": name, "beats_array": beats_name,
@@ -203,11 +265,21 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
         })
 
     print('\n' + '=' * 100)
+    no_mapping = sum(1 for r in section_records if r['status'] == 'no_mapping')
+    unparseable = sum(1 for r in section_records if r['status'] == 'unparseable')
+    drift_beats = sum(
+        1 for r in section_records for b in r['beats'] if not b['ok']
+    )
+    text_mismatches = sum(
+        1 for r in section_records for b in r['beats'] if not b['text_ok']
+    )
     if issues:
-        print(f"⚠️  {issues} beats more than {drift_warn}s away from nearest SRT boundary.")
+        print(f"⚠️  {issues} issue(s): {drift_beats} beat(s) > {drift_warn}s from an SRT"
+              f" boundary, {text_mismatches} beat(s) with text not in the narration,"
+              f" {no_mapping} section(s) with no beats mapping, {unparseable} unparseable array(s).")
         print("   Consider adjusting their startSec to match a nearby SRT entry start.")
     else:
-        print("✅ All beats land within {:.1f}s of an SRT boundary.".format(drift_warn))
+        print(f"✅ All beats land within {drift_warn:.1f}s of an SRT boundary and the shown text matches narration.")
 
     audited = [r for r in section_records if r['status'] == 'audited']
     result = {
@@ -224,7 +296,8 @@ def audit(tsx_path, timing_path, srt_path, drift_warn=1.5):
             "sections_skipped_no_mapping": sum(1 for r in section_records if r['status'] == 'no_mapping'),
             "sections_unparseable": sum(1 for r in section_records if r['status'] == 'unparseable'),
             "beats_audited": sum(len(r['beats']) for r in audited),
-            "beats_with_drift": issues,
+            "beats_with_drift": drift_beats,
+            "beats_with_text_mismatch": text_mismatches,
         },
         "sections": section_records,
     }
@@ -288,14 +361,26 @@ def main():
                 field="timing", extra={"timing": args.timing},
                 started_at=started_at,
             ))
+        except Exception as exc:
+            # Truncated timing.json (missing total_duration/sections keys) and
+            # other unexpected failures must produce an envelope, never a bare
+            # traceback on empty stdout — agents can't route those.
+            sys.stdout = sys.__stdout__
+            sys.exit(cli_envelope.emit_error(
+                args, "internal_error",
+                f"{type(exc).__name__}: {exc}",
+                extra={"tsx": args.tsx, "timing": args.timing, "srt": srt},
+                started_at=started_at,
+            ))
     finally:
         sys.stdout = sys.__stdout__
 
     if issues:
-        # Audit completed; the *gate* failed — beats drift exceeds threshold.
+        # Audit completed; the *gate* failed — drift, text mismatch, or an
+        # unmapped/unparseable section.
         sys.exit(cli_envelope.emit_error(
             args, "validation_failed",
-            f"{issues} beat(s) more than {args.drift_warn}s from nearest SRT boundary",
+            f"{issues} beat-audit issue(s) (see summary)",
             extra=result,
             started_at=started_at,
         ))

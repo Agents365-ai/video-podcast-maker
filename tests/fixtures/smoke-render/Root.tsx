@@ -1,6 +1,5 @@
 import { Composition } from "remotion";
-import { Video } from "../../../skills/video-podcast-maker/templates/Video";
-import { defaultVideoProps } from "../../../skills/video-podcast-maker/templates/Root";
+import { Video } from "../../templates/Video";
 
 export const RemotionRoot: React.FC = () => {
 	return (
@@ -11,12 +10,7 @@ export const RemotionRoot: React.FC = () => {
 			fps={30}
 			width={1920}
 			height={1080}
-			defaultProps={{
-				...defaultVideoProps,
-				enableAnimations: false,
-				transitionType: "none",
-				transitionDuration: 0,
-			}}
+			defaultProps={{ enableAnimations: false }}
 		/>
 	);
 };

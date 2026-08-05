@@ -47,7 +47,7 @@ export { ShortCTACard } from "./ShortCTACard";
 export { Subtitles } from "./Subtitles";
 
 // Timing data (runtime loading via staticFile, supports --public-dir)
-export { useTiming, fetchTimingData } from "./useTiming";
+export { useTiming, fetchTimingData, SILENT_FRAMES } from "./useTiming";
 export type { TimingData, TimingSection } from "./useTiming";
 
 // Asset manifest (assets/manifest.json via --public-dir; see scripts/assets.py)

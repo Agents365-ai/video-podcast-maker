@@ -137,7 +137,7 @@ ACTIONS = {
         'script': 'components.py',
         'prepend': ['probe'],
         'parser_attr': None,
-        'description': 'Probe optional component skills (assetSeeker/imagenCN/videogenCN/ttsCN)',
+        'description': 'Probe optional component skills (assetseeker/imagencn/videogencn/ttscn)',
     },
     'prefs.get': {
         'script': 'get_pref.py',

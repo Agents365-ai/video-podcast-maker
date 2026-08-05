@@ -134,12 +134,14 @@ def test_audit_clean_run_no_drift(tmp_path):
 
 
 def test_audit_flags_drift_when_beat_far_from_srt(tmp_path):
-    # SRT only goes to 5s; beat at 8.0 is 3+s away from any SRT entry start.
+    # SRT only goes to 5s; beat at 8.0 is 3+s away from any SRT entry start
+    # and shows text while nothing is spoken → drift + text mismatch.
     tsx, timing, srt = _write(tmp_path, DRIFT_TSX, CLEAN_SRT, total_duration=10.0)
     issues, result = audit(str(tsx), str(timing), str(srt), drift_warn=1.5)
-    assert issues >= 1
+    assert issues == 2
     assert result['issues_count'] == issues
-    assert result['summary']['beats_with_drift'] == issues
+    assert result['summary']['beats_with_drift'] == 1
+    assert result['summary']['beats_with_text_mismatch'] == 2
     drift_beats = [b for b in result['sections'][0]['beats'] if not b['ok']]
     assert drift_beats
     assert all(b['nearest_srt_distance_seconds'] > 1.5 for b in drift_beats)
@@ -149,6 +151,70 @@ def test_audit_raises_on_missing_section_config(tmp_path):
     tsx, timing, srt = _write(tmp_path, NO_CONFIG_TSX, CLEAN_SRT)
     with pytest.raises(ValueError, match='SECTION_CONFIG'):
         audit(str(tsx), str(timing), str(srt))
+
+
+def test_audit_flags_text_mismatch_when_beat_text_unrelated(tmp_path):
+    # The shown text must appear in the narration overlapping the beat's
+    # range — a future/unrelated phrase on a valid SRT boundary fails.
+    tsx = textwrap.dedent("""\
+        const HERO_BEATS: Beat[] = [
+          { startSec: 0.0, lines: ['Completely different content'] }
+        ]
+
+        const SECTION_CONFIG: Record<string, Section> = {
+          hero: { beats: HERO_BEATS, label: 'Intro' }
+        }
+    """)
+    tsx_path, timing, srt = _write(tmp_path, tsx, CLEAN_SRT, total_duration=5.0)
+    issues, result = audit(str(tsx_path), str(timing), str(srt), drift_warn=1.5)
+    assert issues >= 1
+    beat = result['sections'][0]['beats'][0]
+    assert beat['text_ok'] is False
+    assert result['summary']['beats_with_text_mismatch'] >= 1
+
+
+def test_audit_extracts_text_from_string_array_lines(tmp_path):
+    # The documented `lines: ['a', 'b']` form must feed the text check.
+    tsx_path, timing, srt = _write(tmp_path, CLEAN_TSX, CLEAN_SRT, total_duration=5.0)
+    issues, result = audit(str(tsx_path), str(timing), str(srt), drift_warn=1.5)
+    assert issues == 0
+    assert result['sections'][0]['beats'][0]['shown'] == 'Hello world this is a test'
+
+
+PRESET_SHAPED_TSX = textwrap.dedent("""\
+    const HERO_BEATS: Beat[] = [
+      {
+        variant: 'pop',
+        startSec: 0,
+        lines: [
+          { t: '大家好', size: 220 },
+          { t: '欢迎来到我的频道', size: 110, c: 'mint', marker: true },
+        ],
+      }
+    ]
+
+    const SECTION_CONFIG: Record<string, Section> = {
+      hero: { beats: HERO_BEATS, label: 'Intro' }
+    }
+""")
+
+
+def test_audit_preset_shaped_beats_pass(tmp_path):
+    # The shipped kinetic preset uses nested object lines + style enums.
+    # Nested braces must parse, and variant/c enums must not leak into the
+    # shown text or fail the text check.
+    srt = textwrap.dedent("""\
+        1
+        00:00:00,000 --> 00:00:02,500
+        大家好 欢迎来到我的频道
+    """)
+    tsx_path, timing, srt_path = _write(tmp_path, PRESET_SHAPED_TSX, srt, total_duration=5.0)
+    issues, result = audit(str(tsx_path), str(timing), str(srt_path), drift_warn=1.5)
+    assert issues == 0, result
+    shown = result['sections'][0]['beats'][0]['shown']
+    assert 'pop' not in shown and 'mint' not in shown
+    assert '大家好' in shown and '欢迎来到我的频道' in shown
+    assert result['sections'][0]['beats'][0]['text_ok'] is True
 
 
 def test_audit_records_drift_threshold_in_result(tmp_path):

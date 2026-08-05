@@ -15,9 +15,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / "skills" / "video-podcast-maker"
 
 # Single source of truth for the test suite; update together with the docs
-# when a platform gains native word-boundary support in ttsCN.
+# when a platform gains native word-boundary support in ttscn.
 NATIVE_BOUNDARY_PLATFORMS = "edge, azure, doubao, minimax, cosyvoice"
-
 # Files that state the native-boundary platform list.
 NATIVE_BOUNDARY_DOCS = [
     SKILL_ROOT / "references" / "troubleshooting.md",
@@ -37,11 +36,7 @@ def test_env_example_lists_every_backend():
     options_line = next(
         line for line in env_example.splitlines() if line.startswith("TTS_BACKEND=")
     )
-    missing = [
-        backend
-        for backend in BACKENDS
-        if backend != "ttscn" and backend not in options_line  # legacy alias excluded
-    ]
+    missing = [backend for backend in BACKENDS if backend not in options_line]
     assert not missing, f".env.example TTS_BACKEND options line missing: {missing}"
 
 
@@ -83,6 +78,138 @@ def test_skill_and_package_versions_match():
     assert skill_version == package_version, (
         f"SKILL.md version {skill_version} != package.json version {package_version}"
     )
+
+
+# Canonical workflow step ids (single source of truth — keep in sync with
+# the workflow table in SKILL.md, which folds the decimal sub-steps into its
+# 12 rows). Docs, templates, and script comments must only reference these.
+CANONICAL_STEPS = {
+    "1",
+    "2",
+    "3",
+    "4",
+    "4.5",
+    "5",
+    "5.5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "9.5",
+    "10",
+    "10.1",
+    "10.2",
+    "10.3",
+    "11",
+}
+
+# Scanned for 'Step N' references. CHANGELOG.md is intentionally excluded:
+# old entries document retired numbering and are a historical record.
+STEP_SCAN_FILES = (
+    [SKILL_ROOT / "SKILL.md"]
+    + sorted(SKILL_ROOT.glob("references/*.md"))
+    + sorted(SKILL_ROOT.glob("templates/**/*.tsx"))
+    + sorted(SKILL_ROOT.glob("templates/**/*.ts"))
+    + sorted(SKILL_ROOT.glob("scripts/**/*.py"))
+    + [REPO_ROOT / "README.md", REPO_ROOT / "README_CN.md"]
+)
+
+_STEP_START = re.compile(r"Steps?\s+(\d+(?:\.\d+)?)", re.IGNORECASE)
+_STEP_RANGE = re.compile(r"\s*[-–—]\s*(\d+(?:\.\d+)?)")
+_STEP_LIST = re.compile(r"\s*(?:,|/)\s*(?:and\s+)?(\d+(?:\.\d+)?)")
+_STEP_WORD = re.compile(r"\s+(?:and|through)\s+(\d+(?:\.\d+)?)")
+
+
+def _step_numbers(line):
+    """Yield every step number mentioned in a line.
+
+    Handles the shapes docs actually use: 'Step 9', 'Steps 5.5-9.5',
+    'Steps 10.1-11', comma lists ('Steps 7, 9, 10, 13, and 15' — how the
+    retired 13/15 refs survived a renumbering), slash lists, and word
+    separators ('Steps 7 and 13', 'Steps 7 through 13').
+    """
+    for start in _STEP_START.finditer(line):
+        yield start.group(1)
+        rest = line[start.end() :]
+        rm = _STEP_RANGE.match(rest)
+        if rm:
+            yield rm.group(1)
+            rest = rest[rm.end() :]
+        while True:
+            cm = _STEP_LIST.match(rest)
+            if cm:
+                yield cm.group(1)
+                rest = rest[cm.end() :]
+                continue
+            wm = _STEP_WORD.match(rest)
+            if wm:
+                yield wm.group(1)
+                rest = rest[wm.end() :]
+                continue
+            break
+
+
+def test_no_stale_skill_dir_state_paths():
+    """Mutable state (user_prefs.json, phonemes.json) lives in
+    ~/.video-podcast-maker/ — references/ must never point agents at
+    ${SKILL_DIR} copies (they are wiped on every skill update)."""
+    forbidden = ("${SKILL_DIR}/user_prefs.json", "${SKILL_DIR}/phonemes.json")
+    hits = []
+    for path in sorted((SKILL_ROOT / "references").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        for pat in forbidden:
+            if pat in text:
+                hits.append(f"{path.name}: {pat}")
+    assert not hits, f"stale skill-dir state paths: {hits}"
+
+
+def test_step_references_resolve_to_canonical_workflow():
+    """Every 'Step N' mention must be a canonical workflow step id.
+
+    This is the drift class that produced 6 of the 25 findings in the
+    dual-review round: retired steps 13/15 survived in platform-matrix.md,
+    BGM mix was called 'Step 11' (shorts) in four templates, and SKILL.md
+    contradicted itself on Step 8 vs 9 for design-guide.md. A renumbering
+    must update CANONICAL_STEPS here and SKILL.md's table together.
+    """
+    violations = []
+    for path in STEP_SCAN_FILES:
+        if not path.exists():
+            continue
+        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for num in _step_numbers(line):
+                if num not in CANONICAL_STEPS:
+                    rel = path.relative_to(REPO_ROOT)
+                    violations.append(
+                        f"{rel}:{lineno}: 'Step {num}' not in {sorted(CANONICAL_STEPS)}"
+                    )
+    assert not violations, f"{len(violations)} stale step reference(s):\n" + "\n".join(
+        violations
+    )
+
+
+def test_step_regex_catches_bypass_shapes():
+    """The exact shapes that slipped through a renumbering must be caught,
+    while legitimate canonical references pass."""
+    bypasses = [
+        "Reference during Steps 7, 9, 10, 13, and 15.",
+        "Steps 7 and 13",
+        "Steps 7/13",
+        "Steps 7 through 13",
+        "step 13.",
+    ]
+    for line in bypasses:
+        bad = [n for n in _step_numbers(line) if n not in CANONICAL_STEPS]
+        assert bad, f"bypass shape not caught: {line!r}"
+    valid = [
+        "Steps 5.5-9.5 (publish info draft -> BGM mix)",
+        "Steps 10.1-11 (finalize -> shorts)",
+        "Steps 1-4",
+        "Step 9.5 mixes BGM via FFmpeg.",
+    ]
+    for line in valid:
+        bad = [n for n in _step_numbers(line) if n not in CANONICAL_STEPS]
+        assert not bad, f"valid shape falsely flagged: {line!r}"
 
 
 def test_all_markdown_references_resolve():

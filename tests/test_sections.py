@@ -149,6 +149,25 @@ def test_match_fallback_when_not_found():
     assert out[1]["start_time"] > 0
 
 
+def test_match_middle_silent_section_does_not_consume_neighbor():
+    """A silent section between two voiced ones must not match the empty
+    anchor against the first word boundary (which would squeeze the
+    preceding section to ~0s) — it gets a zero-width slot at the next
+    non-silent boundary instead."""
+    sections = [
+        {"name": "hero", "first_text": "欢迎", "start_time": None, "end_time": None, "is_silent": False},
+        {"name": "pause", "first_text": "", "start_time": None, "end_time": None, "is_silent": True},
+        {"name": "body", "first_text": "人工智能", "start_time": None, "end_time": None, "is_silent": False},
+    ]
+    wbs = [_wb("欢迎", 0.0), _wb("大家", 1.0), _wb("人工智能", 3.0)]
+    out = match_section_times(sections, wbs, 6.0)
+    assert out[0]["start_time"] == 0
+    assert out[0]["end_time"] == 3.0  # hero runs to the body anchor, not ~0
+    assert out[1]["start_time"] == out[1]["end_time"] == 3.0  # zero-width pause
+    assert out[1]["duration"] == 0
+    assert out[2]["start_time"] == 3.0
+
+
 def test_match_trailing_silent_section_gets_total_duration():
     sections = [
         {"name": "hero", "first_text": "欢迎", "start_time": None, "end_time": None, "is_silent": False},

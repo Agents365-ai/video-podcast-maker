@@ -31,6 +31,7 @@ import {
   IconCard,
   Icon,
   useTiming,
+  SILENT_FRAMES,
 } from "./components";
 import type { TimingSection } from "./components";
 
@@ -307,28 +308,67 @@ export const Video = (props: VideoProps) => {
   const timing = useTiming();
   const sections = timing.sections;
   const transitionFrames = props.transitionDuration;
-  const transitionCount = Math.max(0, sections.length - 1);
+
+  // Non-trailing silent sections are zero-width pauses with nothing to
+  // render — drop them entirely (a 15-frame sequence flanked by 15-frame
+  // transitions is invisible at best, rejected by TransitionSeries at
+  // worst). Trailing silents (outro cards) APPEND after the narration:
+  // Root.tsx registers the composition SILENT_FRAMES longer per trailing
+  // silent, and they never enter the narration scaling budget.
+  const lastNonSilentIdx = sections.map((s) => !s.is_silent).lastIndexOf(true);
+  const renderSections = sections.filter(
+    (s, i) => !(s.is_silent && i <= lastNonSilentIdx),
+  );
+  const transitionCount = Math.max(0, renderSections.length - 1);
   const effectiveTransitionFrames =
     props.transitionType !== "none" && transitionFrames > 0 ? transitionFrames : 0;
+  const trailingSilentCount = renderSections.filter((s) => s.is_silent).length;
+  const silentBudget = trailingSilentCount * SILENT_FRAMES;
 
-  // Audio-master-clock: TransitionSeries renders sum(sections) - (N-1)*transitionFrames.
-  // Scale every section proportionally so the rendered total equals timing.total_frames,
-  // instead of stuffing all overlap frames into the first section (which desyncs it).
-  const originalTotal = sections.reduce((sum, s) => sum + s.duration_frames, 0);
-  const targetTotal = timing.total_frames + transitionCount * effectiveTransitionFrames;
-  const scaleFactor = originalTotal > 0 ? targetTotal / originalTotal : 1;
+  // Audio-master-clock: TransitionSeries renders sum(sections) - (N-1)*t.
+  // Non-silent sections scale against the narration timeline ONLY
+  // (total_frames + transitions) — the silent budget is added to the
+  // target for the diff bookkeeping but excluded from the numerator, so
+  // every section's render start equals its audio start.
+  const originalTotal = renderSections.reduce(
+    (sum, s) => sum + (s.is_silent ? 0 : s.duration_frames),
+    0,
+  );
+  const targetTotal =
+    timing.total_frames +
+    transitionCount * effectiveTransitionFrames +
+    silentBudget;
+  const scaleFactor =
+    originalTotal > 0 ? (targetTotal - silentBudget) / originalTotal : 1;
 
-  const compensatedSections = sections.map((s) => ({
-    ...s,
-    duration_frames: Math.max(15, Math.round(s.duration_frames * scaleFactor)),
-  }));
+  const compensatedSections = renderSections.map((s) => {
+    if (s.is_silent) {
+      return { ...s, duration_frames: SILENT_FRAMES };
+    }
+    return {
+      ...s,
+      duration_frames: Math.max(15, Math.round(s.duration_frames * scaleFactor)),
+    };
+  });
 
-  // Absorb rounding error into the last section so the total matches exactly.
+  // Absorb rounding error so the total matches exactly. Land it on the last
+  // non-silent section — a silent section's fixed floor must not swallow it.
   const scaledTotal = compensatedSections.reduce((sum, s) => sum + s.duration_frames, 0);
   const diff = targetTotal - scaledTotal;
-  if (compensatedSections.length > 0) {
-    const last = compensatedSections[compensatedSections.length - 1];
-    last.duration_frames = Math.max(15, last.duration_frames + diff);
+  if (diff !== 0) {
+    let absorbed = false;
+    for (let i = compensatedSections.length - 1; i >= 0; i--) {
+      const s = compensatedSections[i];
+      if (!s.is_silent) {
+        s.duration_frames = Math.max(15, s.duration_frames + diff);
+        absorbed = true;
+        break;
+      }
+    }
+    if (!absorbed && compensatedSections.length > 0) {
+      const last = compensatedSections[compensatedSections.length - 1];
+      last.duration_frames = Math.max(15, last.duration_frames + diff);
+    }
   }
 
   return (
@@ -340,7 +380,7 @@ export const Video = (props: VideoProps) => {
               <TransitionSeries.Sequence durationInFrames={section.duration_frames}>
                 <SectionComponent section={section} props={props} />
               </TransitionSeries.Sequence>
-              {i < sections.length - 1 && transitionFrames > 0 && props.transitionType !== "none" && (
+              {i < renderSections.length - 1 && transitionFrames > 0 && props.transitionType !== "none" && (
                 <TransitionSeries.Transition
                   presentation={getPresentation(props.transitionType)}
                   timing={linearTiming({ durationInFrames: transitionFrames })}
@@ -358,8 +398,8 @@ export const Video = (props: VideoProps) => {
       <Subtitles src={staticFile("podcast_audio.srt")} />
 
       {/* BGM with configurable volume.
-          Default `bgmVolume = 0` (off) — Step 11 mixes BGM via FFmpeg.
-          Set this > 0 in Studio only if you intend to skip Step 11. */}
+          Default `bgmVolume = 0` (off) — Step 9.5 mixes BGM via FFmpeg.
+          Set this > 0 in Studio only if you intend to skip Step 9.5. */}
       {props.bgmVolume > 0 && (
         <Audio src={staticFile("bgm.mp3")} volume={props.bgmVolume} />
       )}

@@ -2,20 +2,20 @@
 
 > **When to load:** Load after the narration script exists, or when the user asks about media, TTS, Remotion composition, 4K render, or BGM mixing.
 >
-> **Covers:** Steps 6-11 (publish info draft → thumbnail → TTS → Remotion composition + Studio preview → 4K render → BGM mix). Step 5 (asset plan & resolve) lives in `workflow-assets.md` — only a pointer stub remains below.
+> **Covers:** Steps 5.5-9.5 (publish info draft → thumbnail → TTS → Remotion composition + Studio preview → 4K render → BGM mix). Step 5 (asset plan & resolve) lives in `workflow-assets.md` — only a pointer stub remains below.
 >
 > **Previous phase:** See `workflow-script.md` for Pre-workflow + Startup + Steps 1-4, then `workflow-assets.md` for Step 5.
-> **Next phase:** See `workflow-publish.md` for Steps 12-15 (subtitles, publish info, cleanup, shorts).
+> **Next phase:** See `workflow-publish.md` for Steps 10.1-11 (finalize, publish info, verify + cleanup, shorts).
 
 ## Contents
 
 - [Step 5: Asset Plan & Resolve](#step-5-asset-plan--resolve) — pointer to workflow-assets.md
-- [Step 6: Generate Publish Info (Part 1)](#step-6-generate-publish-info-part-1)
-- [Step 7: Generate Video Thumbnail](#step-7-generate-video-thumbnail)
-- [Step 8: Generate TTS Audio](#step-8-generate-tts-audio) — voice selection, SSML, chunk seams
-- [Step 9: Create Remotion Composition + Studio Preview](#step-9-create-remotion-composition--studio-preview)
-- [Step 10: Render 4K Video](#step-10-render-4k-video)
-- [Step 11: Mix with Background Music](#step-11-mix-with-background-music)
+- [Step 5.5: Generate Publish Info (Part 1)](#step-55-generate-publish-info-part-1)
+- [Step 6: Generate Video Thumbnail](#step-6-generate-video-thumbnail)
+- [Step 7: Generate TTS Audio](#step-7-generate-tts-audio) — voice selection, SSML, chunk seams
+- [Step 8: Create Remotion Composition + Studio Preview](#step-8-create-remotion-composition--studio-preview)
+- [Step 9: Render 4K Video](#step-9-render-4k-video)
+- [Step 9.5: Mix with Background Music](#step-95-mix-with-background-music)
 
 ---
 
@@ -25,7 +25,7 @@ Moved to its own phase file — **load [workflow-assets.md](workflow-assets.md)*
 
 Summary: plan per-section assets (role + source), register everything in
 `videos/{name}/assets/manifest.json` via `cli.py assets …`, resolve free
-sources (user files, assetSeeker stock) automatically, gate paid generation
+sources (user files, assetseeker stock) automatically, gate paid generation
 behind a cost confirmation, and consume in Remotion with `<AssetImage>` /
 `<AssetVideo>`. Playwright web screenshots are still available for
 product-UI captures — save them under `videos/{name}/assets/` and register
@@ -33,7 +33,7 @@ with `assets add --path`.
 
 ---
 
-## Step 6: Generate Publish Info (Part 1)
+## Step 5.5: Generate Publish Info (Part 1)
 
 Based on `podcast.txt`, generate `publish_info.md`:
 
@@ -43,12 +43,12 @@ Based on `podcast.txt`, generate `publish_info.md`:
 
 ---
 
-## Step 7: Generate Video Thumbnail
+## Step 6: Generate Video Thumbnail
 
 **Auto mode:** Generate Remotion thumbnails (16:9 + 4:3).
-**Interactive mode:** Ask user: Remotion-generated / AI (imagenCN) / both.
+**Interactive mode:** Ask user: Remotion-generated / AI (imagencn) / both.
 
-**MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required for horizontal video. (9:16 thumbnail is generated alongside the vertical render in Step 10/15 — not here.)
+**MUST generate both aspect ratios**: 16:9 (playback page) and 4:3 (feed/activity), both required for horizontal video. (9:16 thumbnail is generated alongside the vertical render in Step 9/11 — not here.)
 
 **Thumbnail design rules** (see `references/design-guide.md` for full spec):
 
@@ -67,7 +67,7 @@ npx remotion still src/remotion/index.ts Thumbnail4x3 videos/{name}/thumbnail_re
 npx remotion still src/remotion/index.ts Thumbnail3x4 videos/{name}/thumbnail_remotion_3x4.png --public-dir videos/{name}/
 ```
 
-**AI thumbnails (imagenCN)** — only when the user asked for AI thumbnails.
+**AI thumbnails (imagencn)** — only when the user asked for AI thumbnails.
 Locate the entry via `cli.py capabilities`; it is paid generation, so quote
 the cost (~0.2 RMB/image) and confirm first. Generate at the model's native
 size, then normalize to the exact spec sizes `verify_output.py` expects
@@ -92,11 +92,11 @@ Remotion thumbnails too when generating both; verify accepts either naming.
 
 ---
 
-## Step 8: Generate TTS Audio
+## Step 7: Generate TTS Audio
 
 > **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[troubleshooting.md → Azure TTS Deep-Dive](troubleshooting.md#azure-tts-deep-dive)** before picking a voice or style — covers voice selection, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio.
 
-**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
+**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttscn's per-platform default. The script logs which source it picked at startup.
 
 ```bash
 # Primary command — backend, rate, and voice all auto-resolved from user_prefs
@@ -111,13 +111,12 @@ python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt -
 
 Override per-run (without editing user_prefs): `TTS_BACKEND=edge TTS_RATE="+10%" python3 ...`. CLI `--backend <name>` also works and takes top priority.
 
-**ttsCN engine (required)** — every backend synthesizes through the ttsCN
+**ttscn engine (required)** — every backend synthesizes through the ttscn
 component skill (`cli.py capabilities` shows the install; `check_prereqs.py`
 fails with an install hint when missing). `TTS_BACKEND` accepts the platform
 id directly: `edge` (default, free), `azure`, `cosyvoice`, `doubao`,
 `tencent`, `baidu`, `minimax`, `xunfei`, `elevenlabs`, `openai`, `google`.
-The legacy `ttscn` alias still works and picks its platform from
-`TTSCN_PLATFORM` (default `edge`). ttsCN renders expressiveness markers
+ttscn renders expressiveness markers
 (`[PAUSE:x]`, sound tags) and applies phonemes per platform. Word
 boundaries: native per-word timings for platforms that report them (edge,
 azure, doubao, minimax, cosyvoice); chunk-level estimation otherwise — both
@@ -125,25 +124,24 @@ feed the same SRT/timing pipeline.
 
 ### Voice Selection by Language
 
-The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, `--voice` is omitted and ttsCN resolves its own per-platform default. Reference recommendations:
+The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, `--voice` is omitted and ttscn resolves its own per-platform default. Reference recommendations:
 
 | Language | Azure | Edge | Doubao | CosyVoice |
 |----------|-------|------|--------|-----------|
 | zh-CN | zh-CN-XiaoxiaoNeural | zh-CN-XiaoxiaoNeural | BV001_streaming | longxiaochun |
 | en-US | en-US-JennyNeural | en-US-JennyNeural | BV700_streaming | longlaoshu_v2 |
 
-**Manual override (one-off run, no prefs change)** — set `TTS_VOICE` (generic) or a legacy per-backend env var:
+**Manual override (one-off run, no prefs change)** — set `TTS_VOICE`:
 
 ```bash
-# Generic: TTS_VOICE. Legacy per-backend vars still work: AZURE_TTS_VOICE / EDGE_TTS_VOICE / VOLCENGINE_VOICE_TYPE / etc.
 TTS_VOICE="en-US-JennyNeural" python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 
-Precedence: env var > `user_prefs.json` > ttsCN's per-platform default. The script logs which source it picked at startup.
+Precedence: env var > `user_prefs.json` > ttscn's per-platform default. The script logs which source it picked at startup.
 
 ### Phoneme Correction
 
-The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to ttsCN, which applies it where the platform supports it (azure → SSML `<phoneme>`, minimax → pinyin annotations; other platforms ignore it). Three tiers (highest to lowest priority):
+The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to ttscn, which applies it where the platform supports it (azure → SSML `<phoneme>`, minimax → pinyin annotations; other platforms ignore it). Three tiers (highest to lowest priority):
 
 **1. Inline annotation** (highest) — in podcast.txt:
 
@@ -157,7 +155,7 @@ The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and p
 { "执行器": "zhí xíng qì", "重做": "chóng zuò" }
 ```
 
-**3. Global dictionary** — `phonemes.json` in skill root (shared across all projects)
+**3. Global dictionary** — `~/.video-podcast-maker/phonemes.json` (shared across all projects; auto-seeded from the bundled template)
 
 **Outputs**: `podcast_audio.wav`, `podcast_audio.srt`, `timing.json`
 
@@ -176,7 +174,7 @@ If the drift is ≥ 0.5s, re-run TTS or run `python3 ${SKILL_DIR}/scripts/align_
 
 ---
 
-## Step 9: Create Remotion Composition + Studio Preview
+## Step 8: Create Remotion Composition + Studio Preview
 
 **The agent MUST read `references/design-guide.md` AND `references/visual-taste.md` before this step** — design-guide owns the hard floors (px minimums, animation safety), visual-taste owns the judgment calls above them (dials, anti-default rules, section rhythm).
 
@@ -371,27 +369,27 @@ If you intentionally run multiple Remotion projects in parallel, launch Studio o
 5. Ask user: "Studio is running at <http://localhost:3000>. Please review the video preview."
 6. **Review loop** — user reviews, requests changes, the agent applies them, Studio hot reloads:
    - Layout/animation tweaks → edit components, Studio auto-refreshes
-   - Script/content changes → edit `podcast.txt`, may need re-TTS (Step 8)
-   - Pronunciation fixes → re-run TTS (Step 8)
+   - Script/content changes → edit `podcast.txt`, may need re-TTS (Step 7)
+   - Pronunciation fixes → re-run TTS (Step 7)
 
    A reply that requests **any** adjustment stays inside this loop — it is never an
    implicit render request, even when phrased as "change X, the rest looks good" or
    when the user confirmed a render for an earlier version. After applying the
    changes, tell the user Studio has hot-reloaded and ask them to review again.
-7. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" **in a message that requests no further changes** → proceed to Step 10
-8. Do NOT proceed to Step 10 until the user confirms. Each round of adjustments invalidates any earlier confirmation — wait for a fresh one.
+7. **Exit condition**: User explicitly says "render 4K" / "render final version" / "looks good, render" **in a message that requests no further changes** → proceed to Step 9
+8. Do NOT proceed to Step 9 until the user confirms. Each round of adjustments invalidates any earlier confirmation — wait for a fresh one.
 
 ---
 
-### Visual QA (Automated, part of Step 9)
+### Visual QA (Automated, part of Step 8)
 
 Visual quality is verified via Remotion Studio preview. The agent may offer to render section stills for manual inspection if requested.
 
 ---
 
-## Step 10: Render 4K Video
+## Step 9: Render 4K Video
 
-> **Prerequisite:** User has reviewed in Remotion Studio (Step 9) and explicitly requested final render.
+> **Prerequisite:** User has reviewed in Remotion Studio (Step 8) and explicitly requested final render.
 
 ### 4K Render
 
@@ -437,18 +435,18 @@ The vertical composition reuses Video.tsx with `orientation: "vertical"`. All co
 
 ---
 
-## Step 11: Mix with Background Music
+## Step 9.5: Mix with Background Music
 
 > **BGM source single-write rule (READ THIS FIRST).** Two paths can layer BGM
 > on the final video: the Remotion `<Audio src="bgm.mp3">` block inside
 > `Video.tsx`, and the FFmpeg `amix` below. **Pick exactly one.** Default
 > behavior is FFmpeg-only — `Root.tsx::defaultVideoProps.bgmVolume` is `0`,
-> so the Remotion BGM block is disabled and `output.mp4` from Step 10
-> contains *only* narration. Step 11 then layers BGM via FFmpeg.
+> so the Remotion BGM block is disabled and `output.mp4` from Step 9
+> contains *only* narration. Step 9.5 then layers BGM via FFmpeg.
 >
 > If you intend to bake BGM inside Remotion instead (e.g. for a beat-synced
 > video where the BGM drives animation): set `bgmVolume > 0` in Studio,
-> ensure `bgm.mp3` is present in `--public-dir`, and **skip Step 11**. Running
+> ensure `bgm.mp3` is present in `--public-dir`, and **skip Step 9.5**. Running
 > both layers it twice.
 
 ### BGM Selection
@@ -468,7 +466,7 @@ cp /path/to/user-bgm.mp3 videos/{name}/bgm.mp3
 
 **Override (different built-in track)**: edit `user_prefs.bgm.track` to one of the keys in `bgm.tracks` (e.g. `"calm-piano"`, `"perfect-beauty"`). Add new tracks by dropping the mp3 in `${SKILL_DIR}/assets/` and registering it in `bgm.tracks`.
 
-**Fresh BGM via assetSeeker** (when the user asks for new/different music and
+**Fresh BGM via assetseeker** (when the user asks for new/different music and
 the component is usable per `cli.py capabilities`): search license-vetted
 tracks, download, and register in the asset manifest so provenance is kept:
 

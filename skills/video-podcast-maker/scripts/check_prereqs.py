@@ -60,15 +60,15 @@ def check_prereqs(env=None):
     missing_bins = [b for b in REQUIRED_BINS if not shutil.which(b)]
     missing_env_vars = [v for v in required_env_vars if not env.get(v)]
 
-    # Since v4.0.0 every backend synthesizes through the ttsCN component
+    # Since v4.0.0 every backend synthesizes through the ttscn component
     # skill — validate the install here instead of letting generate_tts.py
     # fail at synthesis time.
     missing_components = []
     if backend_known:
         import components
 
-        if components.find_component("ttsCN")[1] is None:
-            missing_components.append("ttsCN")
+        if components.find_component("ttscn")[1] is None:
+            missing_components.append("ttscn")
 
     return {
         "backend": backend,
@@ -158,8 +158,8 @@ def main():
     hint = ""
     if missing_components:
         hint = (
-            " The ttsCN component skill is required for all TTS backends — "
-            "install it next to this skill or under ~/.claude/skills/ttsCN, "
+            " The ttscn component skill is required for all TTS backends — "
+            "install it next to this skill or under ~/.claude/skills/ttscn, "
             "or set TTSCN_HOME (https://github.com/Agents365-ai/ttsCN)."
         )
 

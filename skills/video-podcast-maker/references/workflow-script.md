@@ -4,7 +4,7 @@
 >
 > **Covers:** Pre-workflow (optional design reference extraction) → Startup (load user preferences) → Steps 1-4 (topic → research → sections → script).
 >
-> **Next phase:** See `workflow-assets.md` for Step 5 (asset plan & resolve), then `workflow-production.md` for Steps 6-11 (publish info, TTS, Remotion, render, BGM).
+> **Next phase:** See `workflow-assets.md` for Step 5 (asset plan & resolve), then `workflow-production.md` for Steps 5.5-9.5 (publish info, TTS, Remotion, render, BGM).
 
 ## Execution Modes
 
@@ -15,21 +15,21 @@ Detect at workflow start:
 
 ### Auto Mode defaults
 
-Full pipeline with sensible defaults. **Mandatory stop at Step 9** (Studio review); Step 10 (4K render) only fires when the user says "render 4K" / "render final".
+Full pipeline with sensible defaults. **Mandatory stop at Step 8** (Studio review); Step 9 (4K render) only fires when the user says "render 4K" / "render final".
 
 | Step | Decision | Auto Default |
 | ------ | ---------- | ------------- |
 | 3 | Title position | top-center |
 | 5 | Assets | Free sources auto-resolve; paid generation needs confirmation |
-| 7 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
-| 9 | Outro animation | Pre-made MP4 (white/black by theme) |
-| 12 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
-| 14 | Cleanup | Auto-clean temp files |
+| 6 | Thumbnail method | Remotion-generated (16:9 + 4:3) |
+| 8 | Outro animation | Pre-made MP4 (white/black by theme) |
+| 10.1 | Subtitle method | Remotion-native (skip legacy FFmpeg burn) |
+| 10.3 | Cleanup | Auto-clean temp files |
 
 Override any default in the initial request:
 
 - "make a video about AI, burn subtitles" → auto + subtitles on
-- "use dark theme, AI thumbnails" → auto + dark + imagenCN
+- "use dark theme, AI thumbnails" → auto + dark + imagencn
 - "need screenshots" → auto + media collection enabled
 
 ### Interactive Mode
@@ -92,9 +92,9 @@ python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --dry-run
 python3 "${SKILL_DIR}/scripts/migrate_prefs.py" --yes
 ```
 
-Then read `${SKILL_DIR}/user_prefs.json` and apply settings in subsequent steps.
+Then read `~/.video-podcast-maker/user_prefs.json` (mutable state lives in the shared state dir, not the install dir) and apply settings in subsequent steps.
 
-The script prints one of: `already at v1.6 — no migration needed`, `Created user_prefs.json at v1.6 from template`, or `Migrated from v{old} to v1.6` with a per-change list. To inspect what each version added, see the inline `_structural_migrate` table in `scripts/migrate_prefs.py`.
+The script prints one of: `already at v1.7 — no migration needed`, `Created user_prefs.json at v1.7 from template`, or `Migrated from v{old} to v1.7` with a per-change list. To inspect what each version added, see the `_structural_migrate` function in `scripts/learn_design.py` (imported by `scripts/migrate_prefs.py`).
 
 At Step 1 start, inform the user of active preferences (if customized):
 
@@ -174,7 +174,7 @@ Topic-specific styles are applied via `user_prefs.json` under `topic_patterns`.
 >
 > **After the first draft exists, load [references/script-polish.md](script-polish.md)** for the deep editing pass — 24 EN+ZH before/after patterns, evidence boundaries for factual claims, and per-language quality scoring rubrics. Run its editing workflow before TTS.
 >
-> **Then show the user the polish scorecard** — the per-dimension /50 score from script-polish's rubric plus a 2-3 line summary of what the editing pass changed. Do not block on a reply (Auto Mode continues to the dry-run); the user can request another polish pass at any point before Step 8 (TTS).
+> **Then show the user the polish scorecard** — the per-dimension /50 score from script-polish's rubric plus a 2-3 line summary of what the editing pass changed. Do not block on a reply (Auto Mode continues to the dry-run); the user can request another polish pass at any point before Step 7 (TTS).
 
 **Preference application:** Adjust script style from `user_prefs.content`:
 
@@ -283,7 +283,7 @@ Report estimated duration. If >12min or <3min, suggest adjustments.
 ### Inputs
 
 1. `videos/{name}/podcast.txt` — the script just written
-2. `${SKILL_DIR}/phonemes.json` — global dict (already-covered words; do NOT duplicate). Auto-created from `${SKILL_DIR}/phonemes.template.json` on the first run of `scripts/generate_tts.py`, so it always exists by the time TTS executes. To pre-create before the first TTS call: `cp "${SKILL_DIR}/phonemes.template.json" "${SKILL_DIR}/phonemes.json"`.
+2. `~/.video-podcast-maker/phonemes.json` — global dict (already-covered words; do NOT duplicate). Auto-created from `${SKILL_DIR}/phonemes.template.json` on the first run of `scripts/generate_tts.py`, so it always exists by the time TTS executes. To pre-create before the first TTS call: `cp "${SKILL_DIR}/phonemes.template.json" "$HOME/.video-podcast-maker/phonemes.json"`.
 3. `videos/{name}/phonemes.json` — project dict (create if missing; takes precedence over global)
 
 ### Pass 1 — Polyphone scan
@@ -294,7 +294,7 @@ Read podcast.txt sentence by sentence. For every Chinese polyphone risk, pick th
 
 ### Pass 2 — English term review
 
-On the azure platform, ttsCN auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but the wrapping has known gaps:
+On the azure platform, ttscn auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but the wrapping has known gaps:
 
 - **Hyphenated names**: `tldraw-cli` → only `cli` may get wrapped; `tldraw` reads through the voice's default Chinese pronunciation of letters.
 - **Initialisms**: `API`, `URL`, `MCP` are wrapped as words. If you intend letter-by-letter reading, add an **inline marker** in podcast.txt: `配置 API[ei pi ai] 后...`

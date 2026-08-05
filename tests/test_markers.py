@@ -1,4 +1,4 @@
-"""Tests for tts/markers.py — [PAUSE:x] + sound tags (rendering lives in ttsCN)."""
+"""Tests for tts/markers.py — [PAUSE:x] + sound tags (rendering lives in ttscn)."""
 from generate_tts import chunk_text
 from tts.markers import protect_pauses, restore_pauses, strip_markers
 

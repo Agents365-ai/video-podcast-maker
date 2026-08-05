@@ -1,4 +1,4 @@
-"""Tests for ttsCN word-boundary merge logic.
+"""Tests for ttscn word-boundary merge logic.
 
 Run from repo root: PYTHONPATH=skills/video-podcast-maker/scripts python3 -m pytest tests/test_ttscn_boundaries.py -v
 """

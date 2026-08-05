@@ -1,6 +1,6 @@
 # Video Podcast Maker — Platform Matrix
 
-> **When to load:** When generating platform-specific outputs (publish info, thumbnails, outro, shorts). Reference during Steps 7, 9, 10, 13, and 15.
+> **When to load:** When generating platform-specific outputs (publish info, thumbnails, outro, shorts). Reference during Steps 5.5, 6, 8, 9, 10.2, and 11.
 
 ## Overview
 
@@ -60,8 +60,8 @@
 
 | Platform | Shorts generated | Notes |
 | ---------- | ----------------- | ------- |
-| Bilibili | Optional (Step 15) | Long-form is primary |
-| YouTube | Optional (Step 15) | Long-form is primary; Shorts are separate content |
+| Bilibili | Optional (Step 11) | Long-form is primary |
+| YouTube | Optional (Step 11) | Long-form is primary; Shorts are separate content |
 | Xiaohongshu | Recommended | Vertical shorts are primary format |
 | Douyin | Required | Douyin is shorts-only — no horizontal long-form video |
 | WeChat Channels | Required | Channels is shorts-only — no horizontal long-form video |

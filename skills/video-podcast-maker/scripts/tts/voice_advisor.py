@@ -106,7 +106,7 @@ def print_advisory(text, current_voice):
 
     if current_voice and 'Multilingual' in current_voice and metrics['recommendation'] == 'standard':
         print(f"  ⚠️  Current voice is Multilingual but content does not require it.")
-        print(f"      Consider switching to {suggested} via AZURE_TTS_VOICE env var.")
+        print(f"      Consider switching to {suggested} via TTS_VOICE env var.")
         print(f"      Multilingual is known to produce vocoder artifacts at certain")
         print(f"      Chinese-tone → English-letter transitions (e.g. '是，AI让...').")
     elif current_voice and 'Multilingual' not in current_voice and metrics['recommendation'] == 'multilingual':

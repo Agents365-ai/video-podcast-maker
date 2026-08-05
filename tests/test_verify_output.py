@@ -8,7 +8,6 @@ import json
 import struct
 from pathlib import Path
 
-import pytest
 
 # scripts/ is on sys.path via tests/conftest.py
 import verify_output  # noqa: E402
@@ -65,14 +64,15 @@ def _populate_full_dir(d: Path):
     _make_png(d / 'thumbnail_remotion_4x3.png', 1200, 900)
 
 
-def _stub_ffprobe(width=3840, height=2160, duration=60.0, audio='aac'):
+def _stub_ffprobe(width=3840, height=2160, duration=60.0, audio='aac', video='h264', fps=30.0):
     def stub(path):
         return {
             'width': width,
             'height': height,
             'duration': duration,
-            'video_codec': 'h264',
+            'video_codec': video,
             'audio_codec': audio,
+            'fps': fps,
         }
     return stub
 
@@ -172,16 +172,34 @@ def test_verify_resolution_mismatch_records_error(tmp_path, monkeypatch):
     assert any('Resolution' in e for e in result['errors'])
 
 
-def test_verify_drift_emits_warning_and_exits_2(tmp_path, monkeypatch):
+def test_verify_drift_emits_error_and_exits_1(tmp_path, monkeypatch):
     _populate_full_dir(tmp_path)
     # WAV reports 60s, timing.json says 65s → drift -5s, well over 0.5s threshold.
     _make_timing(tmp_path / 'timing.json', total_duration=65.0)
     monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe(duration=60.0))
     monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio(duration=60.0))
     exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
-    assert exit_code == 2
+    assert exit_code == 1
     assert result['audio_timing']['ok'] is False
-    assert any('drift' in w.lower() for w in result['warnings'])
+    assert any('drift' in e.lower() for e in result['errors'])
+
+
+def _make_platform(d: Path, platform: str, monkeypatch):
+    """Point _state at d and write user_prefs.json selecting a platform."""
+    monkeypatch.setattr('_state.get_state_dir', lambda: d)
+    (d / 'user_prefs.json').write_text(
+        json.dumps({'global': {'platform': platform}}), encoding='utf-8'
+    )
+
+
+def test_verify_non_h264_codec_fails(tmp_path, monkeypatch):
+    _populate_full_dir(tmp_path)
+    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe(video='vp9'))
+    monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
+    exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
+    assert exit_code == 1
+    assert result['final_video']['codec_ok'] is False
+    assert any('codec' in e.lower() for e in result['errors'])
 
 
 def test_verify_strict_promotes_warnings_to_failure(tmp_path, monkeypatch):
@@ -195,15 +213,64 @@ def test_verify_strict_promotes_warnings_to_failure(tmp_path, monkeypatch):
     assert result['publish_info']['promo_present'] is False
 
 
-def test_verify_no_fix_skips_autofix(tmp_path, monkeypatch):
+def test_verify_xiaohongshu_accepts_3x4_thumbnail(tmp_path, monkeypatch):
     _populate_full_dir(tmp_path)
+    # Xiaohongshu replaces the 4:3 thumb with a 3:4 one.
+    (tmp_path / 'thumbnail_remotion_4x3.png').unlink()
+    _make_png(tmp_path / 'thumbnail_remotion_3x4.png', 1080, 1440)
+    _make_platform(tmp_path, 'xiaohongshu', monkeypatch)
+    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
+    monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
+    exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
+    # publish_info.md carries bilibili sections → xiaohongshu sections warn,
+    # but the 3:4 thumbnail must not be a missing-required error.
+    assert exit_code in (0, 2)
+    assert result['required_files']['missing'] == []
+    assert result['thumbnails']['thumbnail_remotion_3x4.png']['ok'] is True
+
+
+def test_verify_douyin_requires_shorts_not_longform(tmp_path, monkeypatch):
+    _populate_full_dir(tmp_path)
+    _make_platform(tmp_path, 'douyin', monkeypatch)
+    # No long-form video and no shorts yet → shorts missing is the gate.
+    (tmp_path / 'output.mp4').unlink()
     (tmp_path / 'final_video.mp4').unlink()
     monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
     monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
-    exit_code, result = verify(tmp_path, strict=False, do_auto_fix=False)
-    assert result['fixes_applied'] == []
-    assert 'final_video.mp4' in result['required_files']['missing']
+    exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
     assert exit_code == 1
+    assert 'shorts' in result['required_files']['missing']
+    assert 'output.mp4' not in result['required_files']['missing']
+
+    # With shorts + 9x16 thumbnail present, douyin passes without long-form.
+    # generate_shorts.py renders to the nested shorts/<section>/<CompId>.mp4
+    # layout; each short is probed against the vertical render contract.
+    section_dir = tmp_path / 'shorts' / 'content-1'
+    section_dir.mkdir(parents=True)
+    (section_dir / 'Content1Short.mp4').write_bytes(b'\x00' * 16)
+    _make_png(tmp_path / 'thumbnail_remotion_9x16.png', 1080, 1920)
+    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe(width=2160, height=3840))
+    exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
+    # bilibili-section publish_info warns for douyin (exit 2), but the shorts
+    # gate itself is satisfied without any long-form video.
+    assert exit_code in (0, 2)
+    assert 'shorts' in result['required_files']['present']
+    assert 'final_video.mp4' not in result['required_files']['missing']
+    assert result['shorts']['ok'] is True
+
+
+def test_verify_no_fix_does_not_seed_user_prefs(tmp_path, monkeypatch):
+    _populate_full_dir(tmp_path)
+    # Redirect HOME instead of monkeypatching get_state_dir — the real
+    # implementation must not create ~/.video-podcast-maker in --no-fix mode.
+    home = tmp_path / 'home'
+    monkeypatch.setattr(Path, 'home', lambda: home)
+    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
+    monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
+    # _resolve_platform(seed=False) must not create the state dir.
+    exit_code, result = verify(tmp_path, strict=False, do_auto_fix=False)
+    assert exit_code == 0  # bilibili default platform, all files present
+    assert not home.exists()
 
 
 def test_verify_thumbnail_size_mismatch_warns(tmp_path, monkeypatch):
@@ -242,7 +309,7 @@ def test_verify_youtube_platform_uses_english_section_headers(tmp_path, monkeypa
         '## Title\nT\n## Tags\nx\n## Description\nd\n## Chapters\n0:00 a\n',
         encoding='utf-8',
     )
-    monkeypatch.setattr(verify_output, '_resolve_platform', lambda: 'youtube')
+    monkeypatch.setattr(verify_output, '_resolve_platform', lambda seed=True: 'youtube')
     monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
     monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
     exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
@@ -258,8 +325,12 @@ def test_verify_douyin_platform_does_not_require_chapters(tmp_path, monkeypatch)
         '## 文案\nhi\n## 话题标签\n#x\n',
         encoding='utf-8',
     )
-    monkeypatch.setattr(verify_output, '_resolve_platform', lambda: 'douyin')
-    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe())
+    _make_png(tmp_path / 'thumbnail_remotion_9x16.png', 1080, 1920)
+    section_dir = tmp_path / 'shorts' / 'content-1'
+    section_dir.mkdir(parents=True)
+    (section_dir / 'Content1Short.mp4').write_bytes(b'\x00' * 16)
+    monkeypatch.setattr(verify_output, '_resolve_platform', lambda seed=True: 'douyin')
+    monkeypatch.setattr(verify_output, 'ffprobe_video', _stub_ffprobe(width=2160, height=3840))
     monkeypatch.setattr(verify_output, 'ffprobe_audio', _stub_ffprobe_audio())
     exit_code, result = verify(tmp_path, strict=False, do_auto_fix=True)
     assert exit_code == 0

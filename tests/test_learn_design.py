@@ -162,12 +162,11 @@ def test_save_prefs_atomic_and_no_temp_leftover(tmp_path):
     assert [p.name for p in tmp_path.iterdir()] == ["user_prefs.json"]
 
 
-def test_output_dir_default_anchored_to_skill_dir():
+def test_output_dir_default_is_none_resolved_to_state_dir():
     import learn_design
     parser = learn_design._build_parser()
-    default = parser.get_default("output_dir")
-    assert os.path.isabs(default)
-    assert default == os.path.join(learn_design.SKILL_DIR, "design_references")
+    # Lazy default: None at parse time; _run resolves it into the state dir.
+    assert parser.get_default("output_dir") is None
 
 
 # --- _compute_delete_preview ----------------------------------------------
