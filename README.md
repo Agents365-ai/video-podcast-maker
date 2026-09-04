@@ -81,6 +81,15 @@ The agent runs the whole workflow (research → script → TTS → Remotion comp
 
 ## Related Skills
 
+**Variants in this repo** (`skills/`):
+
+- **video-podcast-maker** — the full production pipeline (this README's subject)
+- **[video-podcast-maker-lite](skills/video-podcast-maker-lite/)** — minimal personal pipeline: Azure SSML TTS + Remotion, no bundled templates
+- **[video-podcast-maker-nano](skills/video-podcast-maker-nano/)** — tool-agnostic, logic-only pipeline (any TTS backend, any video tool); autonomous by default, oversight configured per project
+- **video-podcast-maker-factory** — guide-only skill for forking lite into personal `video-podcast-maker-xxx` variants
+
+**External skills:**
+
 - **[remotion-best-practices](https://github.com/remotion-dev/skills)** - required; core Remotion patterns and guidelines
 - **[ttscn](https://github.com/Agents365-ai/ttsCN)** - required; the TTS engine behind all 11 backends (install under `~/.claude/skills/ttscn`, as a Pi skill, or set `TTSCN_HOME`)
 - **[assetseeker](https://github.com/Agents365-ai/assetSeeker)** - optional; license-vetted stock photos/video/BGM/SFX/icons/fonts
