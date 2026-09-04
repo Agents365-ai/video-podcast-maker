@@ -81,6 +81,15 @@ agent 会自动跑完整个流程（研究 → 脚本 → TTS → Remotion 合�
 
 ## 相关技能
 
+**本仓库内的变体**（`skills/`）：
+
+- **video-podcast-maker** —— 完整制作管线（本 README 的主角）
+- **[video-podcast-maker-lite](skills/video-podcast-maker-lite/)** —— 极简个人管线：Azure SSML TTS + Remotion，不带模板
+- **[video-podcast-maker-nano](skills/video-podcast-maker-nano/)** —— 工具无关的纯逻辑管线（任意 TTS 后端、任意视频工具）；默认全自动，审查级别按项目配置
+- **video-podcast-maker-factory** —— 仅指南，用于把 lite fork 成个人 `video-podcast-maker-xxx` 变体
+
+**外部技能：**
+
 - **[remotion-best-practices](https://github.com/remotion-dev/skills)** - 必需；Remotion 核心模式与规范
 - **[ttscn](https://github.com/Agents365-ai/ttsCN)** - 必需；全部 11 个 TTS 后端的合成引擎（安装到 `~/.claude/skills/ttscn`、作为 Pi 技能安装，或设置 `TTSCN_HOME`）
 - **[assetseeker](https://github.com/Agents365-ai/assetSeeker)** - 可选；许可核验的图库/视频/BGM/音效/图标/字体
