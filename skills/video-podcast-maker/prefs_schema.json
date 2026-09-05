@@ -239,9 +239,9 @@
           "properties": {
             "backend": {
               "type": "string",
-              "enum": ["azure", "doubao", "cosyvoice", "edge", "elevenlabs", "google", "openai", "tencent", "baidu", "minimax", "xunfei"],
+              "enum": ["azure", "edge"],
               "default": "edge",
-              "description": "TTS backend id — all synthesis routes through the ttscn component skill"
+              "description": "TTS backend id — edge (free, no key) or azure (needs AZURE_SPEECH_KEY + AZURE_SPEECH_REGION); synthesis is local"
             },
             "rate": {
               "type": "string",

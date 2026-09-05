@@ -15,13 +15,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / "skills" / "video-podcast-maker"
 
 # Single source of truth for the test suite; update together with the docs
-# when a platform gains native word-boundary support in ttscn.
-NATIVE_BOUNDARY_PLATFORMS = "edge, azure, doubao, minimax, cosyvoice"
+# when a backend gains or loses native word-boundary support.
+NATIVE_BOUNDARY_PLATFORMS = "edge, azure"
 # Files that state the native-boundary platform list.
 NATIVE_BOUNDARY_DOCS = [
     SKILL_ROOT / "references" / "troubleshooting.md",
     SKILL_ROOT / "references" / "workflow-production.md",
-    SKILL_ROOT / "scripts" / "tts" / "backends" / "ttscn.py",
+    SKILL_ROOT / "scripts" / "tts" / "backends" / "native.py",
 ]
 
 
@@ -239,3 +239,19 @@ def test_all_markdown_references_resolve():
         f"{len(missing)} stale reference(s) to deleted files:\n"
         + "\n".join(sorted(missing))
     )
+
+
+def test_variant_skills_point_at_canonical_script_style_source():
+    """lite + nano distill the script-style rules from the full skill's refs;
+    each must name the canonical source so future edits route there instead of
+    forking and drifting the rule in place (provenance, not a hard import)."""
+    lite = (REPO_ROOT / "skills" / "video-podcast-maker-lite" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    nano = (REPO_ROOT / "skills" / "video-podcast-maker-nano" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    # lite distils the zh-CN rules; nano the language-agnostic ones. Both must
+    # name natural-narration.md / script-polish.md as the canonical source.
+    assert "natural-narration.md" in lite and "script-polish.md" in lite
+    assert "canonical" in nano

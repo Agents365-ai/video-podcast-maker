@@ -57,14 +57,14 @@ def test_installed_without_key_is_not_usable(monkeypatch, tmp_path):
 
 
 def test_home_env_override_wins(monkeypatch, tmp_path):
-    decoy = _fake_skill(tmp_path / "roots", "ttscn", "scripts/tts.py")
-    preferred = _fake_skill(tmp_path / "override", "ttscn", "scripts/tts.py")
+    decoy = _fake_skill(tmp_path / "roots", "imagencn", "scripts/generate_image.py")
+    preferred = _fake_skill(tmp_path / "override", "imagencn", "scripts/generate_image.py")
     monkeypatch.setenv("VPM_COMPONENT_ROOTS", str(tmp_path / "roots"))
-    monkeypatch.setenv("TTSCN_HOME", str(preferred))
+    monkeypatch.setenv("IMAGENCN_HOME", str(preferred))
     monkeypatch.setattr(components.Path, "home", staticmethod(lambda: tmp_path / "nohome"))
     report = components.probe()
-    assert report["ttscn"]["root"] == str(preferred.resolve())
-    assert str(decoy) not in report["ttscn"]["root"]
+    assert report["imagencn"]["root"] == str(preferred.resolve())
+    assert str(decoy) not in report["imagencn"]["root"]
 
 
 def test_mixed_case_dirname_discovered_flat(monkeypatch, tmp_path):
@@ -80,13 +80,13 @@ def test_mixed_case_dirname_discovered_flat(monkeypatch, tmp_path):
 
 
 def test_mixed_case_dirname_discovered_nested(monkeypatch, tmp_path):
-    """Both levels can differ in case: root ttsCN, nested dir ttscn — the real install layout."""
-    script = tmp_path / "ttsCN" / "skills" / "ttscn" / "scripts" / "tts.py"
+    """Both levels can differ in case: root assetSeeker, nested dir assetseeker — the real install layout."""
+    script = tmp_path / "assetSeeker" / "skills" / "assetseeker" / "scripts" / "seek_assets.py"
     script.parent.mkdir(parents=True, exist_ok=True)
     script.write_text("#!/usr/bin/env python3\n")
     monkeypatch.setenv("VPM_COMPONENT_ROOTS", str(tmp_path))
     monkeypatch.setattr(components.Path, "home", staticmethod(lambda: tmp_path / "nohome"))
-    root, entry = components.find_component("ttscn")
+    root, entry = components.find_component("assetseeker")
     assert root is not None
     assert entry.is_file()
 

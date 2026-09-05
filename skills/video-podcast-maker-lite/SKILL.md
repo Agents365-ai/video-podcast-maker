@@ -50,7 +50,7 @@ One `[SECTION:xxx]` marker per video segment; section names are lowercase Englis
 
 ### Script style (anti-AI-flavor, zh-CN)
 
-Apply while writing, then self-check before TTS. Goal: everyday spoken Chinese, not written prose with commas. (Distilled from the full skill's `natural-narration.md` + `script-polish.md`.)
+Apply while writing, then self-check before TTS. Goal: everyday spoken Chinese, not written prose with commas. (Distilled from the full skill's `natural-narration.md` + `script-polish.md` — those are the canonical sources; edit rules there first, then mirror here.)
 
 **Connector swap** (written → spoken): 此外→还有 · 然而→但是 · 因此→所以 · 与此同时→这时候 · 总的来说/综上所述→删掉 · 首先/其次/最后→直接讲下一件事。
 
@@ -136,6 +136,7 @@ How to fetch (verified 2026-08-25): Pixabay's search/list pages are client-rende
 2. Collect result links matching `/music/<slug>-<id>/` (exclude `/music/search/` and locale-prefixed ones like `/de/music/...`), pick one at random, open it.
 3. Read the track's JSON-LD (`script[type=application/ld+json"]` → the `AudioObject`): `contentUrl` (full track MP3), `name`, `creator.name`, `duration`. Prefer ~1.5–8 min; if out of range, open another link. If the page's JSON-LD has no `contentUrl` (layout changed), stop retrying — ask the user to pick a track and provide the download URL.
 4. Download with curl (browser UA + `Referer: https://pixabay.com/` — verified to work):
+
    ```bash
    curl -sL -A "<browser UA>" -H "Referer: https://pixabay.com/" "<contentUrl>" -o videos/{name}/bgm.mp3
    ```

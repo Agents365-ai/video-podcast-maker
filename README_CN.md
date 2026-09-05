@@ -12,7 +12,7 @@
 
 [English](README.md)
 
-自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、多引擎 TTS（11 个后端，经 [ttscn](https://github.com/Agents365-ai/ttsCN) 桥接合成）、Remotion 渲染和 FFmpeg 混音。当前版本：**v5.2.1** —— 版本历史见 [CHANGELOG.md](CHANGELOG.md)。
+自动化流程，从主题生成专业视频播客。**支持 B站 (Bilibili)、YouTube、小红书、抖音和微信视频号**，多语言输出（zh-CN、en-US）。集成研究、脚本撰写、内置本地 TTS（edge 免费，外加 azure）、Remotion 渲染和 FFmpeg 混音。当前版本：**v5.3.0** —— 版本历史见 [CHANGELOG.md](CHANGELOG.md)。
 
 **支持工具：** [Claude Code](https://claude.ai/code) · [OpenClaw](https://openclaw.ai/) · [OpenCode](https://opencode.ai/) · [Codex](https://openai.com/index/introducing-codex/) · [Pi](https://github.com/earendil-works/pi-coding-agent) — 任何支持 SKILL.md 的 coding agent
 
@@ -25,7 +25,7 @@
 ## 功能特点
 
 - **主题 → 4K 成片** - 研究、旁白脚本、TTS 音频、Remotion 合成、4K 渲染 + BGM 一条龙
-- **11 个 TTS 后端** - Edge（免费）、Azure、CosyVoice、豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、OpenAI、Google —— 全部由必装的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能合成
+- **本地 TTS 后端** - Edge（免费，无密钥）和 Azure —— 内置合成，无需外部组件技能
 - **资产引擎** - 每视频 manifest 记录角色/来源/许可；生产者包括用户文件、assetseeker 图库、imagencn AI 图片、videogencn AI 视频、Hyperframes 透明叠层——付费生成必先确认
 - **4K 输出 + Remotion 原生字幕** - 3840×2160；SRT 在 Remotion 内以 React 4K 渲染（传统 FFmpeg 烧录仍可用）
 - **设计学习** - 从参考视频/图片提取风格档案；主题匹配时自动套用
@@ -46,7 +46,9 @@ npx create-video@latest my-video-project   # 或复用已有的 Remotion 项目
 cd my-video-project && npm i
 ```
 
-**3. 配置** — 设置 `TTS_BACKEND` 及其 API 密钥（见 [TTS 后端](#tts-后端全部经-ttscn-合成) 和 [环境变量](#环境变量)）。
+> **一次性成本：** 全新的 Remotion 项目需下载约 2.2 GB npm 包 + 约 90 MB Chrome headless shell。**为下一个视频优先复用已存在的 Remotion 项目**（已装好 `node_modules/`）——重安装在每个项目只发生一次，而非每支视频。Lottie 动画为可选（`@remotion/lottie` + `lottie-web`），只有用到 `LottieAnimation` 时才按项目安装。
+
+**3. 配置** — 设置 `TTS_BACKEND` 及其 API 密钥（见 [TTS 后端](#tts-后端本地) 和 [环境变量](#环境变量)）。
 
 **4. 告诉你的 agent：**
 
@@ -90,8 +92,7 @@ agent 会自动跑完整个流程（研究 → 脚本 → TTS → Remotion 合�
 
 **外部技能：**
 
-- **[remotion-best-practices](https://github.com/remotion-dev/skills)** - 必需；Remotion 核心模式与规范
-- **[ttscn](https://github.com/Agents365-ai/ttsCN)** - 必需；全部 11 个 TTS 后端的合成引擎（安装到 `~/.claude/skills/ttscn`、作为 Pi 技能安装，或设置 `TTSCN_HOME`）
+- **[remotion-best-practices](https://github.com/remotion-dev/skills)** - 推荐；Remotion 核心模式与规范（缺失时使用内置最简规则）
 - **[assetseeker](https://github.com/Agents365-ai/assetSeeker)** - 可选；许可核验的图库/视频/BGM/音效/图标/字体
 - **[imagencn](https://github.com/Agents365-ai/imagenCN)** - 可选；AI 图片与封面（付费 API）
 - **[videogencn](https://github.com/Agents365-ai/videogenCN)** - 可选；AI 视频片段，用于 B-roll（付费 API）
@@ -108,38 +109,29 @@ agent 会自动跑完整个流程（研究 → 脚本 → TTS → Remotion 合�
 
 > **推荐通过 marketplace 安装：** 一般用户应通过 [365-skills marketplace](https://github.com/Agents365-ai/365-skills) 安装本技能，而非克隆本仓库。届时 SKILL.md / scripts / templates 位于 agent 暴露的 `${SKILL_DIR}` 路径下；README 中的路径写法是面向贡献者（仓库根目录视角）。
 
-### TTS 后端（全部经 ttscn 合成）
+### TTS 后端（本地）
 
-全部 11 个平台均由**必装**的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能负责合成。`TTS_BACKEND` 直接填平台 id，只需配置当前平台的环境变量：
+TTS 内置合成，无需外部组件技能。`TTS_BACKEND` 直接填平台 id，只需配置当前平台的环境变量：
 
 | `TTS_BACKEND` | 平台 | 所需环境变量 | 获取密钥 |
 | --------------- | ------ | ------------- | --------- |
 | `edge`（默认） | 微软 Edge TTS | *（无 —— 免费）* | — |
-| `azure` | 微软 Azure Speech | `AZURE_SPEECH_KEY`（可选 `AZURE_SPEECH_REGION`，默认 `eastasia`） | [Azure 门户](https://portal.azure.com/) |
-| `cosyvoice` | 阿里云 CosyVoice | `DASHSCOPE_API_KEY` | [百炼控制台](https://bailian.console.aliyun.com/) |
-| `doubao` | 火山引擎豆包 | `VOLCENGINE_APPID`、`VOLCENGINE_ACCESS_TOKEN` | [火山引擎控制台](https://console.volcengine.com/speech/service/8) |
-| `tencent` | 腾讯云 TTS | `TENCENT_SECRET_ID`、`TENCENT_SECRET_KEY` | [腾讯云控制台](https://console.cloud.tencent.com/tts) |
-| `baidu` | 百度 AI TTS | `BAIDU_APP_ID`、`BAIDU_API_KEY`、`BAIDU_SECRET_KEY` | [百度控制台](https://console.bce.baidu.com/ai/#/ai/speech/overview) |
-| `minimax` | MiniMax TTS | `MINIMAX_API_KEY` | [MiniMax 平台](https://platform.minimaxi.com/) |
-| `xunfei` | 科大讯飞 TTS | `XUNFEI_APP_ID`、`XUNFEI_API_KEY`、`XUNFEI_API_SECRET` | [讯飞开放平台](https://www.xfyun.cn/) |
-| `elevenlabs` | ElevenLabs | `ELEVENLABS_API_KEY` | [ElevenLabs](https://elevenlabs.io/) |
-| `openai` | OpenAI TTS | `OPENAI_API_KEY` | [OpenAI Platform](https://platform.openai.com/) |
-| `google` | Google Cloud TTS | `GOOGLE_TTS_API_KEY` | [Google Cloud 控制台](https://console.cloud.google.com/) |
+| `azure` | 微软 Azure Speech | `AZURE_SPEECH_KEY`、`AZURE_SPEECH_REGION`（默认 `eastasia`） | [Azure 门户](https://portal.azure.com/) |
 
-**非 TTS 密钥（可选）：** `GEMINI_API_KEY` / `DASHSCOPE_API_KEY` 用于 AI 封面生成（imagencn）。
+> **想要更多平台？** 原先的 [ttscn](https://github.com/Agents365-ai/ttsCN) 组件技能（cosyvoice、豆包、腾讯云、百度、MiniMax、讯飞、ElevenLabs、OpenAI、Google）不再是依赖。如需这些平台，请单独安装并直接调用。
 
 ### 环境变量
 
 添加到 `~/.zshrc` 或 `~/.bashrc`：
 
 ```bash
-export TTS_BACKEND="edge"                  # azure / cosyvoice / doubao / tencent / baidu / minimax / xunfei / elevenlabs / openai / google
-export TTS_VOICE="zh-CN-XiaoxiaoNeural"    # 可选；不设置则用平台默认音色
+export TTS_BACKEND="edge"                  # edge（默认）/ azure
+export TTS_VOICE="zh-CN-XiaoxiaoNeural"    # 可选；不设置则用后端默认音色
 export TTS_RATE="+5%"                      # 可选；也可写入 user_prefs.json（global.tts.rate）
 export TTS_STYLE="gentle"                  # 可选；仅 azure 生效
-export AZURE_SPEECH_KEY="..."              # 仅需当前平台的密钥（见上表）
+export AZURE_SPEECH_KEY="..."              # 仅 azure 需要（见上表）
+export AZURE_SPEECH_REGION="eastasia"      # azure 语音区域
 export GEMINI_API_KEY="..."                # 可选：AI 封面
-export DASHSCOPE_API_KEY="..."             # 可选：AI 封面（同时也是 cosyvoice 的 TTS 密钥）
 ```
 
 然后重新加载：`source ~/.zshrc`

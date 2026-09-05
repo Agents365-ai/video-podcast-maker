@@ -5,7 +5,7 @@ argument-hint: "[topic]"
 effort: high
 author: Agents365-ai
 category: Content Creation
-version: 5.2.1
+version: 5.3.0
 created: 2025-01-27
 updated: 2026-07-30
 permissions:
@@ -16,10 +16,9 @@ permissions:
   - shell
 bilibili: https://space.bilibili.com/441831884
 github: https://github.com/Agents365-ai/video-podcast-maker
-# Required component skills. ttscn synthesizes all TTS (Step 7).
+# Required component skills. TTS is local (edge/azure) — see Bootstrap.
 dependencies:
   - remotion-best-practices
-  - ttscn
 # Optional asset producers — probed at runtime by scripts/components.py,
 # the pipeline degrades gracefully when they are absent.
 optional-dependencies:
@@ -30,7 +29,7 @@ metadata:
   openclaw:
     requires:
       bins: [python3, ffmpeg, node, npx]
-      env: [AZURE_SPEECH_KEY, DASHSCOPE_API_KEY, VOLCENGINE_APPID, VOLCENGINE_ACCESS_TOKEN, TENCENT_SECRET_ID, TENCENT_SECRET_KEY, BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY, MINIMAX_API_KEY, XUNFEI_APP_ID, XUNFEI_API_KEY, XUNFEI_API_SECRET, ELEVENLABS_API_KEY, OPENAI_API_KEY, GOOGLE_TTS_API_KEY]
+      env: [AZURE_SPEECH_KEY, AZURE_SPEECH_REGION]
     emoji: "🎬"
     homepage: https://github.com/Agents365-ai/video-podcast-maker
     os: ["macos", "linux"]
@@ -40,9 +39,10 @@ metadata:
         bins: [ffmpeg]
 ---
 
-> **REQUIRED: Load Remotion Best Practices First**
+> **Recommended: Load Remotion Best Practices**
 >
-> This skill depends on `remotion-best-practices`.
+> This skill benefits from `remotion-best-practices` (not bundled) for the full
+> Remotion pattern library. It is optional — minimum rules are below if absent.
 >
 > - **Pi**: read the loaded skill at `remotion-best-practices` (listed in available skills).
 > - **Claude Code**: invoke `remotion-best-practices` skill/tool before proceeding.
@@ -92,9 +92,19 @@ Updates flow through the plugin marketplace (`/plugin update`); direct git-clone
 
 **All rendering goes into `videos/{name}/`** — every `output.mp4`, `final_video.mp4`, and `thumbnail_*.png` lands directly in the per-video directory. Never render to an `out/` or `dist/` directory; the `--public-dir videos/{name}/` convention keeps everything self-contained.
 
-**TTS engine** — all 11 backends (`TTS_BACKEND=edge|azure|cosyvoice|doubao|tencent|baidu|minimax|xunfei|elevenlabs|openai|google`) synthesize through the **ttscn component skill**, which is **required**: install it under `~/.claude/skills/ttscn` or point `TTSCN_HOME` at its root ([Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)). Each backend still needs only its own API keys (Edge needs none); `check_prereqs.py` validates both the install and the keys.
+**TTS engine** — two local backends, no external skill:
 
-> **Pi users:** `ttscn` is not bundled with Pi — install `Agents365-ai/ttsCN` as a Pi skill (its `skills/ttscn/` layout is auto-detected) or set `TTSCN_HOME`; `check_prereqs.py` verifies the install before TTS.
+- `edge` (default) — free, no key, via edge-tts.
+- `azure` — needs `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` (Microsoft Speech SDK).
+
+Each synthesizes in-house (`scripts/tts/backends/native.py`) — pronunciation
+(display → spoken → back to display for subtitles) and phoneme application are
+built in. `check_prereqs.py` validates the active backend's env vars.
+
+> **Multi-platform TTS?** The former ttscn component skill that provided the
+> 9-backend matrix is no longer a dependency of this skill. If you want those
+> platforms, install [Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN)
+> separately and call it directly — this skill ships only edge + azure.
 
 > **Design Learning shortcut**: If the user provides a reference video/image or asks to save/list/delete style profiles, see [references/design-learning.md](references/design-learning.md) instead of running the workflow below.
 

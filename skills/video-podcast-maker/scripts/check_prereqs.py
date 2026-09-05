@@ -31,7 +31,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cli_envelope  # noqa: E402
 from tts.backends import BACKENDS, resolve_backend  # noqa: E402
 
-
 REQUIRED_BINS = ["node", "python3", "ffmpeg"]
 
 
@@ -60,16 +59,10 @@ def check_prereqs(env=None):
     missing_bins = [b for b in REQUIRED_BINS if not shutil.which(b)]
     missing_env_vars = [v for v in required_env_vars if not env.get(v)]
 
-    # Since v4.0.0 every backend synthesizes through the ttscn component
-    # skill — validate the install here instead of letting generate_tts.py
-    # fail at synthesis time.
+    # Since v5.3.0 backends are local (edge / azure) — no external component
+    # skill to validate. edge_tts / azure SDK are imported lazily by the
+    # backend at synthesis time.
     missing_components = []
-    if backend_known:
-        import components
-
-        if components.find_component("ttscn")[1] is None:
-            missing_components.append("ttscn")
-
     return {
         "backend": backend,
         "backend_source": backend_source,
@@ -84,7 +77,7 @@ def check_prereqs(env=None):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description=__doc__.split("\n\n")[0],
+        description=(__doc__ or "").split("\n\n")[0],
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     cli_envelope.add_format_arg(parser)
@@ -99,7 +92,6 @@ def main():
     backend = state["backend"]
     missing_bins = state["missing_bins"]
     missing_env_vars = state["missing_env_vars"]
-    missing_components = state["missing_components"]
 
     # Unknown backend wins over bin/env checks: we can't report missing env
     # vars for a backend we don't know, so flag the typo before anything else.
@@ -127,7 +119,7 @@ def main():
         print(f"UNKNOWN_BACKEND:{backend} (known: {','.join(known)})")
         sys.exit(2)
 
-    if not missing_bins and not missing_env_vars and not missing_components:
+    if not missing_bins and not missing_env_vars:
         if cli_envelope.use_json(args):
             sys.exit(
                 cli_envelope.emit_success(
@@ -148,20 +140,9 @@ def main():
     # an install; missing env vars only need export. Both map to exit 2 in
     # cli_envelope.ERROR_CODES so the orchestrator-side routing is the same,
     # but the code field tells the agent what kind of fix to suggest.
-    code = "tool_missing" if missing_bins or missing_components else "auth_missing_env"
-    all_missing = (
-        missing_bins
-        + missing_env_vars
-        + [f"{c}(component)" for c in missing_components]
-    )
-
+    code = "tool_missing" if missing_bins else "auth_missing_env"
+    all_missing = missing_bins + missing_env_vars
     hint = ""
-    if missing_components:
-        hint = (
-            " The ttscn component skill is required for all TTS backends — "
-            "install it next to this skill or under ~/.claude/skills/ttscn, "
-            "or set TTSCN_HOME (https://github.com/Agents365-ai/ttsCN)."
-        )
 
     if cli_envelope.use_json(args):
         sys.exit(
@@ -174,14 +155,11 @@ def main():
                     "backend_source": state["backend_source"],
                     "missing_bins": missing_bins,
                     "missing_env_vars": missing_env_vars,
-                    "missing_components": missing_components,
                 },
                 started_at=started_at,
             )
         )
     print(f"MISSING:{' '.join(all_missing)} (backend={backend})")
-    if hint:
-        print(hint.strip(), file=sys.stderr)
     sys.exit(2)
 
 

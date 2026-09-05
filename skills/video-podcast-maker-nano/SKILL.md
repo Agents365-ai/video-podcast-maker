@@ -109,6 +109,11 @@ Run in parallel (the render is the long blocking job; the publish kit doesn't de
 
 ## Script style (language-agnostic)
 
+> **Provenance:** the full skill's `video-podcast-maker/references/natural-narration.md`
+> (anti-AI-flavor) + `script-polish.md` (deep editing) are the canonical sources;
+> this is the language-agnostic distillation. Edit rules there first, then mirror
+> here — do not fork a rule and drift it.
+
 The narration language is whatever the user's script is — this pipeline defaults to Chinese but the rules below apply in any language's spoken register. These rules are enforced at Checkpoint 1; read each section aloud — if you stumble, split the sentence.
 
 - **Everyday spoken prose, not written prose.** One idea per sentence, subject first, no nested clauses, no — or · as connectives. Vary sentence length; a light first person is fine.
