@@ -93,7 +93,6 @@ The agent runs the whole workflow (research → script → TTS → Remotion comp
 - **video-podcast-maker** — the full production pipeline (this README's subject)
 - **[video-podcast-maker-lite](skills/video-podcast-maker-lite/)** — minimal personal pipeline: Azure SSML TTS + Remotion, no bundled templates
 - **[video-podcast-maker-nano](skills/video-podcast-maker-nano/)** — tool-agnostic, logic-only pipeline (any TTS backend, any video tool); autonomous by default, oversight configured per project
-- **video-podcast-maker-factory** — guide-only skill for forking lite into personal `video-podcast-maker-xxx` variants
 
 **External skills:**
 

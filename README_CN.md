@@ -88,7 +88,6 @@ agent 会自动跑完整个流程（研究 → 脚本 → TTS → Remotion 合�
 - **video-podcast-maker** —— 完整制作管线（本 README 的主角）
 - **[video-podcast-maker-lite](skills/video-podcast-maker-lite/)** —— 极简个人管线：Azure SSML TTS + Remotion，不带模板
 - **[video-podcast-maker-nano](skills/video-podcast-maker-nano/)** —— 工具无关的纯逻辑管线（任意 TTS 后端、任意视频工具）；默认全自动，审查级别按项目配置
-- **video-podcast-maker-factory** —— 仅指南，用于把 lite fork 成个人 `video-podcast-maker-xxx` 变体
 
 **外部技能：**
 

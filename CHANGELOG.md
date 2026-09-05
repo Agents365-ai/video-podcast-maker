@@ -2,6 +2,13 @@
 
 ## 5.3.0
 
+### Removed
+
+- **video-podcast-maker-factory skill.** The guide-only "fork lite into a
+  personal variant" skill is dropped; README/README_CN/AGENTS.md no longer
+  list it as a variant (its purpose was a hand-written guide with no runtime
+  code, superseded by the lite/nano split).
+
 ### Changed
 
 - **Variant skills point at the canonical source.** `lite` and `nano` each add a
