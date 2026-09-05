@@ -52,24 +52,66 @@ def test_env_example_covers_required_env_vars():
     assert not missing, f".env.example missing env vars: {missing}"
 
 
-# Backends/component-skills removed in v5.3.0's local-TTS change. Any of these
-# turning up in the docs is a stale reference to a deleted platform.
-REMOVED_TTS_PLATFORMS = (
-    "TTSCN_HOME", "doubao", "cosyvoice", "tencent", "baidu", "minimax",
-    "xunfei", "elevenlabs", "openai", "google",
+# Backends/component-skills removed in v5.3.0's local-TTS change. A stale
+# reference shows up as a backend-specific env var / TTS_BACKEND value / module
+# name, NOT as a bare company/product word ("OpenAI" as a vendor, "minimax" in
+# a math sentence, "doubao" in a year example are all false positives). So the
+# guard matches backend-identity markers, not the bare platform words.
+REMOVED_TTS_MARKERS = (
+    "TTSCN_HOME",
+    # backend-specific env vars (only exist for removed platforms)
+    "VOLCENGINE_APPID", "VOLCENGINE_ACCESS_TOKEN",
+    "TENCENT_SECRET_ID", "TENCENT_SECRET_KEY",
+    "BAIDU_APP_ID", "BAIDU_API_KEY", "BAIDU_SECRET_KEY",
+    "MINIMAX_API_KEY", "XUNFEI_APP_ID", "XUNFEI_API_KEY", "XUNFEI_API_SECRET",
+    "ELEVENLABS_API_KEY", "GOOGLE_TTS_API_KEY", "OPENAI_API_KEY",
+    # module paths for the removed bridge
+    "backends/minimax", "backends/cosyvoice", "backends/doubao", "backends/tencent",
+    "backends/baidu", "backends/xunfei", "backends/elevenlabs", "backends/openai",
+    "backends/google",
 )
+
+# Config + docs that could drift back to naming a removed backend.
+REMOVED_PLATFORM_SCAN_FILES = [
+    SKILL_ROOT / ".env.example",
+    SKILL_ROOT / "SKILL.md",
+    SKILL_ROOT / "references" / "workflow-production.md",
+    SKILL_ROOT / "references" / "troubleshooting.md",
+    SKILL_ROOT / "references" / "natural-narration.md",
+    SKILL_ROOT / "references" / "workflow-script.md",
+]
 
 
 def test_env_example_has_no_removed_platforms():
-    """.env.example must not name any TTS platform removed since v5.3.0.
+    """.env.example must not name any TTS backend removed since v5.3.0.
 
     The prior .env.example still listed TTSCN_HOME and the doubao/cosyvoice/
     tencent/... backends long after they were removed, because only the
     "must include" direction was guarded. This is the inverse: the file must
     not carry removed platforms either."""
-    env_example = (SKILL_ROOT / ".env.example").read_text(encoding="utf-8")
-    hits = [p for p in REMOVED_TTS_PLATFORMS if p.lower() in env_example.lower()]
-    assert not hits, f".env.example names removed TTS platform(s): {hits}"
+    _assert_no_removed_platforms(SKILL_ROOT / ".env.example")
+
+
+def test_docs_have_no_removed_platforms():
+    """SKILL.md + refs must not reference a removed TTS backend.
+
+    Matches backend-identity markers (env vars, module paths, TTSCN_HOME), so
+    bare vendor/product words like "OpenAI" or "Google" and non-TTS uses of
+    "minimax" / "doubao" do not trip it."""
+    for path in REMOVED_PLATFORM_SCAN_FILES[1:]:
+        _assert_no_removed_platforms(path)
+
+
+def _assert_no_removed_platforms(path):
+    """Assert a file contains no removed-backend marker."""
+    if not path.exists():
+        return
+    hits = []
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        for marker in REMOVED_TTS_MARKERS:
+            if marker.lower() in line.lower():
+                hits.append(f"{path.name}:{lineno} {marker}")
+    assert not hits, f"stale removed TTS backend reference(s): {hits}"
 
 
 def test_native_boundary_platform_lists_match():

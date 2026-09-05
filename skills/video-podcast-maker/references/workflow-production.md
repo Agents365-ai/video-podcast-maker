@@ -119,10 +119,10 @@ Override per-run (without editing user_prefs): `TTS_BACKEND=edge TTS_RATE="+10%"
 
 The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, the backend uses its own default voice. Reference recommendations:
 
-| Language | Azure | Edge | Doubao | CosyVoice |
-|----------|-------|------|--------|-----------|
-| zh-CN | zh-CN-XiaoxiaoNeural | zh-CN-XiaoxiaoNeural | BV001_streaming | longxiaochun |
-| en-US | en-US-JennyNeural | en-US-JennyNeural | BV700_streaming | longlaoshu_v2 |
+| Language | Azure | Edge |
+|----------|-------|------|
+| zh-CN | zh-CN-XiaoxiaoNeural | zh-CN-XiaoxiaoNeural |
+| en-US | en-US-JennyNeural | en-US-JennyNeural |
 
 **Manual override (one-off run, no prefs change)** — set `TTS_VOICE`:
 

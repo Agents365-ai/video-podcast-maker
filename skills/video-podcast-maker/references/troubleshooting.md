@@ -196,7 +196,7 @@ npx remotion still src/remotion/index.ts MyVideo videos/test.png --public-dir vi
 
 **Symptoms**: `timing.json` shows wrong durations for some sections (e.g., a short paragraph gets 52s, a long one gets 31s). Console shows `⚠ 估算, 未找到:` warnings.
 
-**Cause**: The section matcher tries to find each section's first text in the word-boundary stream. Some TTS backends return word boundaries in spoken form (e.g., MiniMax returns "三十七" for "37"), which won't match the written form in `podcast.txt`. The matcher falls back to estimation, which can be inaccurate.
+**Cause**: The section matcher tries to find each section's first text in the word-boundary stream. The backend reports spoken-form tokens for numbers/aliases (e.g. "三十七" for "37"), which the conversion layer maps back to display text — if that mapping is imperfect, a token may not match the written form in `podcast.txt`. The matcher falls back to estimation, which can be inaccurate.
 
 **Solution**: After TTS, always verify section timing alignment:
 
@@ -491,13 +491,3 @@ Run `references list` — orphaned entries are auto-cleaned on list.
 - **Workaround**: If subtitle precision is critical, use `TTS_BACKEND=azure` or `edge` (both report native per-word timings).
 
 ---
-
-### Doubao TTS: API Error Codes
-
-**Symptoms**: `Doubao API error code=XXXX`
-
-**Common codes**:
-
-- `code != 3000`: Non-success response. Check VOLCENGINE_APPID and VOLCENGINE_ACCESS_TOKEN.
-- HTTP 401/403: Invalid or expired access token. Regenerate at [Volcengine Console](https://console.volcengine.com/speech/service/8).
-- Timeout: Increase via `VOLCENGINE_TIMEOUT_SEC` env var (default: 60s).
