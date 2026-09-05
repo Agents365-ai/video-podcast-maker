@@ -52,6 +52,26 @@ def test_env_example_covers_required_env_vars():
     assert not missing, f".env.example missing env vars: {missing}"
 
 
+# Backends/component-skills removed in v5.3.0's local-TTS change. Any of these
+# turning up in the docs is a stale reference to a deleted platform.
+REMOVED_TTS_PLATFORMS = (
+    "TTSCN_HOME", "doubao", "cosyvoice", "tencent", "baidu", "minimax",
+    "xunfei", "elevenlabs", "openai", "google",
+)
+
+
+def test_env_example_has_no_removed_platforms():
+    """.env.example must not name any TTS platform removed since v5.3.0.
+
+    The prior .env.example still listed TTSCN_HOME and the doubao/cosyvoice/
+    tencent/... backends long after they were removed, because only the
+    "must include" direction was guarded. This is the inverse: the file must
+    not carry removed platforms either."""
+    env_example = (SKILL_ROOT / ".env.example").read_text(encoding="utf-8")
+    hits = [p for p in REMOVED_TTS_PLATFORMS if p.lower() in env_example.lower()]
+    assert not hits, f".env.example names removed TTS platform(s): {hits}"
+
+
 def test_native_boundary_platform_lists_match():
     """Docs stating the native word-boundary platforms must carry the full list.
 
