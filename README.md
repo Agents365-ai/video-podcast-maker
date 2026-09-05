@@ -131,8 +131,8 @@ export TTS_RATE="+5%"                      # optional; also settable in user_pre
 export TTS_STYLE="gentle"                  # optional; azure only
 export AZURE_SPEECH_KEY="..."              # keys for azure (see table above)
 export AZURE_SPEECH_REGION="eastasia"      # azure speech region
-export GEMINI_API_KEY="..."                # optional: AI thumbnails
-export DASHSCOPE_API_KEY="..."             # optional: AI thumbnails (also the cosyvoice TTS key)
+export GEMINI_API_KEY="..."                # optional: AI thumbnails (imagencn)
+export DASHSCOPE_API_KEY="..."             # optional: AI thumbnails (imagencn; ark/hunyuan/zhipu/step also work)
 ```
 
 Then reload: `source ~/.zshrc`

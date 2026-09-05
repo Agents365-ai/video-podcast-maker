@@ -126,7 +126,8 @@ export TTS_RATE="+5%"                      # 可选；也可写入 user_prefs.js
 export TTS_STYLE="gentle"                  # 可选；仅 azure 生效
 export AZURE_SPEECH_KEY="..."              # 仅 azure 需要（见上表）
 export AZURE_SPEECH_REGION="eastasia"      # azure 语音区域
-export GEMINI_API_KEY="..."                # 可选：AI 封面
+export GEMINI_API_KEY="..."                # 可选：AI 封面（imagencn）
+export DASHSCOPE_API_KEY="..."             # 可选：AI 封面（imagencn；ark/混元/智谱/step 亦可）
 ```
 
 然后重新加载：`source ~/.zshrc`
