@@ -481,15 +481,14 @@ Run `references list` — orphaned entries are auto-cleaned on list.
 
 **Explanation**: The phoneme dictionary is applied by the local backend, which has a pronunciation-override mechanism on `azure` (SSML `<phoneme>`). The edge backend consumes plain text and ignores the file.
 
-**Workaround**: If pronunciation accuracy is critical, use `TTS_BACKEND=azure` or `TTS_BACKEND=minimax`.
+**Workaround**: If pronunciation accuracy is critical, use `TTS_BACKEND=azure`.
 
 ---
 
 ### Word-Boundary Precision by Platform
 
 - **Native per-word timings**: both local backends (`edge`, `azure`) report boundary events — the backend shifts offsets per chunk
-- **All other platforms**: subtitle timing is estimated by distributing each measured chunk duration across its characters (chunks are capped at 400 chars to bound the error)
-- **Workaround**: If subtitle precision is critical, use one of the native-boundary platforms (`edge`, `azure`, `doubao`, `minimax`, `cosyvoice`)
+- **Workaround**: If subtitle precision is critical, use `TTS_BACKEND=azure` or `edge` (both report native per-word timings).
 
 ---
 
