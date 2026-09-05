@@ -1,5 +1,55 @@
 # Changelog
 
+## 5.3.0
+
+### Changed
+
+- **Variant skills point at the canonical source.** `lite` and `nano` each add a
+  provenance note naming the full skill's `natural-narration.md` +
+  `script-polish.md` as the source-of-truth for script-style rules (they stay
+  standalone, so this is a route-for-edits pointer, not a hard import). New
+  `tests/test_docs_consistency.py::test_variant_skills_point_at_canonical_script_style_source`
+  guards it against future drift.
+
+- **Lucide icons are tree-shaken.** `templates/components/iconMap.ts` replaced
+  the dynamic `import * as LucideIcons` + runtime index lookup (which shipped
+  every ~1600 icon, ~0.7 MB in the render bundle) with a curated static
+  whitelist covering the design-guide.md semantic-mapping table + template
+  defaults. Bundled icon payload drops to ~40 KB; unused icons are now dropped
+  by the bundler. Icons outside the whitelist fall back to emoji / `[name]`.
+- **Lottie is optional.** `@remotion/lottie` + `lottie-web` moved from
+  `dependencies` to `optionalDependencies` in package.json (the default template
+  path never imports `LottieAnimation`). The component documents a per-project
+  install for videos that use it.
+- **One-time install cost is documented.** Both READMEs now call out the
+  ~2.2 GB npm + ~90 MB Chrome headless shell cost of a fresh Remotion project
+  and recommend reusing an existing one. `remotion-best-practices` is reworded
+  from "REQUIRED" to "Recommended" (the skill carries minimum fallback rules).
+
+### Removed
+
+- **ttscn component skill dependency.** All TTS now synthesizes locally
+  (`scripts/tts/backends/native.py`) for the two self-contained backends:
+  **edge** (default, free, no key, via edge-tts) and **azure** (Speech SDK,
+  needs `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION`). The 9-backend matrix that
+  ttscn provided (cosyvoice, doubao, tencent, baidu, minimax, xunfei,
+  elevenlabs, openai, google) is no longer a requirement; users who want them
+  install ttsCN separately. `SKILL.md` `dependencies`, the `tts/backends`
+  routing table, `components.py`, `check_prereqs.py`, `.env.example`, and the
+  READMEs all updated.
+- The `BACKENDS` registry is now `edge | azure`; `prefs_schema.json` and
+  `.env.example` narrowed accordingly.
+
+### Changed
+
+- **Pronunciation layer moved in-house.** The display → spoken → display-back
+  number/alias conversion and phoneme application (ported from the lite
+  skill's `tts.py`) now live in `scripts/tts/backends/native.py`. Both local
+  backends report native word boundaries; the section matcher and SRT consume
+  the same display-text contract.
+- `tests/ttscn_bridge.py` / `tests/ttscn_boundaries.py` replaced by
+  `tests/native_backend.py` (routing + pronunciation + boundary-mapping).
+
 ## 5.2.1
 
 ### Security

@@ -294,7 +294,7 @@ Read podcast.txt sentence by sentence. For every Chinese polyphone risk, pick th
 
 ### Pass 2 — English term review
 
-On the azure platform, ttscn auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but the wrapping has known gaps:
+On the azure platform, the backend auto-wraps ASCII runs in `<lang xml:lang="en-US">`, but the wrapping has known gaps:
 
 - **Hyphenated names**: `tldraw-cli` → only `cli` may get wrapped; `tldraw` reads through the voice's default Chinese pronunciation of letters.
 - **Initialisms**: `API`, `URL`, `MCP` are wrapped as words. If you intend letter-by-letter reading, add an **inline marker** in podcast.txt: `配置 API[ei pi ai] 后...`

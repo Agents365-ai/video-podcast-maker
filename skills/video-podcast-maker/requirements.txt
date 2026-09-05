@@ -1,7 +1,9 @@
-# No Python packages required by the core pipeline (stdlib only).
+# Python packages for the edge and azure TTS backends.
 #
-# TTS synthesis is delegated to the ttscn component skill, which brings its
-# own per-provider dependencies: https://github.com/Agents365-ai/ttsCN
+# edge (default, free): voice via the Azure edge endpoint.
+edge-tts
+# azure: Microsoft Speech SDK (needs AZURE_SPEECH_KEY / AZURE_SPEECH_REGION).
+azure-cognitiveservices-speech
 
 # Design learning (optional)
 # playwright             # Only needed for scripts/learn_design.py URL analysis

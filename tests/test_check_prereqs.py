@@ -4,17 +4,7 @@ from unittest.mock import patch
 import pytest
 
 # scripts/ is on sys.path via tests/conftest.py
-import components  # noqa: E402
 from check_prereqs import check_prereqs, REQUIRED_BINS  # noqa: E402
-
-
-@pytest.fixture(autouse=True)
-def ttscn_installed(monkeypatch):
-    """Every backend now requires the ttscn component — pretend it's
-    installed so tests don't depend on this machine; tests that exercise
-    the missing-component path override this."""
-    monkeypatch.setattr(components, "find_component",
-                        lambda name: ("/x", "/x/scripts/tts.py"))
 
 
 def _all_bins_present(name):
@@ -86,22 +76,6 @@ def test_missing_env_var_for_azure():
     assert state['missing_env_vars'] == ['AZURE_SPEECH_KEY']
 
 
-def test_missing_multiple_env_vars_for_doubao():
-    env = {}  # no VOLCENGINE_*
-    with patch('check_prereqs.shutil.which', _all_bins_present), \
-         patch('check_prereqs.resolve_backend', _make_resolve_backend('doubao', 'env')):
-        state = check_prereqs(env=env)
-    assert set(state['missing_env_vars']) == {'VOLCENGINE_APPID', 'VOLCENGINE_ACCESS_TOKEN'}
-
-
-def test_partial_env_var_present():
-    env = {'VOLCENGINE_APPID': 'xxx'}  # token still missing
-    with patch('check_prereqs.shutil.which', _all_bins_present), \
-         patch('check_prereqs.resolve_backend', _make_resolve_backend('doubao', 'env')):
-        state = check_prereqs(env=env)
-    assert state['missing_env_vars'] == ['VOLCENGINE_ACCESS_TOKEN']
-
-
 # --- both-missing path ---------------------------------------------------
 
 def test_both_bins_and_env_missing():
@@ -161,15 +135,14 @@ def test_known_backend_flags_backend_known_true():
     assert state['backend_known'] is True
 
 
-# --- ttscn component check (required for every backend) ------------------
+# --- component check (no longer required — backends are local) ---------------
 
-@pytest.mark.parametrize('backend', ['edge', 'azure'])
-def test_missing_ttscn_component_reported_for_any_backend(monkeypatch, backend):
-    monkeypatch.setattr(components, 'find_component', lambda name: (None, None))
+
+def test_missing_components_is_empty():
     with patch('check_prereqs.shutil.which', _all_bins_present), \
-         patch('check_prereqs.resolve_backend', _make_resolve_backend(backend, 'env')):
+         patch('check_prereqs.resolve_backend', _make_resolve_backend('edge', 'default')):
         state = check_prereqs(env={})
-    assert state['missing_components'] == ['ttscn']
+    assert state['missing_components'] == []
 
 
 def test_installed_component_passes():
@@ -179,8 +152,7 @@ def test_installed_component_passes():
     assert state['missing_components'] == []
 
 
-def test_unknown_backend_skips_component_check(monkeypatch):
-    monkeypatch.setattr(components, 'find_component', lambda name: (None, None))
+def test_unknown_backend_skips_component_check():
     with patch('check_prereqs.shutil.which', _all_bins_present), \
          patch('check_prereqs.resolve_backend', _make_resolve_backend('mystery', 'env')):
         state = check_prereqs(env={})

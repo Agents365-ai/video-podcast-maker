@@ -34,5 +34,5 @@ python3 scripts/verify_output.py videos/{name}/
 
 - Node 18+, Python 3.8+, FFmpeg
 - Remotion (`npm install` in project root)
-- ttscn component skill (required for TTS)
-- remotion-best-practices skill (required for Remotion guidance)
+- `pip install -r requirements.txt` (edge-tts for the default edge backend; azure-cognitiveservices-speech for the azure backend)
+- remotion-best-practices skill (recommended for Remotion guidance)

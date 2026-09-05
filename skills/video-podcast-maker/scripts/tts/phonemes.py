@@ -1,13 +1,13 @@
 """Chinese phoneme (多音字) dictionary loading for TTS.
 
 vpm only loads/merges phoneme dictionaries and extracts inline annotations;
-the merged dict is written to a file and passed to ttscn via --phonemes,
-which applies it per platform (azure SSML <phoneme>, minimax pinyin).
+the merged dict is written to a file and passed to the local backend via
+--phonemes, which applies it per platform (azure SSML <phoneme>).
 """
 
+import json
 import os
 import re
-import json
 import tempfile
 
 from _state import get_skill_dir, resolve_state_file
@@ -51,15 +51,15 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
     # concurrent session in another project never reads a partial file)
     if os.path.exists(template_path):
         if not os.path.exists(global_path):
-            with open(template_path, "r", encoding="utf-8") as f:
+            with open(template_path, encoding="utf-8") as f:
                 _atomic_write_json(json.load(f), global_path)
             print("✓ Created phonemes.json from template")
         else:
-            with open(template_path, "r", encoding="utf-8") as f:
+            with open(template_path, encoding="utf-8") as f:
                 template_data = {
                     k: v for k, v in json.load(f).items() if not k.startswith("_")
                 }
-            with open(global_path, "r", encoding="utf-8") as f:
+            with open(global_path, encoding="utf-8") as f:
                 user_data = json.load(f)
             user_entries = {k: v for k, v in user_data.items() if not k.startswith("_")}
             new_entries = {
@@ -75,14 +75,14 @@ def load_phoneme_dicts(input_file, phoneme_file=None):
     merged = {}
 
     if os.path.exists(global_path):
-        with open(global_path, "r", encoding="utf-8") as f:
+        with open(global_path, encoding="utf-8") as f:
             data = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
             merged.update(data)
             print(f"Global phoneme dictionary: {global_path} ({len(data)} entries)")
 
     override_path = phoneme_file if phoneme_file else project_path
     if override_path and os.path.exists(override_path):
-        with open(override_path, "r", encoding="utf-8") as f:
+        with open(override_path, encoding="utf-8") as f:
             data = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
             merged.update(data)
             print(f"Project phoneme dictionary: {override_path} ({len(data)} entries)")

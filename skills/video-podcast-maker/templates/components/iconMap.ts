@@ -1,31 +1,230 @@
-import * as LucideIcons from "lucide-react";
+import {
+ Activity,
+ AlertCircle,
+ AlertTriangle,
+ AppWindow,
+ Archive,
+ ArrowUpRight,
+ BadgeCheck,
+ Ban,
+ Banknote,
+ BarChart3,
+ Bell,
+ BookOpen,
+ Bot,
+ Braces,
+ Brain,
+ BrainCircuit,
+ Brush,
+ Cable,
+ Calendar,
+ ChartLine,
+ ChartNoAxesCombined,
+ CheckCircle,
+ CircleCheck,
+ Clapperboard,
+ Clock,
+ Cloud,
+ Code,
+ Cog,
+ Coins,
+ Compass,
+ Database,
+ DollarSign,
+ Earth,
+ Figma,
+ FileCode,
+ Film,
+ Gauge,
+ GitBranch,
+ Globe,
+ GraduationCap,
+ Handshake,
+ HardDrive,
+ HeartPulse,
+ Hourglass,
+ KeyRound,
+ Lamp,
+ Languages,
+ Lightbulb,
+ Link,
+ Lock,
+ Mail,
+ Map,
+ Megaphone,
+ MessageCircle,
+ Monitor,
+ NotebookPen,
+ Palette,
+ PenTool,
+ Phone,
+ PieChart,
+ Pill,
+ PlayCircle,
+ Plug,
+ Puzzle,
+ Radar,
+ Repeat,
+ Rocket,
+ Route,
+ Save,
+ Scan,
+ School,
+ Search,
+ Server,
+ Settings,
+ Shield,
+ ShieldAlert,
+ ShieldCheck,
+ SlidersHorizontal,
+ Smartphone,
+ Sparkles,
+ Sprout,
+ Star,
+ Stethoscope,
+ Tablet,
+ Target,
+ Terminal,
+ ThumbsUp,
+ Timer,
+ TrendingUp,
+ Trophy,
+ Users,
+ UsersRound,
+ Video,
+ Wallet,
+ Wand,
+ Workflow,
+ Wrench,
+ Zap,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
- * Convert kebab-case or lowercase icon names to PascalCase for Lucide lookup.
- * Examples: "arrow-right" → "ArrowRight", "rocket" → "Rocket", "cpu" → "Cpu"
+ * Curated Lucide icon whitelist (kebab-case name -> component).
+ *
+ * This is the static, tree-shakeable counterpart of a dynamic
+ * `import * as LucideIcons` + runtime index lookup, which forces the bundler
+ * to ship EVERY lucide icon (~1600 components, 45 MB source) in the
+ * composition bundle. Because each name here is a named import, unused icons
+ * are dropped by tree-shaking.
+ *
+ * The set covers the design-guide.md "Icon Selection Guide" semantic-mapping
+ * table (recommended + alternatives) plus the default icons used by the
+ * bundled templates. Icons NOT listed here fall back to emoji (via `isEmoji`)
+ * or a `[name]` text placeholder in Icon.tsx — the guide instructs agents to
+ * use the semantic names anyway, so this is the document-supported surface.
  */
-function toPascalCase(name: string): string {
-  return name
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+const ICON_MAP: Record<string, LucideIcon> = {
+ activity: Activity,
+ "alert-circle": AlertCircle,
+ "alert-triangle": AlertTriangle,
+ "app-window": AppWindow,
+ archive: Archive,
+ "arrow-up-right": ArrowUpRight,
+ "badge-check": BadgeCheck,
+ ban: Ban,
+ banknote: Banknote,
+ "bar-chart-3": BarChart3,
+ bell: Bell,
+ "book-open": BookOpen,
+ bot: Bot,
+ braces: Braces,
+ brain: Brain,
+ "brain-circuit": BrainCircuit,
+ brush: Brush,
+ cable: Cable,
+ calendar: Calendar,
+ "chart-line": ChartLine,
+ "chart-no-axes-combined": ChartNoAxesCombined,
+ "check-circle": CheckCircle,
+ "circle-check": CircleCheck,
+ clapperboard: Clapperboard,
+ clock: Clock,
+ cloud: Cloud,
+ code: Code,
+ cog: Cog,
+ coins: Coins,
+ compass: Compass,
+ database: Database,
+ "dollar-sign": DollarSign,
+ earth: Earth,
+ figma: Figma,
+ "file-code": FileCode,
+ film: Film,
+ gauge: Gauge,
+ "git-branch": GitBranch,
+ globe: Globe,
+ "graduation-cap": GraduationCap,
+ handshake: Handshake,
+ "hard-drive": HardDrive,
+ "heart-pulse": HeartPulse,
+ hourglass: Hourglass,
+ "key-round": KeyRound,
+ lamp: Lamp,
+ languages: Languages,
+ lightbulb: Lightbulb,
+ link: Link,
+ lock: Lock,
+ mail: Mail,
+ map: Map,
+ megaphone: Megaphone,
+ "message-circle": MessageCircle,
+ monitor: Monitor,
+ "notebook-pen": NotebookPen,
+ palette: Palette,
+ "pen-tool": PenTool,
+ phone: Phone,
+ "pie-chart": PieChart,
+ pill: Pill,
+ "play-circle": PlayCircle,
+ plug: Plug,
+ puzzle: Puzzle,
+ radar: Radar,
+ repeat: Repeat,
+ rocket: Rocket,
+ route: Route,
+ save: Save,
+ scan: Scan,
+ school: School,
+ search: Search,
+ server: Server,
+ settings: Settings,
+ shield: Shield,
+ "shield-alert": ShieldAlert,
+ "shield-check": ShieldCheck,
+ "sliders-horizontal": SlidersHorizontal,
+ smartphone: Smartphone,
+ sparkles: Sparkles,
+ sprout: Sprout,
+ star: Star,
+ stethoscope: Stethoscope,
+ tablet: Tablet,
+ target: Target,
+ terminal: Terminal,
+ "thumbs-up": ThumbsUp,
+ timer: Timer,
+ "trending-up": TrendingUp,
+ trophy: Trophy,
+ users: Users,
+ "users-round": UsersRound,
+ video: Video,
+ wallet: Wallet,
+ wand: Wand,
+ workflow: Workflow,
+ wrench: Wrench,
+ zap: Zap,
+};
 
 /**
- * Look up any Lucide icon by name (kebab-case, lowercase, or PascalCase).
- * Returns undefined if not found.
+ * Look up a Lucide icon by kebab-case name. Returns undefined if not in the
+ * curated whitelist.
  */
 export function getLucideIcon(name: string): LucideIcon | undefined {
-  const pascalName = toPascalCase(name);
-  const icon = (LucideIcons as Record<string, unknown>)[pascalName];
-  if (typeof icon === "function") {
-    return icon as LucideIcon;
-  }
-  return undefined;
+ return ICON_MAP[name];
 }
 
 export const isEmoji = (s: string): boolean => {
-  if (s.length > 4) return false;
-  return /\p{Emoji}/u.test(s);
+ if (s.length > 4) return false;
+ return /\p{Emoji}/u.test(s);
 };

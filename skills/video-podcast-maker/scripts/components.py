@@ -2,10 +2,13 @@
 """Capability probe for optional component skills.
 
 video-podcast-maker delegates asset production to sibling skills (assetseeker,
-imagencn, videogencn, ttscn) by invoking their CLI scripts as subprocesses.
-This probe reports which components are installed and credentialed BEFORE the
+imagencn, videogencn) by invoking their CLI scripts as subprocesses. This
+probe reports which components are installed and credentialed BEFORE the
 workflow plans assets, so the agent knows which producers it can use and the
 pipeline can degrade gracefully instead of failing mid-run.
+
+TTS is local (edge / azure) since v5.3.0 and no longer routes through a
+component skill, so it is not probed here.
 
 Discovery order per component (first hit wins):
   1. <NAME>_HOME env var (e.g. IMAGENCN_HOME) pointing at the skill root
@@ -74,20 +77,6 @@ COMPONENTS = {
         "env_optional": [],
         "provides": "AI video clips (B-roll, i2v)",
     },
-    "ttscn": {
-        "entry": "scripts/tts.py",
-        "env_any": [],
-        "env_optional": [
-            "VOLCENGINE_APPID",
-            "DASHSCOPE_API_KEY",
-            "AZURE_SPEECH_KEY",
-            "TENCENT_SECRET_ID",
-            "BAIDU_APP_ID",
-            "MINIMAX_API_KEY",
-            "XUNFEI_APP_ID",
-        ],
-        "provides": "TTS engine — required for Step 7 (Edge platform works with no key)",
-    },
 }
 
 
@@ -111,10 +100,10 @@ def _candidate_roots(name):
 def _case_insensitive_path(parent, name):
     """Return an existing child of parent matching name case-insensitively.
 
-    Component dirs use mixed casing across installs (ttsCN vs ttscn,
-    assetSeeker vs assetseeker). macOS's default case-insensitive APFS
-    resolves either spelling, which hides a mismatch until a case-sensitive
-    filesystem (Linux) is used. Falls back to parent/name when nothing matches.
+    Component dirs use mixed casing across installs (assetSeeker vs
+    assetseeker). macOS's default case-insensitive APFS resolves either
+    spelling, which hides a mismatch until a case-sensitive filesystem (Linux)
+    is used. Falls back to parent/name when nothing matches.
     """
     if not parent.is_dir():
         return parent / name

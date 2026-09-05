@@ -96,7 +96,7 @@ Remotion thumbnails too when generating both; verify accepts either naming.
 
 > **Azure-specific gotchas:** if you're using `TTS_BACKEND=azure`, load **[troubleshooting.md → Azure TTS Deep-Dive](troubleshooting.md#azure-tts-deep-dive)** before picking a voice or style — covers voice selection, SSML pitfalls, the style support matrix, and a triage checklist for hoarse/missing/glitchy audio.
 
-**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > ttscn's per-platform default. The script logs which source it picked at startup.
+**Preference application:** `generate_tts.py` reads `user_prefs.tts.{backend, rate, voices.<backend>}` automatically. No manual env extraction needed. Precedence for each setting: env var > `user_prefs.json` > per-backend default. The script logs which source it picked at startup.
 
 ```bash
 # Primary command — backend, rate, and voice all auto-resolved from user_prefs
@@ -111,20 +111,13 @@ python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt -
 
 Override per-run (without editing user_prefs): `TTS_BACKEND=edge TTS_RATE="+10%" python3 ...`. CLI `--backend <name>` also works and takes top priority.
 
-**ttscn engine (required)** — every backend synthesizes through the ttscn
-component skill (`cli.py capabilities` shows the install; `check_prereqs.py`
-fails with an install hint when missing). `TTS_BACKEND` accepts the platform
-id directly: `edge` (default, free), `azure`, `cosyvoice`, `doubao`,
-`tencent`, `baidu`, `minimax`, `xunfei`, `elevenlabs`, `openai`, `google`.
-ttscn renders expressiveness markers
-(`[PAUSE:x]`, sound tags) and applies phonemes per platform. Word
-boundaries: native per-word timings for platforms that report them (edge,
-azure, doubao, minimax, cosyvoice); chunk-level estimation otherwise — both
-feed the same SRT/timing pipeline.
+**Local TTS engine** — synthesis is in-house (`scripts/tts/backends/native.py`); no external component skill is required. `TTS_BACKEND` accepts the platform id directly: `edge` (default, free, no key) or `azure` (needs `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION`). The pronunciation layer converts display numbers to the spoken layer for the voice and maps them back for subtitles; phonemes (`phonemes.json`) apply on both. Word boundaries are native per-word timings for both backends (native-boundary platforms: edge, azure), feeding the same SRT/timing pipeline.
+
+> **Multi-platform matrix?** The former ttscn component skill (cosyvoice, doubao, tencent, baidu, minimax, xunfei, elevenlabs, openai, google) is no longer a dependency. Install [Agents365-ai/ttsCN](https://github.com/Agents365-ai/ttsCN) separately and call it directly if you need those.
 
 ### Voice Selection by Language
 
-The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, `--voice` is omitted and ttscn resolves its own per-platform default. Reference recommendations:
+The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once for the user's preferred language, then `generate_tts.py` picks it up automatically. If nothing is set, the backend uses its own default voice. Reference recommendations:
 
 | Language | Azure | Edge | Doubao | CosyVoice |
 |----------|-------|------|--------|-----------|
@@ -137,11 +130,11 @@ The default path: edit `user_prefs.json` → `global.tts.voices.<backend>` once 
 TTS_VOICE="en-US-JennyNeural" python3 ${SKILL_DIR}/scripts/generate_tts.py --input videos/{name}/podcast.txt --output-dir videos/{name}
 ```
 
-Precedence: env var > `user_prefs.json` > ttscn's per-platform default. The script logs which source it picked at startup.
+**Precedence: env var > `user_prefs.json` > per-backend default. The script logs which source it picked at startup.
 
 ### Phoneme Correction
 
-The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to ttscn, which applies it where the platform supports it (azure → SSML `<phoneme>`, minimax → pinyin annotations; other platforms ignore it). Three tiers (highest to lowest priority):
+The merged dictionary is written to `videos/{name}/phonemes_resolved.json` and passed to the local backend, which applies it (azure → SSML `<phoneme>`; edge-tts builds its own SSML so phonemes apply on azure). Three tiers (highest to lowest priority):
 
 **1. Inline annotation** (highest) — in podcast.txt:
 
