@@ -82,10 +82,6 @@ The agent runs the whole workflow (research → script → TTS → Remotion comp
 
 ![Pipeline](images/pipeline.png)
 
-![Component Skills](images/skills.png)
-
-![Asset Flow](images/assets.png)
-
 ## Related Skills
 
 **Variants in this repo** (`skills/`):

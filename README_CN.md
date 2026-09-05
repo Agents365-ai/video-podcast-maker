@@ -77,10 +77,6 @@ agent 会自动跑完整个流程（研究 → 脚本 → TTS → Remotion 合�
 
 ![流程](images/pipeline-cn.png)
 
-![组件技能](images/skills-cn.png)
-
-![素材流程](images/assets-cn.png)
-
 ## 相关技能
 
 **本仓库内的变体**（`skills/`）：
