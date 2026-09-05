@@ -1,6 +1,6 @@
 # Video Podcast Maker
 
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/network/members)
 [![Latest Release](https://img.shields.io/github/v/release/Agents365-ai/video-podcast-maker?logo=github)](https://github.com/Agents365-ai/video-podcast-maker/releases/latest)
@@ -210,4 +210,4 @@ If this project helps you, consider supporting the author:
 
 ## 📄 License
 
-[CC BY-NC 4.0](LICENSE) — Free for non-commercial use. Commercial use requires permission.
+[MIT](LICENSE) — Permission is hereby granted, free of charge, to any person obtaining a copy of this software.

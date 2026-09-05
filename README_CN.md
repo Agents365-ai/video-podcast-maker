@@ -1,6 +1,6 @@
 # 视频播客生成器
 
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Agents365-ai/video-podcast-maker?style=flat&logo=github)](https://github.com/Agents365-ai/video-podcast-maker/network/members)
 [![Latest Release](https://img.shields.io/github/v/release/Agents365-ai/video-podcast-maker?logo=github)](https://github.com/Agents365-ai/video-podcast-maker/releases/latest)
@@ -209,4 +209,4 @@ videos/{视频名称}/
 
 ## 📄 开源协议
 
-[CC BY-NC 4.0](LICENSE) — 非商业使用免费，商业使用需授权。
+[MIT](LICENSE) — 免费使用、修改、再分发，只要包含版权与许可声明。
