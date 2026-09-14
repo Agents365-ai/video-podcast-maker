@@ -7,7 +7,6 @@
 [![Last Commit](https://img.shields.io/github/last-commit/Agents365-ai/video-podcast-maker?logo=github)](https://github.com/Agents365-ai/video-podcast-maker/commits/main)
 
 [![SkillsMP](https://img.shields.io/badge/SkillsMP-listed-1f6feb)](https://skillsmp.com)
-[![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-8a2be2)](https://github.com/Agents365-ai/365-skills)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-2ea44f)](https://agentskills.io)
 
 [English](README.md)
@@ -35,7 +34,13 @@
 
 ## 快速开始
 
-**1. 安装** — 通过 [365-skills marketplace](https://github.com/Agents365-ai/365-skills) 安装（推荐）或克隆本仓库。
+**1. 安装：** 用 skills CLI 安装完整版技能：
+
+```bash
+npx skills add Agents365-ai/video-podcast-maker/skills/video-podcast-maker -g
+```
+
+去掉 `/skills/video-podcast-maker` 后缀会安装全部三个变体（完整版、`-lite`、`-nano`）；也可以直接克隆本仓库。下文路径均按仓库根目录书写，通过 CLI 安装时同一批文件位于 agent 的 `${SKILL_DIR}` 下。
 
 **2. 环境准备** — Python 3.8+、Node.js 18+、FFmpeg，以及一个 Remotion 项目：
 
@@ -102,7 +107,7 @@ agent 会自动跑完整个流程（研究 → 脚本 → TTS → Remotion 合�
 | **Node.js** | 18+ | Remotion 视频渲染 |
 | **FFmpeg** | 4.0+ | 音视频处理 |
 
-> **推荐通过 marketplace 安装：** 一般用户应通过 [365-skills marketplace](https://github.com/Agents365-ai/365-skills) 安装本技能，而非克隆本仓库。届时 SKILL.md / scripts / templates 位于 agent 暴露的 `${SKILL_DIR}` 路径下；README 中的路径写法是面向贡献者（仓库根目录视角）。
+> **通过 skills CLI 安装的？** 届时 SKILL.md / scripts / templates 位于 agent 暴露的 `${SKILL_DIR}` 路径下；README 中的路径写法是仓库根目录视角，也就是克隆安装后的样子。
 
 ### TTS 后端（本地）
 
@@ -134,7 +139,7 @@ export DASHSCOPE_API_KEY="..."             # 可选：AI 封面（imagencn；ark
 
 ## 配置文件
 
-可变用户级文件位于 `~/.video-podcast-maker/`（所有项目共享，技能更新不会覆盖）；其余文件位于技能根目录（本仓库为 `skills/video-podcast-maker/`，marketplace 安装后为 `${SKILL_DIR}`）：
+可变用户级文件位于 `~/.video-podcast-maker/`（所有项目共享，技能更新不会覆盖）；其余文件位于技能根目录（本仓库为 `skills/video-podcast-maker/`，通过 skills CLI 安装后为 `${SKILL_DIR}`）：
 
 | 文件 | 位置 | 说明 |
 | ------ | -------- | ------ |
