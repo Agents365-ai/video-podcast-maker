@@ -8,6 +8,13 @@
   personal variant" skill is dropped; README/README_CN/AGENTS.md no longer
   list it as a variant (its purpose was a hand-written guide with no runtime
   code, superseded by the lite/nano split).
+- **365-skills marketplace distribution.** The `sync-365-skills` workflow is
+  gone and this repository is the only source and install channel: `README` /
+  `README_CN` / `AGENTS.md` drop the marketplace install path, the Claude Code
+  Plugin badge, and the `(synced to the 365-skills marketplace ...)` note.
+  Install with `npx skills add Agents365-ai/video-podcast-maker/skills/video-podcast-maker -g`
+  (append nothing to install all three variants) or clone the repo. The mirror
+  had been stale since 2026-09-05 (5.2.1 against this repo's 5.3.0).
 
 ### Changed
 

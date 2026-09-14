@@ -7,7 +7,6 @@
 [![Last Commit](https://img.shields.io/github/last-commit/Agents365-ai/video-podcast-maker?logo=github)](https://github.com/Agents365-ai/video-podcast-maker/commits/main)
 
 [![SkillsMP](https://img.shields.io/badge/SkillsMP-listed-1f6feb)](https://skillsmp.com)
-[![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-8a2be2)](https://github.com/Agents365-ai/365-skills)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-2ea44f)](https://agentskills.io)
 
 [中文文档](README_CN.md)
@@ -35,7 +34,13 @@ Automated pipeline to create professional video podcasts from a topic. **Support
 
 ## Quick Start
 
-**1. Install** — via the [365-skills marketplace](https://github.com/Agents365-ai/365-skills) (recommended) or by cloning this repo.
+**1. Install:** with the skills CLI, pointing at the full skill:
+
+```bash
+npx skills add Agents365-ai/video-podcast-maker/skills/video-podcast-maker -g
+```
+
+Drop the `/skills/video-podcast-maker` suffix to install all three variants (full, `-lite`, `-nano`), or clone this repo instead. Paths below are written from the repo root; under a skills CLI install the same files live in the agent's `${SKILL_DIR}`.
 
 **2. Set up** — Python 3.8+, Node.js 18+, FFmpeg, and a Remotion project:
 
@@ -107,7 +112,7 @@ The agent runs the whole workflow (research → script → TTS → Remotion comp
 | **Node.js** | 18+ | Remotion video rendering |
 | **FFmpeg** | 4.0+ | Audio/video processing |
 
-> **Marketplace install (recommended):** users typically install this skill via the [365-skills marketplace](https://github.com/Agents365-ai/365-skills) rather than cloning. SKILL.md, scripts, and templates then live under the agent's `${SKILL_DIR}`; paths in this README are written from the repo-root perspective for contributors.
+> **Installed through the skills CLI?** SKILL.md, scripts, and templates then live under the agent's `${SKILL_DIR}`; paths in this README are written from the repo-root perspective, which is what a clone gives you.
 
 ### TTS Backends (local)
 

@@ -84,7 +84,7 @@ SKILL_DIR="${SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 python3 "${SKILL_DIR}/scripts/check_prereqs.py"
 ```
 
-Updates flow through the plugin marketplace (`/plugin update`); direct git-clone installs use `git pull` per the README. This skill performs no update checks.
+Updates flow through the skills CLI (`npx skills update video-podcast-maker -g`); direct git-clone installs use `git pull` per the README. This skill performs no update checks.
 
 **Prereqs failures** — see README.md for setup. The check is backend-aware (resolves `TTS_BACKEND` env → `user_prefs.json` `global.tts.backend` → `edge` default), so only env vars required by the active backend are validated.
 
