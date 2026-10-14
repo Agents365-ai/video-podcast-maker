@@ -1,6 +1,10 @@
 """Tests for scripts/cli.py — dispatcher table and schema introspection."""
 import argparse
+import json
 import os
+import re
+import subprocess
+import sys
 
 import pytest
 
@@ -143,3 +147,72 @@ def test_resource_subparsers_have_expected_actions():
     design_sub = next(a for a in design_parser._actions
                        if isinstance(a, argparse._SubParsersAction))
     assert {'list', 'show', 'delete', 'add'} == set(design_sub.choices.keys())
+
+
+@pytest.fixture(scope='module')
+def design_delete_schema():
+    """Read the real design.delete schema through the current interpreter."""
+    result = subprocess.run(
+        [sys.executable, os.path.join(dispatcher.SCRIPTS_DIR, 'cli.py'),
+         'schema', 'design.delete', '--format', 'json'],
+        cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        capture_output=True, text=True, timeout=30, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stderr == ''
+    envelope = json.loads(result.stdout)
+    assert set(envelope) == {'ok', 'data', 'meta'}
+    assert envelope['ok'] is True
+    assert envelope['meta'] == {
+        'request_id': envelope['meta']['request_id'],
+        'schema_version': '1.0.0',
+    }
+    assert re.fullmatch(r'[0-9a-f]{12}', envelope['meta']['request_id'])
+    data = envelope['data']
+    params = data.pop('params')
+    assert data == {
+        'method': 'design.delete',
+        'script': 'learn_design.py',
+        'prepend_args': ['--delete'],
+        'description': 'Delete a reference (gated by --yes; positional arg = REF_ID)',
+        'introspection': 'argparse',
+    }
+    assert set(params) == {
+        'inputs', 'name', 'output_dir', 'list', 'show', 'delete', 'yes',
+        'profile', 'tags', 'format',
+    }
+    return params
+
+
+@pytest.mark.parametrize('name, default, help_text', [
+    ('yes', False,
+     'Confirm destructive operations (currently: --delete). Without --yes, '
+     'destructive flags print a preview of what would change and exit 3.'),
+    ('list', False, 'List all design references with size and summary'),
+    ('delete', None,
+     'Delete a design reference (requires --yes; otherwise prints preview).'),
+])
+def test_design_delete_schema_parameter_metadata(design_delete_schema, name,
+                                                default, help_text):
+    record = design_delete_schema[name]
+    assert record == {
+        'type': record['type'],
+        'required': False,
+        'default': default,
+        'choices': None,
+        'help': help_text,
+        'flag': f'--{name}',
+        'positional': False,
+    }
+    assert record['default'] is default
+    assert record['required'] is False
+    assert record['positional'] is False
+
+
+def test_design_delete_schema_string_control(design_delete_schema):
+    assert design_delete_schema['delete']['type'] == 'string'
+
+
+@pytest.mark.parametrize('name', ['yes', 'list'])
+def test_design_delete_schema_boolean_types(design_delete_schema, name):
+    assert design_delete_schema[name]['type'] == 'boolean'

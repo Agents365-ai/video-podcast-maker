@@ -318,7 +318,10 @@ def _params_from_parser(parser):
         if default is argparse.SUPPRESS:
             default = None
         params[action.dest] = {
-            "type": _type_name(action.type),
+            "type": (
+                "boolean" if isinstance(action, argparse._StoreTrueAction)
+                else _type_name(action.type)
+            ),
             "required": getattr(action, "required", False),
             "default": default,
             "choices": list(action.choices) if action.choices else None,
